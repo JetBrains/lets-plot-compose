@@ -15,7 +15,6 @@ class ComposeMouseEventMapper : MouseEventSource, PointerInputEventHandler {
     private val mouseEventPeer = MouseEventPeer()
     private var clickCount: Int = 0
     private var lastClickTime: Long = 0
-    private var pixelDensity: Float = 1.0f
     private var offsetX: Float = 0f
     private var offsetY: Float = 0f
 
@@ -33,8 +32,8 @@ class ComposeMouseEventMapper : MouseEventSource, PointerInputEventHandler {
                 // Convert logical pixel coordinates to physical pixel coordinates for SVG interaction
                 // 1. Scale down by density (logical → physical pixels)
                 // 2. Subtract position offset (which is also in physical pixels)
-                val adjustedX = ((position.x / pixelDensity) - offsetX).roundToInt()
-                val adjustedY = ((position.y / pixelDensity) - offsetY).roundToInt()
+                val adjustedX = ((position.x / density) - offsetX).roundToInt()
+                val adjustedY = ((position.y / density) - offsetY).roundToInt()
                 val vector = Vector(adjustedX, adjustedY)
 
                 val mouseEvent = when {
@@ -58,7 +57,7 @@ class ComposeMouseEventMapper : MouseEventSource, PointerInputEventHandler {
                     PointerEventType.Release -> {
                         if (clickCount > 0) {
                             val pos = event.changes.first().position
-                            dispatchClick(pos, clickCount)
+                            dispatchClick(pos, clickCount, density.toDouble())
                             if (clickCount > 1) {
                                 clickCount = 0 // Reset after a double click
                             }
@@ -98,10 +97,10 @@ class ComposeMouseEventMapper : MouseEventSource, PointerInputEventHandler {
         }
     }
 
-    private fun dispatchClick(position: Offset, clickCount: Int) {
+    private fun dispatchClick(position: Offset, clickCount: Int, density: Double) {
         // Convert logical pixel coordinates to physical pixel coordinates for SVG interaction
-        val adjustedX = ((position.x / pixelDensity) - offsetX).roundToInt()
-        val adjustedY = ((position.y / pixelDensity) - offsetY).roundToInt()
+        val adjustedX = ((position.x / density) - offsetX).roundToInt()
+        val adjustedY = ((position.y / density) - offsetY).roundToInt()
         val vector = Vector(adjustedX, adjustedY)
         val mouseEvent = MouseEvent.leftButton(vector)
 

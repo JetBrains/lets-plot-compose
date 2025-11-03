@@ -59,10 +59,10 @@ fun PlotPanelRawNew(
         println("PlotPanelRaw: recomposition")
     }
 
+    val density = LocalDensity.current.density
     val skiaFontManager = remember { SkiaFontManager() }
     val composeMouseEventMapper = remember { ComposeMouseEventMapper() }
     // Update density on each recomposition to handle monitor DPI changes (e.g., drag between HIDPI/regular monitor)
-    val density = LocalDensity.current.density
 
     // Cache processed plot spec to avoid reprocessing the same raw spec on every recomposition.
     // Note: Use remember(rawSpec.hashCode()), to bypass the equality check and use the content hash directly.
@@ -221,6 +221,7 @@ fun PlotPanelRawNew(
                     redrawTrigger
 
                     val ctx = SkiaContext2d(drawContext.canvas.nativeCanvas, skiaFontManager)
+                    ctx.scale(density.toDouble(), density.toDouble()) // logical → physical pixels
                     
                     ctx.translate(plotPosition.x, plotPosition.y)
                     plotCanvasFigure2.paint(ctx)
