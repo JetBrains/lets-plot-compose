@@ -20,7 +20,7 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import demo.plot.median.ui.DemoList
 import org.jetbrains.letsPlot.Figure
-import org.jetbrains.letsPlot.compose.PlotPanelRaw2
+import org.jetbrains.letsPlot.compose.PlotPanelRaw
 import org.jetbrains.letsPlot.intern.toSpec
 import plotSpec.*
 
@@ -77,7 +77,7 @@ fun main() = application {
                         }
 
                         @Suppress("UNCHECKED_CAST")
-                        PlotPanelRaw2(
+                        PlotPanelRaw(
                             rawSpec = rawSpec as MutableMap<String, Any>,
                             preserveAspectRatio = preserveAspectRatio.value,
                             modifier = Modifier.fillMaxSize()

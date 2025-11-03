@@ -7,7 +7,10 @@ package org.jetbrains.letsPlot.compose
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -19,7 +22,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.dp
 import org.jetbrains.letsPlot.commons.geometry.DoubleVector
 import org.jetbrains.letsPlot.commons.logging.PortableLogging
 import org.jetbrains.letsPlot.commons.registration.CompositeRegistration
@@ -45,12 +47,12 @@ private const val logRecompositions = false
 
 @Suppress("FunctionName")
 @Composable
-fun PlotPanelRaw2(
+fun PlotPanelRawNew(
     rawSpec: MutableMap<String, Any>,
     preserveAspectRatio: Boolean,
     modifier: Modifier,
-    errorTextStyle: TextStyle = TextStyle(color = Color(0xFF700000)),
-    errorModifier: Modifier = Modifier.padding(16.dp),
+    errorTextStyle: TextStyle,
+    errorModifier: Modifier,
     computationMessagesHandler: (List<String>) -> Unit
 ) {
     if (logRecompositions) {
@@ -80,16 +82,17 @@ fun PlotPanelRaw2(
 
     var redrawTrigger by remember { mutableStateOf(0) }
 
+    val skiaCanvasPeer = remember { SkiaCanvasPeer() }
+
     // Reset the old plot on error to prevent blinking
     // We can't reset PlotContainer using updateViewmodel(), so we create a new one.
-    val skiaCanvasPeer = SkiaCanvasPeer()
     val plotCanvasFigure2 = remember(errorMessage) {
         PlotCanvasFigure2().apply {
             eventPeer.addEventSource(composeMouseEventMapper)
         }
     }
 
-    val reg = remember {
+    val reg = remember(plotCanvasFigure2) {
         CompositeRegistration(
             // trigger recomposition on repaint request
             plotCanvasFigure2.onRepaintRequested { redrawTrigger++ },
@@ -113,7 +116,7 @@ fun PlotPanelRaw2(
     }
 
 
-    DisposableEffect(plotCanvasFigure2) {
+    DisposableEffect(reg) {
         onDispose {
             // Try/catch to ensure that any exception in dispose() does not break the Composable lifecycle
             // Otherwise, the app window gets unclosable.

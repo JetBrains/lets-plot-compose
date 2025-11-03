@@ -5,7 +5,6 @@
 
 package org.jetbrains.letsPlot.compose.canvas
 
-import org.jetbrains.letsPlot.core.canvas.FontWeight
 import org.jetbrains.skia.*
 
 class SkiaFontManager {
@@ -58,11 +57,14 @@ class SkiaFontManager {
     fun findFont(f: org.jetbrains.letsPlot.core.canvas.Font): Font {
         val fontStyle = FontStyle(
             when (f.fontWeight) {
-                FontWeight.NORMAL -> org.jetbrains.skia.FontWeight.NORMAL
-                FontWeight.BOLD -> org.jetbrains.skia.FontWeight.BOLD
+                org.jetbrains.letsPlot.core.canvas.FontWeight.NORMAL -> FontWeight.NORMAL
+                org.jetbrains.letsPlot.core.canvas.FontWeight.BOLD -> FontWeight.BOLD
             },
             FontWidth.NORMAL,
-            FontSlant.UPRIGHT
+            when (f.fontStyle) {
+                org.jetbrains.letsPlot.core.canvas.FontStyle.NORMAL -> FontSlant.UPRIGHT
+                org.jetbrains.letsPlot.core.canvas.FontStyle.ITALIC -> FontSlant.ITALIC
+            }
         )
 
         val typeface =  matchFamiliesStyle(listOf(f.fontFamily), fontStyle)

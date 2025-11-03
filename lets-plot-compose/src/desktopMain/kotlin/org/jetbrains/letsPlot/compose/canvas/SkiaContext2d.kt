@@ -154,13 +154,16 @@ class SkiaContext2d(
         val skiaFont = skiaFontManager.findFont(contextState.getFont())
         val r = skiaFont.measureText(str, fillPaint)
 
+        // font.measureText ignores trailing spaces, so we need to use measureTextWidth
+        val w = skiaFont.measureTextWidth(str)
+
         val textMetrics = TextMetrics(
             ascent = r.top.toDouble(),
             descent = r.bottom.toDouble(),
             bbox = DoubleRectangle.XYWH(
                 x = r.left,
                 y = r.top,
-                width = r.width,
+                width = w,
                 height = r.height
             ),
         )

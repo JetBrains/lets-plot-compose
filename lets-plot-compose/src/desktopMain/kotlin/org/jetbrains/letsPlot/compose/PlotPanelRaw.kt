@@ -6,10 +6,7 @@
 package org.jetbrains.letsPlot.compose
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -37,9 +34,39 @@ private val LOG = PortableLogging.logger(name = "[PlotPanelRaw]")
 
 private const val logRecompositions = false
 
-@Suppress("FunctionName")
 @Composable
 actual fun PlotPanelRaw(
+    rawSpec: MutableMap<String, Any>,
+    preserveAspectRatio: Boolean,
+    modifier: Modifier,
+    errorTextStyle: TextStyle,
+    errorModifier: Modifier,
+    computationMessagesHandler: (List<String>) -> Unit
+) {
+    Row(modifier = modifier) {
+        PlotPanelRawOld(
+            rawSpec = rawSpec,
+            preserveAspectRatio = preserveAspectRatio,
+            modifier = Modifier.weight(1f),  // Take half of the available width
+            errorTextStyle = errorTextStyle,
+            errorModifier = errorModifier,
+            computationMessagesHandler = computationMessagesHandler
+        )
+
+        PlotPanelRawNew(
+            rawSpec = rawSpec,
+            preserveAspectRatio = preserveAspectRatio,
+            modifier = Modifier.weight(1f),  // Take half of the available width
+            errorTextStyle = errorTextStyle,
+            errorModifier = errorModifier,
+            computationMessagesHandler = computationMessagesHandler
+        )
+    }
+}
+
+    @Suppress("FunctionName")
+@Composable
+fun PlotPanelRawOld(
     rawSpec: MutableMap<String, Any>,
     preserveAspectRatio: Boolean,
     modifier: Modifier,
