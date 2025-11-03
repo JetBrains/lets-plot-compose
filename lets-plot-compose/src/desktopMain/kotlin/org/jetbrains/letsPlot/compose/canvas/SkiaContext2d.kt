@@ -31,19 +31,48 @@ class SkiaContext2d(
     }
 
     override fun drawImage(snapshot: Snapshot) {
-        //require(snapshot is AndroidSnapshot) { "Snapshot must be of type AndroidSnapshot" }
-        //platformCanvas.drawBitmap(snapshot.platformBitmap, 0f, 0f, null)
+        require(snapshot is SkiaSnapshot) { "Snapshot must be of type SkiaSnapshot" }
+        drawImage(
+            snapshot,
+            0.0,
+            0.0,
+            snapshot.size.x.toDouble(),
+            snapshot.size.y.toDouble(),
+            0.0,
+            0.0,
+            snapshot.size.x.toDouble(),
+            snapshot.size.y.toDouble()
+        )
     }
 
     override fun drawImage(snapshot: Snapshot, x: Double, y: Double) {
-        //require(snapshot is AndroidSnapshot) { "Snapshot must be of type AndroidSnapshot" }
-        //platformCanvas.drawBitmap(snapshot.platformBitmap, x.toFloat(), y.toFloat(), null)
+        require(snapshot is SkiaSnapshot) { "Snapshot must be of type SkiaSnapshot" }
+        drawImage(
+            snapshot,
+            0.0,
+            0.0,
+            snapshot.size.x.toDouble(),
+            snapshot.size.y.toDouble(),
+            x,
+            y,
+            snapshot.size.x.toDouble(),
+            snapshot.size.y.toDouble()
+        )
     }
 
     override fun drawImage(snapshot: Snapshot, x: Double, y: Double, dw: Double, dh: Double) {
-        //require(snapshot is AndroidSnapshot) { "Snapshot must be of type AndroidSnapshot" }
-        //val dstRect = Rect(x.toInt(), y.toInt(), (x + dw).toInt(), (y + dh).toInt())
-        //platformCanvas.drawBitmap(snapshot.platformBitmap, null, dstRect, null)
+        require(snapshot is SkiaSnapshot) { "Snapshot must be of type SkiaSnapshot" }
+        drawImage(
+            snapshot,
+            0.0,
+            0.0,
+            snapshot.size.x.toDouble(),
+            snapshot.size.y.toDouble(),
+            x,
+            y,
+            dw,
+            dh
+        )
     }
 
     override fun drawImage(
@@ -57,10 +86,18 @@ class SkiaContext2d(
         dw: Double,
         dh: Double
     ) {
-        //require(snapshot is AndroidSnapshot) { "Snapshot must be of type AndroidSnapshot" }
-        //val srcRect = Rect(sx.toInt(), sy.toInt(), (sx + sw).toInt(), (sy + sh).toInt())
-        //val dstRect = Rect(dx.toInt(), dy.toInt(), (dx + dw).toInt(), (dy + dh).toInt())
-        //platformCanvas.drawBitmap(snapshot.platformBitmap, srcRect, dstRect, null)
+        require(snapshot is SkiaSnapshot) { "Snapshot must be of type SkiaSnapshot" }
+        val srcRect = Rect(sx.toFloat(), sy.toFloat(), (sx + sw).toFloat(), (sy + sh).toFloat())
+        val dstRect = Rect(dx.toFloat(), dy.toFloat(), (dx + dw).toFloat(), (dy + dh).toFloat())
+        val paint = Paint()
+        platformCanvas.drawImageRect(
+            snapshot.skImage,
+            srcRect,
+            dstRect,
+            paint
+        )
+
+        paint.close()
     }
 
     override fun save() {

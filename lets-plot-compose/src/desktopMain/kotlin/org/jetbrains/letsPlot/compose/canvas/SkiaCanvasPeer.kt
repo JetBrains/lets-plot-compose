@@ -9,14 +9,14 @@ import org.jetbrains.letsPlot.core.canvas.Font
 import org.jetbrains.letsPlot.core.canvas.TextMetrics
 
 class SkiaCanvasPeer : CanvasPeer {
-    val measureCanvas = SkiaCanvas.create(0, 0)
+    private val measureCanvas = SkiaCanvas.create(0, 0)
 
     override fun createCanvas(size: Vector): Canvas {
-        TODO("Not yet implemented")
+        return SkiaCanvas.create(size.x, size.y)
     }
 
     override fun createSnapshot(bitmap: Bitmap): Canvas.Snapshot {
-        TODO("Not yet implemented")
+        return SkiaSnapshot(bitmap)
     }
 
     override fun decodeDataImageUrl(dataUrl: String): Async<Canvas.Snapshot> {
