@@ -43,25 +43,31 @@ actual fun PlotPanelRaw(
     errorModifier: Modifier,
     computationMessagesHandler: (List<String>) -> Unit
 ) {
-    Row(modifier = modifier) {
+Row(modifier = modifier) {
+    Column(modifier = Modifier.weight(1f)) {
+        androidx.compose.material.Text(text = "Skia mapper")
         PlotPanelRawOld(
             rawSpec = rawSpec,
             preserveAspectRatio = preserveAspectRatio,
-            modifier = Modifier.weight(1f),  // Take half of the available width
-            errorTextStyle = errorTextStyle,
-            errorModifier = errorModifier,
-            computationMessagesHandler = computationMessagesHandler
-        )
-
-        PlotPanelRawNew(
-            rawSpec = rawSpec,
-            preserveAspectRatio = preserveAspectRatio,
-            modifier = Modifier.weight(1f),  // Take half of the available width
+            modifier = Modifier.weight(1f).fillMaxWidth(),
             errorTextStyle = errorTextStyle,
             errorModifier = errorModifier,
             computationMessagesHandler = computationMessagesHandler
         )
     }
+
+    Column(modifier = Modifier.weight(1f)) {
+        androidx.compose.material.Text(text = "Skia Canvas")
+        PlotPanelRawNew(
+            rawSpec = rawSpec,
+            preserveAspectRatio = preserveAspectRatio,
+            modifier = Modifier.weight(1f).fillMaxWidth(),
+            errorTextStyle = errorTextStyle,
+            errorModifier = errorModifier,
+            computationMessagesHandler = computationMessagesHandler
+        )
+    }
+}
 }
 
     @Suppress("FunctionName")
