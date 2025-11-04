@@ -57,7 +57,7 @@ Row(modifier = modifier) {
     }
 
     Column(modifier = Modifier.weight(1f)) {
-        androidx.compose.material.Text(text = "Skia Canvas")
+        androidx.compose.material.Text(text = "Skia Canvas + plot_raster")
         PlotPanelRawNew(
             rawSpec = rawSpec,
             preserveAspectRatio = preserveAspectRatio,
