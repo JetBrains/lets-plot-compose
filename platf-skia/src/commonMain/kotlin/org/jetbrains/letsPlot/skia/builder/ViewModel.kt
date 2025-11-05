@@ -11,6 +11,7 @@ import org.jetbrains.letsPlot.commons.geometry.Rectangle
 import org.jetbrains.letsPlot.commons.intern.observable.event.EventHandler
 import org.jetbrains.letsPlot.commons.registration.Disposable
 import org.jetbrains.letsPlot.commons.registration.Registration
+import org.jetbrains.letsPlot.core.interact.InteractionSpec
 import org.jetbrains.letsPlot.core.interact.event.ToolEventDispatcher
 import org.jetbrains.letsPlot.datamodel.svg.dom.SvgSvgElement
 import org.jetbrains.letsPlot.skia.view.SvgViewEventDispatcher
@@ -22,7 +23,7 @@ sealed class ViewModel(
 ) : Disposable {
     internal abstract val bounds: Rectangle
 
-    fun activateInteractions(origin: String, interactionSpecList: List<Map<String, Any>>) {
+    fun activateInteractions(origin: String, interactionSpecList: List<InteractionSpec>) {
         toolEventDispatcher.activateInteractions(origin, interactionSpecList)
     }
 
