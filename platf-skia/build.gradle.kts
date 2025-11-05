@@ -31,8 +31,8 @@ kotlin {
                 compileOnly("org.jetbrains.lets-plot:plot-base:$letsPlotVersion")
                 compileOnly("org.jetbrains.lets-plot:plot-stem:$letsPlotVersion")
                 compileOnly("org.jetbrains.lets-plot:plot-builder:$letsPlotVersion")
-                compileOnly("org.jetbrains.lets-plot:plot-raster:0.0.0-SNAPSHOT")
-                compileOnly("org.jetbrains.lets-plot:canvas:0.0.0-SNAPSHOT")
+                compileOnly("org.jetbrains.lets-plot:plot-raster:$letsPlotVersion")
+                compileOnly("org.jetbrains.lets-plot:canvas:$letsPlotVersion")
             }
         }
 

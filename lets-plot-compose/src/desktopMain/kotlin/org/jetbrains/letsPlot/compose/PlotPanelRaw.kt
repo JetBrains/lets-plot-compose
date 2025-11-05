@@ -40,7 +40,7 @@ private enum class RenderMode {
     BOTH
 }
 
-private val RENDER_MODE = RenderMode.SKIA_MAPPER
+private val RENDER_MODE = RenderMode.BOTH
 
 @Composable
 actual fun PlotPanelRaw(
