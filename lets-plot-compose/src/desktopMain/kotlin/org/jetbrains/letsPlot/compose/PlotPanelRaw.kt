@@ -34,6 +34,14 @@ private val LOG = PortableLogging.logger(name = "[PlotPanelRaw]")
 
 private const val logRecompositions = false
 
+private enum class RenderMode {
+    SKIA_MAPPER,
+    SKIA_CANVAS_PLOT_RASTER,
+    BOTH
+}
+
+private val RENDER_MODE = RenderMode.SKIA_MAPPER
+
 @Composable
 actual fun PlotPanelRaw(
     rawSpec: MutableMap<String, Any>,
@@ -43,34 +51,60 @@ actual fun PlotPanelRaw(
     errorModifier: Modifier,
     computationMessagesHandler: (List<String>) -> Unit
 ) {
-Row(modifier = modifier) {
-    Column(modifier = Modifier.weight(1f)) {
-        androidx.compose.material.Text(text = "Skia mapper")
-        PlotPanelRawOld(
-            rawSpec = rawSpec,
-            preserveAspectRatio = preserveAspectRatio,
-            modifier = Modifier.weight(1f).fillMaxWidth(),
-            errorTextStyle = errorTextStyle,
-            errorModifier = errorModifier,
-            computationMessagesHandler = computationMessagesHandler
-        )
-    }
+    Row(modifier = modifier) {
+        when (RENDER_MODE) {
+            RenderMode.BOTH -> {
+                Column(modifier = Modifier.weight(1f)) {
+                    androidx.compose.material.Text(text = "Skia mapper")
+                    PlotPanelRawOld(
+                        rawSpec = rawSpec,
+                        preserveAspectRatio = preserveAspectRatio,
+                        modifier = Modifier.weight(1f).fillMaxWidth(),
+                        errorTextStyle = errorTextStyle,
+                        errorModifier = errorModifier,
+                        computationMessagesHandler = computationMessagesHandler
+                    )
+                }
 
-    Column(modifier = Modifier.weight(1f)) {
-        androidx.compose.material.Text(text = "Skia Canvas + plot_raster")
-        PlotPanelRawNew(
-            rawSpec = rawSpec,
-            preserveAspectRatio = preserveAspectRatio,
-            modifier = Modifier.weight(1f).fillMaxWidth(),
-            errorTextStyle = errorTextStyle,
-            errorModifier = errorModifier,
-            computationMessagesHandler = computationMessagesHandler
-        )
+                Column(modifier = Modifier.weight(1f)) {
+                    androidx.compose.material.Text(text = "Skia Canvas + plot_raster")
+                    PlotPanelRawNew(
+                        rawSpec = rawSpec,
+                        preserveAspectRatio = preserveAspectRatio,
+                        modifier = Modifier.weight(1f).fillMaxWidth(),
+                        errorTextStyle = errorTextStyle,
+                        errorModifier = errorModifier,
+                        computationMessagesHandler = computationMessagesHandler
+                    )
+                }
+            }
+
+            RenderMode.SKIA_CANVAS_PLOT_RASTER -> {
+                PlotPanelRawNew(
+                    rawSpec = rawSpec,
+                    preserveAspectRatio = preserveAspectRatio,
+                    modifier = modifier,
+                    errorTextStyle = errorTextStyle,
+                    errorModifier = errorModifier,
+                    computationMessagesHandler = computationMessagesHandler
+                )
+            }
+
+            RenderMode.SKIA_MAPPER -> {
+                PlotPanelRawOld(
+                    rawSpec = rawSpec,
+                    preserveAspectRatio = preserveAspectRatio,
+                    modifier = modifier,
+                    errorTextStyle = errorTextStyle,
+                    errorModifier = errorModifier,
+                    computationMessagesHandler = computationMessagesHandler
+                )
+            }
+        }
     }
 }
-}
 
-    @Suppress("FunctionName")
+@Suppress("FunctionName")
 @Composable
 fun PlotPanelRawOld(
     rawSpec: MutableMap<String, Any>,

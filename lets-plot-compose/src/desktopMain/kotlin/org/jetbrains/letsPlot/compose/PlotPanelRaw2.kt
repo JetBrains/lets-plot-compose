@@ -41,7 +41,7 @@ import java.awt.Cursor
 //import org.jetbrains.letsPlot.compose.util.NaiveLogger
 
 //private val LOG = NaiveLogger("PlotPanel")
-private val LOG = PortableLogging.logger(name = "[PlotPanelRaw]")
+private val LOG = PortableLogging.logger(name = "[PlotPanelRaw2]")
 
 private const val logRecompositions = false
 
@@ -124,7 +124,7 @@ fun PlotPanelRawNew(
                 reg.dispose()
                 //plotCanvasFigure2.dispose()
             } catch (e: Exception) {
-                LOG.error(e) { "PlotContainer.dispose() failed" }
+                LOG.error(e) { "reg.dispose() failed" }
             }
         }
     }

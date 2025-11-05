@@ -10,11 +10,18 @@ import demoData.Iris
 import org.jetbrains.letsPlot.Figure
 import org.jetbrains.letsPlot.coord.coordFixed
 import org.jetbrains.letsPlot.geom.geomDensity
+import org.jetbrains.letsPlot.interact.ggtb
+import org.jetbrains.letsPlot.intern.Plot
 import org.jetbrains.letsPlot.letsPlot
+import java.util.*
 
 class DensitySpec : PlotDemoFigure {
     override fun createFigure(): Figure {
-        val rand = java.util.Random()
+        return simple(ggtb = false)
+    }
+
+    fun simple(ggtb: Boolean): Plot {
+        val rand = Random()
         val n = 200
         val xs = List(n) { rand.nextGaussian() }
         val data = mapOf<String, Any>(
@@ -22,9 +29,15 @@ class DensitySpec : PlotDemoFigure {
             "w" to xs.map { if (it < 0.0) 2.0 else 0.5 }
         )
 
-        return letsPlot(data) + geomDensity(color = "black", size = 1.2) {
+        var p = letsPlot(data) + geomDensity(color = "black", size = 1.2) {
             x = "x"
         }
+
+        if (ggtb) {
+            p += ggtb()
+        }
+
+        return p
     }
 
     override fun createFigureList(): List<Figure> {

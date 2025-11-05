@@ -28,7 +28,7 @@ fun main() = application {
     Window(onCloseRequest = ::exitApplication, title = "Demo (Compose Desktop, median)") {
 
         val figures = listOf(
-            "Density Plot" to DensitySpec().createFigure(),
+            "Density Plot" to DensitySpec().simple(ggtb = true),
             "Plot Grid" to PlotGridSpec().createFigure(),
             "25k Points" to PerfSpec().createFigure(),
             "BackendError" to IllegalArgumentSpec().createFigure(),
