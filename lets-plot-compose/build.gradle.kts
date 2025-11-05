@@ -60,8 +60,8 @@ kotlin {
                 implementation("androidx.compose.ui:ui")
                 implementation("androidx.compose.ui:ui-graphics")
                 api(project(":platf-android"))
-                compileOnly("org.jetbrains.lets-plot:plot-raster:${letsPlotVersion}")
-                compileOnly("org.jetbrains.lets-plot:canvas:${letsPlotVersion}")
+                compileOnly("org.jetbrains.lets-plot:plot-raster:$letsPlotVersion")
+                compileOnly("org.jetbrains.lets-plot:canvas:$letsPlotVersion")
             }
         }
     }
