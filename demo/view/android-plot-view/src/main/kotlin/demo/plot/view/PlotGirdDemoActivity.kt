@@ -8,10 +8,11 @@ package demo.plot.view
 import android.app.Activity
 import android.graphics.Color
 import android.os.Bundle
-import org.jetbrains.letsPlot.android.canvas.CanvasView
+import org.jetbrains.letsPlot.android.canvas.CanvasView2
+import org.jetbrains.letsPlot.core.util.MonolithicCommon
 import org.jetbrains.letsPlot.core.util.sizing.SizingPolicy
 import org.jetbrains.letsPlot.intern.toSpec
-import org.jetbrains.letsPlot.raster.builder.MonolithicCanvas
+import org.jetbrains.letsPlot.raster.view.PlotCanvasFigure2
 import plotSpec.PlotGridSpec
 
 class PlotGirdDemoActivity : Activity() {
@@ -21,12 +22,15 @@ class PlotGirdDemoActivity : Activity() {
         val plotFigure = PlotGridSpec().createFigure()
 
         setContentView(
-            CanvasView(this).apply {
-                figure = MonolithicCanvas.buildPlotFigureFromRawSpec(
-                    rawSpec = plotFigure.toSpec(),
-                    sizingPolicy = SizingPolicy.fitContainerSize(false),
-                    computationMessagesHandler = {}
-                )
+            CanvasView2(this).apply {
+                figure = PlotCanvasFigure2().apply {
+                    update(
+                        processedSpec = MonolithicCommon.processRawSpecs(plotFigure.toSpec(), frontendOnly = false),
+                        sizingPolicy = SizingPolicy.fitContainerSize(false),
+                        computationMessagesHandler = {}
+                    )
+                }
+
                 setBackgroundColor(Color.GREEN)
             }
         )

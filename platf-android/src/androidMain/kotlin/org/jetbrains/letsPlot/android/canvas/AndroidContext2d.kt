@@ -10,11 +10,21 @@ import org.jetbrains.letsPlot.core.canvas.*
 import org.jetbrains.letsPlot.core.canvas.Canvas.Snapshot
 
 class AndroidContext2d(
-    platformBitmap: Bitmap,
+    canvas: Canvas,
     pixelDensity: Double,
-    private val stateDelegate: ContextStateDelegate = ContextStateDelegate(failIfNotImplemented = false, logEnabled = true),
+    private val stateDelegate: ContextStateDelegate = ContextStateDelegate(
+        failIfNotImplemented = false,
+        logEnabled = true
+    ),
 ) : Context2d by stateDelegate {
-    private val platformCanvas = Canvas(platformBitmap).apply {
+    constructor(
+        platformBitmap: Bitmap,
+        pixelDensity: Double,
+        stateDelegate: ContextStateDelegate = ContextStateDelegate(failIfNotImplemented = false, logEnabled = true)
+    ) : this(Canvas(platformBitmap), pixelDensity, stateDelegate) {
+    }
+
+    private val platformCanvas = canvas.apply {
         this.scale(pixelDensity.toFloat(), pixelDensity.toFloat())
     }
 

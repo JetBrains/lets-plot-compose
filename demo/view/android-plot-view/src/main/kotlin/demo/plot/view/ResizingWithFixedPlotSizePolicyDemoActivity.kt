@@ -8,11 +8,13 @@ package demo.plot.view
 import android.app.Activity
 import android.graphics.Color
 import android.os.Bundle
+import android.view.View
 import android.widget.FrameLayout
-import org.jetbrains.letsPlot.android.canvas.CanvasView
+import org.jetbrains.letsPlot.android.canvas.CanvasView2
+import org.jetbrains.letsPlot.core.util.MonolithicCommon
 import org.jetbrains.letsPlot.core.util.sizing.SizingPolicy
 import org.jetbrains.letsPlot.intern.toSpec
-import org.jetbrains.letsPlot.raster.builder.MonolithicCanvas
+import org.jetbrains.letsPlot.raster.view.PlotCanvasFigure2
 import plotSpec.DensitySpec
 import java.util.*
 
@@ -21,12 +23,14 @@ class ResizingWithFixedPlotSizePolicyDemoActivity: Activity() {
         super.onCreate(savedInstanceState)
         val plotFigure = DensitySpec().createFigure()
 
-        val view = CanvasView(this).apply {
-            figure = MonolithicCanvas.buildPlotFigureFromRawSpec(
-                rawSpec = plotFigure.toSpec(),
-                sizingPolicy = SizingPolicy.keepFigureDefaultSize(),
-                computationMessagesHandler = {}
-            )
+        val view = CanvasView2(this).apply {
+            figure = PlotCanvasFigure2().apply {
+                update(
+                    processedSpec = MonolithicCommon.processRawSpecs(plotFigure.toSpec(), frontendOnly = false),
+                    sizingPolicy = SizingPolicy.keepFigureDefaultSize(),
+                    computationMessagesHandler = {}
+                )
+            }
             setBackgroundColor(Color.GREEN)
         }
 
@@ -34,7 +38,7 @@ class ResizingWithFixedPlotSizePolicyDemoActivity: Activity() {
     }
 
     companion object {
-        fun Activity.setupResizableCanvas(view: CanvasView) {
+        fun Activity.setupResizableCanvas(view: View) {
             setContentView(view)
             val resizeTask = object : TimerTask() {
                 var width = 500

@@ -5,11 +5,11 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.ViewGroup
 import android.widget.*
-import org.jetbrains.letsPlot.android.canvas.CanvasView
+import org.jetbrains.letsPlot.android.canvas.CanvasView2
+import org.jetbrains.letsPlot.core.util.MonolithicCommon
 import org.jetbrains.letsPlot.core.util.sizing.SizingPolicy
 import org.jetbrains.letsPlot.intern.toSpec
-import org.jetbrains.letsPlot.raster.builder.MonolithicCanvas
-import org.jetbrains.letsPlot.raster.view.PlotCanvasFigure
+import org.jetbrains.letsPlot.raster.view.PlotCanvasFigure2
 import org.jetbrains.letsPlot.themes.flavorDarcula
 import plotSpec.BarPlotSpec
 
@@ -36,8 +36,8 @@ class LayoutDemoActivity : Activity() {
     private lateinit var parentHeightSlider: SeekBar
 
 
-    private lateinit var demoView: CanvasView
-    private val plotFigure = PlotCanvasFigure()
+    private lateinit var demoView: CanvasView2
+    private val plotFigure = PlotCanvasFigure2()
     private val plotSpec = (BarPlotSpec().basic + flavorDarcula()).toSpec()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,7 +58,7 @@ class LayoutDemoActivity : Activity() {
         parentWidthSlider = findViewById(R.id.parent_width_slider)
         parentHeightSlider = findViewById(R.id.parent_height_slider)
 
-        demoView = CanvasView(this).apply {
+        demoView = CanvasView2(this).apply {
             figure = plotFigure
             setBackgroundColor(Color.GREEN)
         }
@@ -128,7 +128,8 @@ class LayoutDemoActivity : Activity() {
             else -> error("Unknown sizing policy option selected")
         }
 
-        MonolithicCanvas.updatePlotFigureFromRawSpec(plotFigure, plotSpec, sizingPolicy) { _ -> }
+        val processedSpec = MonolithicCommon.processRawSpecs(plotSpec, frontendOnly = false)
+        plotFigure.update(processedSpec, sizingPolicy) { _ -> }
     }
 
     private fun updateDemoViewLayoutParams() {
