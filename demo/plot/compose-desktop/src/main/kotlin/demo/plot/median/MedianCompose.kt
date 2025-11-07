@@ -19,18 +19,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import demo.plot.median.ui.DemoList
-import org.jetbrains.letsPlot.compose.PlotPanel
-import plotSpec.DensitySpec
-import plotSpec.PerfSpec
-import plotSpec.PlotGridSpec
+import org.jetbrains.letsPlot.Figure
+import org.jetbrains.letsPlot.compose.PlotPanelRaw
+import org.jetbrains.letsPlot.intern.toSpec
+import plotSpec.*
 
 fun main() = application {
     Window(onCloseRequest = ::exitApplication, title = "Demo (Compose Desktop, median)") {
 
         val figures = listOf(
-            "Density Plot" to DensitySpec().createFigure(),
+            "Density Plot" to DensitySpec().simple(ggtb = true),
             "Plot Grid" to PlotGridSpec().createFigure(),
-            "25k Points" to PerfSpec().createFigure()
+            "25k Points" to PerfSpec().createFigure(),
+            "BackendError" to IllegalArgumentSpec().createFigure(),
+            "FrontendError" to FrontendExceptionSpec().createRawSpec(),
         )
 
         val preserveAspectRatio = remember { mutableStateOf(false) }
@@ -65,8 +67,18 @@ fun main() = application {
                         modifier = Modifier.fillMaxSize()
                             .padding(start = 10.dp, top = 10.dp, end = 10.dp, bottom = 10.dp),
                     ) {
-                        PlotPanel(
-                            figure = figures[figureIndex.value].second,
+                        // Cast to rawSpec to use only the PlotPanelRaw
+                        // Switch between PlotPanel and PlotPanelRaw causes re-creation of the whole panel
+                        // and hides bugs related to the panel re-use, like OK -> ERROR -> OK state transition.
+                        val rawSpec: Map<*, *> = when (val fig = figures[figureIndex.value].second) {
+                            is Figure -> fig.toSpec()
+                            is Map<*, *> -> fig
+                            else -> throw IllegalStateException("Unexpected figure type: ${fig.let { it::class }}")
+                        }
+
+                        @Suppress("UNCHECKED_CAST")
+                        PlotPanelRaw(
+                            rawSpec = rawSpec as MutableMap<String, Any>,
                             preserveAspectRatio = preserveAspectRatio.value,
                             modifier = Modifier.fillMaxSize()
                         ) { computationMessages ->

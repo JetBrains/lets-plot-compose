@@ -8,7 +8,6 @@ pluginManagement {
 
     plugins {
         val kotlinVersion = extra["kotlin.version"] as String
-        val kotlinAndroidVersion = extra["kotlin.android.version"] as String
         val composeVersion = extra["compose.version"] as String
         val agpVersion = extra["agp.version"] as String
         val nexusStagingVersion = extra["nexusStaging.version"] as String
@@ -20,7 +19,6 @@ pluginManagement {
         id("org.jetbrains.compose").version(composeVersion)
 
         kotlin("android").version(kotlinVersion)
-        id("org.jetbrains.kotlin.android") version kotlinAndroidVersion
         id("com.android.application").version(agpVersion)
         id("com.android.library").version(agpVersion)
 

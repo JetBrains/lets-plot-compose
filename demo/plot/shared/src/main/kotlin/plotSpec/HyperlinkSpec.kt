@@ -86,8 +86,8 @@ class HyperlinkSpec : PlotDemoFigure {
             ),
             Item(
                 name = "Lets-Plot\nCompose Multiplatform",
-                documentationUrl = "https://github.com/JetBrains/lets-plot-skia",
-                sourcesUrl = "https://github.com/JetBrains/lets-plot-skia",
+                documentationUrl = "https://github.com/JetBrains/lets-plot-compose",
+                sourcesUrl = "https://github.com/JetBrains/lets-plot-compose",
                 x = 80.0, y = 250.0, size = 7.0, shape = 15, angle = 30.0
             ),
             Item(

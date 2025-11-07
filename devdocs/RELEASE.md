@@ -38,10 +38,10 @@ Check all artifacts were uploaded and validated, then push the "Publish" button.
 
 ### Add the GitHub Release:
  
- * Open the link: https://github.com/JetBrains/lets-plot-skia/releases/new
+ * Open the link: https://github.com/JetBrains/lets-plot-compose/releases/new
  * Fill `Tag version` and `Release title` with the released version: "vX.X.X"
  * Fill the description field - copy from the CHANGELOG.md
 
 ### Update Dependant Projects 
 
-- Update the version of the `lets-plot-skia` dependency in the [lets-plot-compose-demos](https://github.com/JetBrains/lets-plot-compose-demos) project.
+- Update the version of the `lets-plot-compose` dependency in the [lets-plot-compose-demos](https://github.com/JetBrains/lets-plot-compose-demos) project.

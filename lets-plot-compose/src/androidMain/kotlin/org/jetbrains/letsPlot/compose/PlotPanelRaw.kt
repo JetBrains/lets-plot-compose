@@ -53,10 +53,21 @@ actual fun PlotPanelRaw(
     val processedPlotSpec = remember(rawSpec.hashCode()) {
         processRawSpecs(rawSpec, frontendOnly = false)
     }
-    var errorMessage: String? by remember { mutableStateOf(null) }
 
-    if (PlotConfig.isFailure(processedPlotSpec)) {
-        errorMessage = PlotConfig.getErrorMessage(processedPlotSpec)
+    var errorMessage: String? by remember(processedPlotSpec) { mutableStateOf(null) } // Reset error on spec change
+
+    LaunchedEffect(processedPlotSpec, sizingPolicy, computationMessagesHandler) {
+        runCatching {
+            if (PlotConfig.isFailure(processedPlotSpec)) {
+                errorMessage = PlotConfig.getErrorMessage(processedPlotSpec)
+            } else {
+                plotCanvasFigure?.update(processedPlotSpec, sizingPolicy, computationMessagesHandler)
+                    ?: LOG.info { "Error updating plot figure - plotCanvasFigure is null" }
+            }
+        }.onFailure { e ->
+            errorMessage = e.message ?: "Unknown error: ${e::class.simpleName}"
+            LOG.error(e) { "Error updating plot figure" }
+        }
     }
 
     // Background
@@ -72,17 +83,6 @@ actual fun PlotPanelRaw(
             val lpBackground = Color(lpColor.red, lpColor.green, lpColor.blue, lpColor.alpha)
             modifier.background(lpBackground)
         }
-    }
-
-    LaunchedEffect(processedPlotSpec, sizingPolicy, computationMessagesHandler) {
-        runCatching {
-            plotCanvasFigure?.update(processedPlotSpec, sizingPolicy, computationMessagesHandler)
-                ?: LOG.info { "Error updating plot figure - plotCanvasFigure is null" }
-        }.onFailure { e ->
-            errorMessage = e.message ?: "Unknown error: ${e::class.simpleName}"
-            LOG.error(e) { "Error updating plot figure" }
-        }
-
     }
 
     errorMessage?.let { errMsg ->
@@ -105,7 +105,6 @@ actual fun PlotPanelRaw(
             modifier = finalModifier,
             factory = { ctx ->
                 plotCanvasFigure = plotCanvasFigure ?: PlotCanvasFigure2()
-
                 CanvasView2(ctx).apply {
                     figure = plotCanvasFigure
                     onError = { e ->

@@ -38,6 +38,8 @@ kotlin {
 
                 compileOnly("org.jetbrains.lets-plot:lets-plot-kotlin-kernel:$letsPlotKotlinVersion")
                 compileOnly("org.jetbrains.lets-plot:lets-plot-common:$letsPlotVersion")
+                compileOnly("org.jetbrains.lets-plot:plot-raster:$letsPlotVersion")
+                compileOnly("org.jetbrains.lets-plot:canvas:$letsPlotVersion")
             }
         }
 
@@ -58,15 +60,15 @@ kotlin {
                 implementation("androidx.compose.ui:ui")
                 implementation("androidx.compose.ui:ui-graphics")
                 api(project(":platf-android"))
-                compileOnly("org.jetbrains.lets-plot:plot-raster:${letsPlotVersion}")
-                compileOnly("org.jetbrains.lets-plot:canvas:${letsPlotVersion}")
+                compileOnly("org.jetbrains.lets-plot:plot-raster:$letsPlotVersion")
+                compileOnly("org.jetbrains.lets-plot:canvas:$letsPlotVersion")
             }
         }
     }
 }
 
 android {
-    namespace = "org.jetbrains.letsPlot.skia.compose"
+    namespace = "org.jetbrains.letsPlot.compose"
 
     compileSdk = (findProperty("android.compileSdk") as String).toInt()
 
@@ -105,13 +107,13 @@ afterEvaluate {
                 artifact(tasks.jarJavaDocs)
 
                 pom {
-                    name.set("Lets-Plot Skia Frontend")
-                    description.set("Skia frontend for Lets-Plot multiplatform plotting library.")
-                    url.set("https://github.com/JetBrains/lets-plot-skia")
+                    name.set("Lets-Plot Compose Frontend")
+                    description.set("Compose frontend for Lets-Plot multiplatform plotting library.")
+                    url.set("https://github.com/JetBrains/lets-plot-compose")
                     licenses {
                         license {
                             name.set("MIT")
-                            url.set("https://raw.githubusercontent.com/JetBrains/lets-plot-skia/master/LICENSE")
+                            url.set("https://raw.githubusercontent.com/JetBrains/lets-plot-compose/master/LICENSE")
                         }
                     }
                     developers {
@@ -122,7 +124,7 @@ afterEvaluate {
                         }
                     }
                     scm {
-                        url.set("https://github.com/JetBrains/lets-plot-skia")
+                        url.set("https://github.com/JetBrains/lets-plot-compose")
                     }
                 }
             }

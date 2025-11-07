@@ -5,14 +5,16 @@
 
 package org.jetbrains.letsPlot.compose
 
+import org.jetbrains.letsPlot.commons.registration.Disposable
+import org.jetbrains.letsPlot.commons.registration.Registration
+import org.jetbrains.letsPlot.core.interact.InteractionSpec
 import org.jetbrains.letsPlot.core.interact.event.ToolEventDispatcher
-import org.jetbrains.letsPlot.core.plot.builder.interact.FigureImplicitInteractionSpecs
 import org.jetbrains.letsPlot.core.plot.builder.interact.tools.FigureModel
 
 class PlotFigureModel(
     val onUpdateView: (Map<String, Any>?) -> Unit
 ) : FigureModel {
-    private var toolEventCallback: ((Map<String, Any>) -> Unit)? = null
+    private val toolEventCallbacks = mutableListOf<(Map<String, Any>) -> Unit>()
 
     var toolEventDispatcher: ToolEventDispatcher? = null
         set(value) {
@@ -20,7 +22,9 @@ class PlotFigureModel(
             val wereInteractions = field?.deactivateAllSilently() ?: emptyMap()
             field = value
             value?.let { newDispatcher ->
-                newDispatcher.initToolEventCallback { event -> toolEventCallback?.invoke(event) }
+                newDispatcher.initToolEventCallback { event ->
+                    toolEventCallbacks.forEach { it(event) }
+                }
 
                 // reactivate interactions in new plot component
                 wereInteractions.forEach { (origin, interactionSpecList) ->
@@ -30,29 +34,56 @@ class PlotFigureModel(
         }
 
     init {
-        toolEventDispatcher?.initToolEventCallback { event -> toolEventCallback?.invoke(event) }
+        toolEventDispatcher?.initToolEventCallback { event -> toolEventCallbacks.forEach { it.invoke(event) } }
     }
 
-    override fun onToolEvent(callback: (Map<String, Any>) -> Unit) {
-        toolEventCallback = callback
+    override fun addToolEventCallback(callback: (Map<String, Any>) -> Unit): Registration {
+        toolEventCallbacks.add(callback)
 
         // Make snsure that 'implicit' interaction activated.
         deactivateInteractions(origin = ToolEventDispatcher.ORIGIN_FIGURE_IMPLICIT)
         activateInteractions(
             origin = ToolEventDispatcher.ORIGIN_FIGURE_IMPLICIT,
-            interactionSpecList = FigureImplicitInteractionSpecs.LIST
+            interactionSpecList = FIGURE_IMPLICIT_INTERACTIONS
         )
 
+        return object : Registration() {
+            override fun doRemove() {
+                toolEventCallbacks.remove(callback)
+            }
+        }
     }
-    override fun activateInteractions(origin: String, interactionSpecList: List<Map<String, Any>>) {
+    override fun activateInteractions(origin: String, interactionSpecList: List<InteractionSpec>) {
         toolEventDispatcher?.activateInteractions(origin, interactionSpecList)
+    }
+
+    override fun addDisposible(disposable: Disposable) {
+        TODO("Not yet implemented")
     }
 
     override fun deactivateInteractions(origin: String){
         toolEventDispatcher?.deactivateInteractions(origin)
     }
 
+    override fun dispose() {
+        toolEventDispatcher?.deactivateAll()
+        toolEventDispatcher = null
+        toolEventCallbacks.clear()
+
+        //val disposibles = ArrayList(disposibleTools)
+        //disposibleTools.clear()
+        //disposibles.forEach { it.dispose() }
+    }
+
+    override fun setDefaultInteractions(interactionSpecList: List<InteractionSpec>) {
+        TODO("Not yet implemented")
+    }
+
     override fun updateView(specOverride: Map<String, Any>?) {
         onUpdateView(specOverride)
+    }
+
+    companion object {
+        private val FIGURE_IMPLICIT_INTERACTIONS = listOf(InteractionSpec(InteractionSpec.Name.ROLLBACK_ALL_CHANGES))
     }
 }

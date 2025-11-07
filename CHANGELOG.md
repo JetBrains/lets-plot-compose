@@ -1,9 +1,52 @@
-# Lets-Plot Skia Frontend Changelog
+# Lets-Plot Compose Frontend Changelog
 
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). All scales should have the 'format' parameter.
+
+## [3.0.0] - 2025-09-19
+
+> [!NOTE]
+> The GitHub repository was renamed from `lets-plot-skia` to `lets-plot-compose`.
+
+### Compatibility
+
+All artifacts were built with the following versions of dependencies:
+- Compose Multiplatform: [1.8.2](https://github.com/JetBrains/compose-multiplatform/releases/tag/v1.8.2)
+- Lets-Plot Kotlin API: [4.11.2](https://github.com/JetBrains/lets-plot-kotlin/releases/tag/v4.11.2)
+- Lets-Plot Multiplatform: [4.7.3](https://github.com/JetBrains/lets-plot/releases/tag/v4.7.3)
+
+### Added
+
+- Multiplatform project example, see: [Lets-Plot Compose Demos](https://github.com/JetBrains/lets-plot-compose-demos/tree/main/compose-multiplatform)
+
+### Changed
+
+- [**BREAKING**] `PlotPanel` has been moved to package `org.jetbrains.letsPlot.compose` (from `org.jetbrains.letsPlot.skia.compose`).
+
+#### Android
+
+- Removed dependency on the Skiko library. \
+  This eliminates Skiko compatibility issues, \
+  ensures all library artifacts are built with the latest Compose Multiplatform version, \
+  and simplifies integration of the Lets-Plot Compose Library in Android projects.
+
+#### Desktop
+
+- Pure compose implementation.
+- The following artifacts are no longer provided:
+    - `platf-skia-awt`
+    - `lets-plot-swing-skia`
+
+### Fixed
+
+- When zooming the page with the mouse, a black layer appears when refreshing [[#12](https://github.com/JetBrains/lets-plot-compose/issues/12)]
+- When using a dark theme, white lines appear on the sides of the plot [[#37](https://github.com/JetBrains/lets-plot-compose/issues/37)]
+- Plot rendering issues when switching between tabs in the tabbed pane [[#38](https://github.com/JetBrains/lets-plot-compose/issues/38)]
+- Display problem of lets-plot-skia when switching pages [[#42](https://github.com/JetBrains/lets-plot-compose/issues/42)]
+- Markdown: missing bold and italic text style support [[#44](https://github.com/JetBrains/lets-plot-compose/issues/44)]
+
 
 ## [2.2.1] - 2025-06-11
 

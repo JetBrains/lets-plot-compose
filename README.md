@@ -1,97 +1,76 @@
-# Lets-Plot Skia Frontend
+# Lets-Plot Compose Frontend
 
 [![Experimental](https://kotl.in/badges/experimental.svg)](https://kotlinlang.org/docs/components-stability.html)
 [![JetBrains incubator project](https://jb.gg/badges/incubator.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
-[![License MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://raw.githubusercontent.com/JetBrains/lets-plot-skia/master/LICENSE)
-[![Latest Release](https://img.shields.io/github/v/release/JetBrains/lets-plot-skia)](https://github.com/JetBrains/lets-plot-skia/releases/latest)
+[![License MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://raw.githubusercontent.com/JetBrains/lets-plot-compose/master/LICENSE)
+[![Latest Release](https://img.shields.io/github/v/release/JetBrains/lets-plot-compose)](https://github.com/JetBrains/lets-plot-compose/releases/latest)
 
-**Lets-Plot Skia Frontend** is a Kotlin Multiplatform library that allows you to embed \
-[Lets-Plot](https://github.com/JetBrains/lets-plot) charts in a [Compose Multiplatform](https://github.com/JetBrains/compose-multiplatform), Java Swing or Android application.
+**Lets-Plot Compose Frontend** is a Kotlin Multiplatform library that allows you to embed \
+[Lets-Plot](https://github.com/JetBrains/lets-plot) charts in a [Compose Multiplatform](https://github.com/JetBrains/compose-multiplatform) (Desktop, Android) application.
 
 ### Supported Targets
-- **Compose Desktop** (macOS, Windows, Linux)\
-  For more information see [Compose multiplatform compatibility and versioning overview](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-compatibility-and-versioning.html). 
-- **Android** (`lets-plot-skia` <= v2.0.0. New versions temporarily don't support Android due to [SKIKO-761](https://youtrack.jetbrains.com/issue/SKIKO-761))  
-- **Java Swing**
+
+- **Desktop** (macOS, Windows, Linux)
+- **Android** 
+
+For more details see [Compose multiplatform compatibility and versioning overview](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-compatibility-and-versioning.html).
+
 
 ![Splash](img-2.png)
 
 ## Dependencies
 
-See release notes for the latest version of the dependencies: [v2.2.1](https://github.com/JetBrains/lets-plot-skia/blob/main/CHANGELOG.md#compatibility)
+- Compose Multiplatform: [1.8.2](https://github.com/JetBrains/compose-multiplatform/releases/tag/v1.8.2) or later
+- Lets-Plot Kotlin API: [4.11.2](https://github.com/JetBrains/lets-plot-kotlin/releases/tag/v4.11.2) or later
+- Lets-Plot Multiplatform: [4.7.3](https://github.com/JetBrains/lets-plot/releases/tag/v4.7.3) or later
 
-### Compose Desktop
+### Compose Multiplatform for Desktop
 
 ```kotlin
 dependencies {
-    ...
+    // Lets-Plot Kotlin API
+    implementation("org.jetbrains.lets-plot:lets-plot-kotlin-kernel:4.11.2")
 
-    // Lets-Plot Kotlin API 
-    implementation("org.jetbrains.lets-plot:lets-plot-kotlin-kernel:4.10.0")
+    // Lets-Plot Multiplatform
+    implementation("org.jetbrains.lets-plot:lets-plot-common:4.7.3")
+    // Lets-Plot 'image export' (optional - enables exporting to raster formats)
+    implementation("org.jetbrains.lets-plot:lets-plot-image-export:4.7.3")
 
-    // Lets-Plot Multiplatform 
-    implementation("org.jetbrains.lets-plot:lets-plot-common:4.6.2")
-    implementation("org.jetbrains.lets-plot:platf-awt:4.6.2")
-
-    // Lets-Plot Skia Frontend
-    implementation("org.jetbrains.lets-plot:lets-plot-compose:2.2.1")
+    // Lets-Plot Compose UI
+    implementation("org.jetbrains.lets-plot:lets-plot-compose:3.0.0")
 }
 ```
 See example: [Compose desktop](https://github.com/JetBrains/lets-plot-compose-demos/blob/main/compose-desktop/build.gradle.kts) demo.
 
-### Compose Android
-
-#### Note: the latest supported version is `lets-plot-skia` v2.0.0. The new versions temporarily don't support Android due to [SKIKO-761](https://youtrack.jetbrains.com/issue/SKIKO-761).
+### Compose Multiplatform for Android
 
 ```kotlin
 dependencies {
-    ...
+    // Lets-Plot Kotlin API
+    implementation("org.jetbrains.lets-plot:lets-plot-kotlin-kernel:4.11.2")
 
-    implementation("org.jetbrains.skiko:skiko-android:0.8.4")
+    // Lets-Plot Multiplatform
+    implementation("org.jetbrains.lets-plot:lets-plot-common:4.7.3")
+    // Lets-Plot Multiplatform Android-specific dependencies
+    implementation("org.jetbrains.lets-plot:canvas:4.7.3")
+    implementation("org.jetbrains.lets-plot:plot-raster:4.7.3")
 
-    // Lets-Plot Kotlin API 
-    implementation("org.jetbrains.lets-plot:lets-plot-kotlin-kernel:4.10.0")
-
-    // Lets-Plot Multiplatform 
-    implementation("org.jetbrains.lets-plot:lets-plot-common:4.6.2")
-
-    // Lets-Plot Skia Frontend
-    implementation("org.jetbrains.lets-plot:lets-plot-compose:2.0.0")
+    // Lets-Plot Compose UI
+    implementation("org.jetbrains.lets-plot:lets-plot-compose:3.0.0")
 }
 ```
 
 See example: [Android minimal](https://github.com/JetBrains/lets-plot-compose-demos/blob/main/compose-android-min/build.gradle.kts) demo.
 
-### Java Swing
 
-```kotlin
-dependencies {
-    ...
+## More Examples
 
-    implementation("org.jetbrains.skiko:skiko:0.8.4")
-    // The host OS and architecture should be specified explicitly.
-    implementation("org.jetbrains.skiko:skiko-awt-runtime-macos-x64:0.8.4")
-
-    // Lets-Plot Kotlin API 
-    implementation("org.jetbrains.lets-plot:lets-plot-kotlin-kernel:4.10.0")
-
-    // Lets-Plot Multiplatform 
-    implementation("org.jetbrains.lets-plot:lets-plot-common:4.6.2")
-    implementation("org.jetbrains.lets-plot:platf-awt:4.6.2")
-
-    // Lets-Plot Skia Frontend
-    implementation("org.jetbrains.lets-plot:lets-plot-swing-skia:2.2.1")
-}
-```
-
-## Examples
-
-You will find complete examples of using **Lets-Plot Kotlin API** with **Lets-Plot Skia Frontend** in the following\
+You will find complete examples of using **Lets-Plot Kotlin API** with **Lets-Plot Compose Frontend** in the following\
 GitHub repository: [JetBrains/lets-plot-compose-demos](https://github.com/JetBrains/lets-plot-compose-demos).
 
 ## Change Log
 
-See [CHANGELOG.md](https://github.com/JetBrains/lets-plot-skia/blob/master/CHANGELOG.md).
+See [CHANGELOG.md](https://github.com/JetBrains/lets-plot-compose/blob/master/CHANGELOG.md).
 
 ## Code of Conduct
 
@@ -102,5 +81,5 @@ Please make sure you read it.
 ## License
 
 Code and documentation released under
-the [MIT license](https://github.com/JetBrains/lets-plot-skia/blob/master/LICENSE).
-Copyright © 2023-2025, JetBrains s.r.o.
+the [MIT license](https://github.com/JetBrains/lets-plot-compose/blob/master/LICENSE).
+Copyright © 2023, JetBrains s.r.o.
