@@ -3,14 +3,14 @@ package org.jetbrains.letsPlot.compose
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Bitmap.CompressFormat
 import android.os.Build
 import android.os.Environment
 import org.jetbrains.letsPlot.Figure
 import org.jetbrains.letsPlot.android.canvas.AndroidCanvasPeer
-import org.jetbrains.letsPlot.commons.encoding.Png
 import org.jetbrains.letsPlot.commons.encoding.RGBEncoder
 import org.jetbrains.letsPlot.commons.geometry.DoubleVector
-import org.jetbrains.letsPlot.commons.values.Bitmap
 import org.jetbrains.letsPlot.core.util.MonolithicCommon
 import org.jetbrains.letsPlot.core.util.PlotExportCommon.SizeUnit
 import org.jetbrains.letsPlot.core.util.PlotExportCommon.computeExportParameters
@@ -57,37 +57,7 @@ fun ggsave(
     unit: SizeUnit? = null,
     context: Context
 ): String {
-    @Suppress("NAME_SHADOWING")
-    val filename = filename.trim()
-    require(filename.indexOf('.') >= 0) { "File extension is missing: \"$filename\"." }
-    val ext = filename.substringAfterLast('.', "").lowercase(Locale.getDefault())
-    require(ext.isNotEmpty()) { "Missing file extension: \"$filename\"." }
-
-    // If we are using the default path on an older Android version, we must have permission.
-    if (path == null && Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
-        val permission = Manifest.permission.WRITE_EXTERNAL_STORAGE
-        if (context.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
-            throw MissingStoragePermissionException(
-                "WRITE_EXTERNAL_STORAGE permission is required on Android 9 and below " +
-                        "to save to the public Pictures directory."
-            )
-        }
-    }
-
-    // Path resolution logic
-    val dir = path?.let { File(it) } ?: run {
-        val appLabel = context.packageManager.getApplicationLabel(context.applicationInfo).toString()
-        // *** SANITIZE THE APP NAME BEFORE USING IT ***
-        val sanitizedAppName = sanitizeDirName(appLabel)
-        val picturesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-        File(picturesDir, sanitizedAppName)
-    }
-
-    if (!dir.exists()) {
-        dir.mkdirs()
-    }
-
-    val file = File(dir, filename)
+    val (ext, file) = prepareOutputFile(filename, path, context)
 
     val spec: MutableMap<String, Any> = plot.toSpec()
     val plotSize = toDoubleVector(w, h)
@@ -116,17 +86,85 @@ fun ggsave(
             file.writeText(html)
         }
 
-        "png", "jpeg", "jpg", "tiff", "tif" -> {
-            val bitmap = buildImageFromRawSpecs(spec, scale, dpi, plotSize, unit)
-            val bytes = Png.encode(bitmap)
+        "png", "jpeg", "jpg" -> {
+            val bmp = paintPlot(spec, plotSize, scale, unit, dpi)
             file.createNewFile()
-            file.writeBytes(bytes)
+            file.outputStream().use { outStream ->
+                when (ext) {
+                    "png" -> bmp.compress(CompressFormat.PNG, 90, outStream)
+                    "jpeg", "jpg" -> bmp.compress(CompressFormat.JPEG, 90, outStream)
+                    else -> throw IllegalArgumentException("Unsupported raster format: \"$ext\".")
+                }
+            }
         }
 
         else -> throw java.lang.IllegalArgumentException("Unsupported file extension: \"$ext\".")
     }
 
     return file.path
+}
+
+private fun paintPlot(
+    spec: MutableMap<String, Any>,
+    plotSize: DoubleVector?,
+    scale: Number?,
+    unit: SizeUnit?,
+    dpi: Number?
+): Bitmap {
+    @Suppress("NAME_SHADOWING")
+    val targetDPI = dpi?.toFiniteDouble()
+    val (sizingPolicy, scaleFactor) = computeExportParameters(plotSize, targetDPI, unit, scale)
+    val plotFigure = PlotCanvasFigure2()
+    plotFigure.update(
+        processedSpec = MonolithicCommon.processRawSpecs(spec, frontendOnly = false),
+        sizingPolicy = sizingPolicy,
+        computationMessagesHandler = {}
+    )
+
+    val androidCanvasPeer = AndroidCanvasPeer(scaleFactor)
+    val reg = plotFigure.mapToCanvas(androidCanvasPeer)
+
+    val canvas = androidCanvasPeer.createCanvas(plotFigure.size)
+    plotFigure.paint(canvas.context2d)
+    val bmp = canvas.takeSnapshot().platformBitmap
+
+    reg.dispose()
+    androidCanvasPeer.dispose()
+    return bmp
+}
+
+private fun prepareOutputFile(filename: String, path: String?, context: Context): Pair<String, File> {
+    @Suppress("NAME_SHADOWING")
+    val filename = filename.trim()
+    require(filename.indexOf('.') >= 0) { "File extension is missing: \"$filename\"." }
+    val ext = filename.substringAfterLast('.', "").lowercase(Locale.getDefault())
+    require(ext.isNotEmpty()) { "Missing file extension: \"$filename\"." }
+
+    // If we are using the default path on an older Android version, we must have permission.
+    if (path == null && Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+        val permission = Manifest.permission.WRITE_EXTERNAL_STORAGE
+        if (context.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+            throw MissingStoragePermissionException(
+                "WRITE_EXTERNAL_STORAGE permission is required on Android 9 and below " +
+                        "to save to the public Pictures directory."
+            )
+        }
+    }
+
+    // Path resolution logic
+    val dir = path?.let { File(it) } ?: run {
+        val appLabel = context.packageManager.getApplicationLabel(context.applicationInfo).toString()
+        val sanitizedAppName = sanitizeDirName(appLabel)
+        val picturesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+        File(picturesDir, sanitizedAppName)
+    }
+
+    if (!dir.exists()) {
+        dir.mkdirs()
+    }
+
+    val file = File(dir, filename)
+    return Pair(ext, file)
 }
 
 
@@ -138,34 +176,7 @@ private fun toDoubleVector(x: Number?, y: Number?): DoubleVector? {
     }
 }
 
-
-fun buildImageFromRawSpecs(
-    plotSpec: MutableMap<String, Any>,
-    scalingFactor: Number? = null,
-    targetDPI: Number? = null,
-    plotSize: DoubleVector? = null,
-    unit: SizeUnit? = null,
-): Bitmap {
-    @Suppress("NAME_SHADOWING")
-    val targetDPI = targetDPI?.toDouble()?.takeIf { it.isFinite() }
-
-    val (sizingPolicy, scaleFactor) = computeExportParameters(plotSize, targetDPI, unit, scalingFactor)
-
-    val plotFigure = PlotCanvasFigure2()
-    plotFigure.update(
-        processedSpec = MonolithicCommon.processRawSpecs(plotSpec = plotSpec, frontendOnly = false),
-        sizingPolicy = sizingPolicy,
-        computationMessagesHandler = {}
-    )
-
-    val androidCanvasPeer = AndroidCanvasPeer(scaleFactor)
-    val reg = plotFigure.mapToCanvas(androidCanvasPeer)
-
-    val canvas = androidCanvasPeer.createCanvas(plotFigure.size)
-    plotFigure.paint(canvas.context2d)
-
-    val snapshot = canvas.takeSnapshot()
-    reg.dispose()
-    androidCanvasPeer.dispose()
-    return snapshot.bitmap
+private fun Number.toFiniteDouble(): Double? {
+    val v = this.toDouble()
+    return if (v.isFinite()) v else null
 }
