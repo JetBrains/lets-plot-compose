@@ -21,7 +21,7 @@ class AndroidCanvas(
             val w = (size.x * pixelDensity).roundToInt().coerceAtLeast(1)
             val h = (size.y * pixelDensity).roundToInt().coerceAtLeast(1)
 
-            val bitmap = Bitmap.createBitmap(w, h, android.graphics.Bitmap.Config.ARGB_8888)
+            val bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
 
             return AndroidCanvas(bitmap, size, pixelDensity)
         }
@@ -30,7 +30,7 @@ class AndroidCanvas(
     override val context2d: Context2d = AndroidContext2d(platformBitmap, pixelDensity)
 
     override fun takeSnapshot(): AndroidSnapshot {
-        return AndroidSnapshot(platformBitmap.copy(android.graphics.Bitmap.Config.ARGB_8888, false))
+        return AndroidSnapshot(platformBitmap.copy(Bitmap.Config.ARGB_8888, false))
     }
 
 }

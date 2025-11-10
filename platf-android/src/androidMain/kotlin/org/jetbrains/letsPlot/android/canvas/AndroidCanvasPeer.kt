@@ -13,11 +13,11 @@ class AndroidCanvasPeer(
 ) : CanvasPeer {
     private val measureCanvas = AndroidCanvas.create(Vector(1, 1), pixelDensity)
 
-    override fun createCanvas(size: Vector): Canvas {
+    override fun createCanvas(size: Vector): AndroidCanvas {
         return AndroidCanvas.create(size, pixelDensity)
     }
 
-    override fun createSnapshot(bitmap: Bitmap): Canvas.Snapshot {
+    override fun createSnapshot(bitmap: Bitmap): AndroidSnapshot {
         return AndroidSnapshot.fromBitmap(bitmap)
     }
 
