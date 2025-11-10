@@ -1,12 +1,9 @@
 package org.jetbrains.letsPlot.compose
 
-import android.Manifest
 import android.content.Context
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Bitmap.CompressFormat
-import android.os.Build
-import android.os.Environment
+import android.net.Uri
 import org.jetbrains.letsPlot.Figure
 import org.jetbrains.letsPlot.android.canvas.AndroidCanvasPeer
 import org.jetbrains.letsPlot.commons.encoding.RGBEncoder
@@ -20,98 +17,72 @@ import org.jetbrains.letsPlot.core.util.PlotSvgExportCommon
 import org.jetbrains.letsPlot.export.VersionChecker
 import org.jetbrains.letsPlot.intern.toSpec
 import org.jetbrains.letsPlot.raster.view.PlotCanvasFigure2
-import java.io.File
-import java.util.*
+import java.io.IOException
 
 /**
- * Thrown by ggsave when it requires a permission that has not been granted by the user.
+ * Defines the supported export formats for plots.
+ * @param ext The file extension for this format.
  */
-class MissingStoragePermissionException(message: String) : SecurityException(message)
-
-/**
- * Sanitizes a string to be used as a valid directory name.
- * It replaces any characters that are not letters, numbers, underscores, spaces, dots, or hyphens with an underscore.
- * It also provides a fallback name if the result is blank.
- *
- * @param name The raw string to sanitize.
- * @return A filesystem-safe directory name.
- */
-private fun sanitizeDirName(name: String): String {
-    // This regex matches one or more characters that are NOT alphanumeric, whitespace, an underscore, a dot, or a hyphen.
-    val illegalCharsRegex = "[^\\w\\s.-]+".toRegex()
-    return name
-        .replace(illegalCharsRegex, "_") // Replace all illegal characters with an underscore
-        .trim() // Remove leading/trailing whitespace
-        .ifBlank { "LetsPlot" } // If the name is now empty (e.g., was "///"), use a safe fallback.
+enum class PlotFormat(val ext: String) {
+    PNG("png"),
+    JPG("jpg"),
+    SVG("svg"),
+    HTML("html")
 }
 
-
+/**
+ * Exports a plot to a given Uri in the specified format.
+ *
+ * @param plot The plot figure to export.
+ * @param uri The destination content URI where the plot will be written.
+ * @param format The format to save the plot in, as a [PlotFormat] enum.
+ * @param context The Android context, used to access the ContentResolver.
+ * @param scale Scaling factor for the plot.
+ * @param dpi Dots per inch for raster formats.
+ * @param w Width of the plot in the specified units.
+ * @param h Height of the plot in the specified units.
+ * @param unit The unit for the width and height parameters.
+ */
 fun ggsave(
+    uri: Uri,
     plot: Figure,
-    filename: String,
+    format: PlotFormat,
     scale: Number? = null,
     dpi: Number? = null,
-    path: String? = null,
     w: Number? = null,
     h: Number? = null,
     unit: SizeUnit? = null,
-    context: Context
-): String {
-    val (ext, file) = prepareOutputFile(filename, path, context)
-
+    context: Context,
+) {
     val spec: MutableMap<String, Any> = plot.toSpec()
     val plotSize = toDoubleVector(w, h)
 
-    when (ext) {
-        "svg" -> {
-            val svg = PlotSvgExportCommon.buildSvgImageFromRawSpecs(
-                spec,
-                plotSize = plotSize,
-                rgbEncoder = RGBEncoder.DEFAULT,
-                useCssPixelatedImageRendering = true,
-                sizeUnit = unit ?: SizeUnit.PX,
-            )
-            file.createNewFile()
-            file.writeText(svg)
-        }
+    val contentResolver = context.contentResolver
 
-        "html", "htm" -> {
-            val html = PlotHtmlExport.buildHtmlFromRawSpecs(
-                spec,
-                scriptUrl = scriptUrl(VersionChecker.letsPlotJsVersion),
-                iFrame = true,
-                plotSize = plotSize
-            )
-            file.createNewFile()
-            file.writeText(html)
-        }
-
-        "png", "jpeg", "jpg" -> {
-            val bmp = paintPlot(spec, plotSize, scale, unit, dpi)
-            file.createNewFile()
-            file.outputStream().use { outStream ->
-                when (ext) {
-                    "png" -> bmp.compress(CompressFormat.PNG, 90, outStream)
-                    "jpeg", "jpg" -> bmp.compress(CompressFormat.JPEG, 90, outStream)
-                    else -> throw IllegalArgumentException("Unsupported raster format: \"$ext\".")
+    try {
+        contentResolver.openOutputStream(uri)?.use { outStream ->
+            when (format) {
+                PlotFormat.SVG -> {
+                    val svg = PlotSvgExportCommon.buildSvgImageFromRawSpecs(spec, plotSize, RGBEncoder.DEFAULT, true, unit ?: SizeUnit.PX)
+                    outStream.write(svg.toByteArray())
+                }
+                PlotFormat.HTML -> {
+                    val html = PlotHtmlExport.buildHtmlFromRawSpecs(spec, scriptUrl(VersionChecker.letsPlotJsVersion), true, plotSize)
+                    outStream.write(html.toByteArray())
+                }
+                PlotFormat.PNG, PlotFormat.JPG -> {
+                    val bmp = paintPlot(spec, plotSize, scale, unit, dpi)
+                    val compressFormat = if (format == PlotFormat.PNG) CompressFormat.PNG else CompressFormat.JPEG
+                    bmp.compress(compressFormat, 95, outStream)
                 }
             }
-        }
-
-        else -> throw java.lang.IllegalArgumentException("Unsupported file extension: \"$ext\".")
+        } ?: throw IOException("Failed to open output stream for URI: $uri")
+    } catch (e: Exception) {
+        throw e
     }
-
-    return file.path
 }
 
-private fun paintPlot(
-    spec: MutableMap<String, Any>,
-    plotSize: DoubleVector?,
-    scale: Number?,
-    unit: SizeUnit?,
-    dpi: Number?
-): Bitmap {
-    @Suppress("NAME_SHADOWING")
+private fun paintPlot(spec: MutableMap<String, Any>, plotSize: DoubleVector?, scale: Number?, unit: SizeUnit?, dpi: Number?): Bitmap {
     val targetDPI = dpi?.toFiniteDouble()
     val (sizingPolicy, scaleFactor) = computeExportParameters(plotSize, targetDPI, unit, scale)
     val plotFigure = PlotCanvasFigure2()
@@ -133,47 +104,8 @@ private fun paintPlot(
     return bmp
 }
 
-private fun prepareOutputFile(filename: String, path: String?, context: Context): Pair<String, File> {
-    @Suppress("NAME_SHADOWING")
-    val filename = filename.trim()
-    require(filename.indexOf('.') >= 0) { "File extension is missing: \"$filename\"." }
-    val ext = filename.substringAfterLast('.', "").lowercase(Locale.getDefault())
-    require(ext.isNotEmpty()) { "Missing file extension: \"$filename\"." }
-
-    // If we are using the default path on an older Android version, we must have permission.
-    if (path == null && Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
-        val permission = Manifest.permission.WRITE_EXTERNAL_STORAGE
-        if (context.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
-            throw MissingStoragePermissionException(
-                "WRITE_EXTERNAL_STORAGE permission is required on Android 9 and below " +
-                        "to save to the public Pictures directory."
-            )
-        }
-    }
-
-    // Path resolution logic
-    val dir = path?.let { File(it) } ?: run {
-        val appLabel = context.packageManager.getApplicationLabel(context.applicationInfo).toString()
-        val sanitizedAppName = sanitizeDirName(appLabel)
-        val picturesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-        File(picturesDir, sanitizedAppName)
-    }
-
-    if (!dir.exists()) {
-        dir.mkdirs()
-    }
-
-    val file = File(dir, filename)
-    return Pair(ext, file)
-}
-
-
 private fun toDoubleVector(x: Number?, y: Number?): DoubleVector? {
-    return if (x != null && y != null) {
-        DoubleVector(x.toDouble(), y.toDouble())
-    } else {
-        null
-    }
+    return if (x != null && y != null) DoubleVector(x.toDouble(), y.toDouble()) else null
 }
 
 private fun Number.toFiniteDouble(): Double? {
