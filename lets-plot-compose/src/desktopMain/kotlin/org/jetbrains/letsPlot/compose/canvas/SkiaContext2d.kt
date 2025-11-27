@@ -164,6 +164,11 @@ class SkiaContext2d(
         platformCanvas.drawRect(skiaRectFromXYWH(x, y, w, h), strokePaint)
     }
 
+    override fun drawCircle(x: Double, y: Double, radius: Double) {
+        platformCanvas.drawCircle(x.toFloat(), y.toFloat(), radius.toFloat(), fillPaint)
+        platformCanvas.drawCircle(x.toFloat(), y.toFloat(), radius.toFloat(), strokePaint)
+    }
+
     override fun fillText(text: String, x: Double, y: Double) {
         drawText(text, x, y, fillPaint)
     }

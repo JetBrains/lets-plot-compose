@@ -131,6 +131,11 @@ class AndroidContext2d(
         platformCanvas.drawRect(x.toFloat(), y.toFloat(), (x+w).toFloat(), (y+h).toFloat(), strokePaint)
     }
 
+    override fun drawCircle(x: Double, y: Double, radius: Double) {
+        platformCanvas.drawCircle(x.toFloat(), y.toFloat(), radius.toFloat(), fillPaint)
+        platformCanvas.drawCircle(x.toFloat(), y.toFloat(), radius.toFloat(), strokePaint)
+    }
+
     override fun setFont(f: Font) {
         val style = when (f.fontStyle) {
             FontStyle.NORMAL -> when (f.fontWeight) {

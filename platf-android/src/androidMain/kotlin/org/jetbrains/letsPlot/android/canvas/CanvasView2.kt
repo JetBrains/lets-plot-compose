@@ -71,8 +71,6 @@ class CanvasView2(
         centerOffsetX = ((width - fig.size.x * resources.displayMetrics.density) / 2f)
         centerOffsetY = ((height - fig.size.y * resources.displayMetrics.density) / 2f)
 
-        println("CanvasView.onDraw: view size=($width, $height), figure size=(${fig.size.x}, ${fig.size.y}), offset=($centerOffsetX, $centerOffsetY)")
-
         context2d.save()
         context2d.translate(centerOffsetX.toDouble() / resources.displayMetrics.density, centerOffsetY.toDouble() / resources.displayMetrics.density)
 
@@ -107,8 +105,6 @@ class CanvasView2(
             MeasureSpec.AT_MOST -> minOf(desiredHeight, MeasureSpec.getSize(heightMeasureSpec))
             else -> desiredHeight
         }
-
-        println("finalWidth=$finalWidth, finalHeight=$finalHeight")
 
         setMeasuredDimension(finalWidth, finalHeight)
     }
