@@ -21,5 +21,6 @@ expect fun PlotPanelRaw(
     modifier: Modifier,
     errorTextStyle: TextStyle = TextStyle(color = Color(0xFF700000)),
     errorModifier: Modifier = Modifier.padding(16.dp),
+    legacyRendering: Boolean = false,
     computationMessagesHandler: (List<String>) -> Unit
 )

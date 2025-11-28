@@ -1,6 +1,5 @@
 package org.jetbrains.letsPlot.compose.canvas
 
-import androidx.compose.ui.graphics.NativeCanvas
 import org.jetbrains.letsPlot.commons.geometry.AffineTransform
 import org.jetbrains.letsPlot.commons.geometry.DoubleRectangle
 import org.jetbrains.letsPlot.commons.registration.Disposable
@@ -11,7 +10,7 @@ import org.jetbrains.skia.*
 import org.jetbrains.skia.Color.TRANSPARENT
 
 class SkiaContext2d(
-    val platformCanvas: NativeCanvas,
+    val platformCanvas: org.jetbrains.skia.Canvas,
     private val skiaFontManager: SkiaFontManager,
     private val contextState: ContextStateDelegate = ContextStateDelegate(failIfNotImplemented = false),
 ) : Context2d by contextState, Disposable {

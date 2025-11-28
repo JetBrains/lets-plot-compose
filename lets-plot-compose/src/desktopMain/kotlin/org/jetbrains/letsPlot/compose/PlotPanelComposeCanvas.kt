@@ -47,7 +47,7 @@ private const val logRecompositions = false
 
 @Suppress("FunctionName")
 @Composable
-fun PlotPanelRawNew(
+fun PlotPanelComposeCanvas(
     rawSpec: MutableMap<String, Any>,
     preserveAspectRatio: Boolean,
     modifier: Modifier,
@@ -230,11 +230,5 @@ fun PlotPanelRawNew(
                 }
             }
         }
-    }
-}
-
-private fun containsBackground(modifier: Modifier): Boolean {
-    return modifier.foldIn(false) { hasBg, element ->
-        hasBg || element.toString().contains("BackgroundElement")
     }
 }

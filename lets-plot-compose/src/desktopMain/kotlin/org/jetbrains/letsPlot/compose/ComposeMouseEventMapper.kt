@@ -104,7 +104,7 @@ class ComposeMouseEventMapper : MouseEventSource, PointerInputEventHandler {
         val vector = Vector(adjustedX, adjustedY)
         val mouseEvent = MouseEvent.leftButton(vector)
 
-        val eventSpec = when (clickCount) {
+        when (clickCount) {
             1 -> mouseEventPeer.dispatch(MOUSE_CLICKED, mouseEvent)
             2 -> mouseEventPeer.dispatch(MOUSE_DOUBLE_CLICKED, mouseEvent)
             else -> return
