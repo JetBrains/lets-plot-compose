@@ -9,7 +9,7 @@ import org.jetbrains.letsPlot.core.canvas.Font
 import org.jetbrains.letsPlot.core.canvas.TextMetrics
 
 class SkiaCanvasPeer : CanvasPeer {
-    private val measureCanvas = SkiaCanvas.create(0, 0)
+    private val measureCanvas = SkiaCanvas.create(1, 1)
 
     override fun createCanvas(size: Vector): Canvas {
         return SkiaCanvas.create(size.x, size.y)
