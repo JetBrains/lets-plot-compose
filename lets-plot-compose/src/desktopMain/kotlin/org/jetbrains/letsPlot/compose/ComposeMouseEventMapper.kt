@@ -18,6 +18,11 @@ class ComposeMouseEventMapper : MouseEventSource, PointerInputEventHandler {
     private var offsetX: Float = 0f
     private var offsetY: Float = 0f
 
+    fun setOffset(offsetX: Float, offsetY: Float) {
+        this.offsetX = offsetX
+        this.offsetY = offsetY
+    }
+
     override fun addEventHandler(eventSpec: MouseEventSpec, eventHandler: EventHandler<MouseEvent>): Registration {
         return mouseEventPeer.addEventHandler(eventSpec, eventHandler)
     }

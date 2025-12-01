@@ -205,6 +205,8 @@ fun PlotPanelComposeCanvas(
                                 maxOf(0.0, (panelSize.y - plotHeight) / 2.0)
                             )
 
+                            composeMouseEventMapper.setOffset(plotPosition.x.toFloat(), plotPosition.y.toFloat())
+
                             redrawTrigger++ // trigger repaint
                         }
                     }.getOrElse { e ->
