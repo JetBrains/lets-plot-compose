@@ -25,6 +25,7 @@ import androidx.compose.ui.text.TextStyle
 import org.jetbrains.letsPlot.commons.geometry.DoubleVector
 import org.jetbrains.letsPlot.commons.logging.PortableLogging
 import org.jetbrains.letsPlot.commons.registration.CompositeRegistration
+import org.jetbrains.letsPlot.commons.registration.Registration
 import org.jetbrains.letsPlot.compose.canvas.SkiaCanvasPeer
 import org.jetbrains.letsPlot.compose.canvas.SkiaContext2d
 import org.jetbrains.letsPlot.compose.canvas.SkiaFontManager
@@ -37,6 +38,8 @@ import org.jetbrains.letsPlot.core.util.PlotThemeHelper
 import org.jetbrains.letsPlot.core.util.sizing.SizingPolicy.Companion.fitContainerSize
 import org.jetbrains.letsPlot.raster.view.PlotCanvasFigure2
 import java.awt.Cursor
+import java.awt.Desktop
+import java.net.URI
 
 //import org.jetbrains.letsPlot.compose.util.NaiveLogger
 
@@ -93,10 +96,14 @@ fun PlotPanelComposeCanvas(
     }
 
     val reg = remember(plotCanvasFigure2) {
+        plotCanvasFigure2.onHrefClick(::browseLink)
         CompositeRegistration(
             // trigger recomposition on repaint request
             plotCanvasFigure2.onRepaintRequested { redrawTrigger++ },
-            plotCanvasFigure2.mapToCanvas(skiaCanvasPeer)
+            plotCanvasFigure2.mapToCanvas(skiaCanvasPeer),
+            Registration.onRemove {
+                plotCanvasFigure2.onHrefClick(handler = {})
+            }
         )
     }
 
@@ -230,5 +237,14 @@ fun PlotPanelComposeCanvas(
                 }
             }
         }
+    }
+}
+
+private fun browseLink(string: String) {
+    try {
+        val uri = URI(string)
+        Desktop.getDesktop().browse(uri)
+    } catch (e: Exception) {
+        LOG.error(e) { "Failed to open link: $string" }
     }
 }
