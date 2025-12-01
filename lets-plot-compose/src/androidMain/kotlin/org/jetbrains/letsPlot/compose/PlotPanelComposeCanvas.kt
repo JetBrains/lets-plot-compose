@@ -202,6 +202,8 @@ fun PlotPanelComposeCanvas(
                                 maxOf(0.0, (panelSize.y - plotHeight) / 2.0)
                             )
 
+                            composeMouseEventMapper.setOffset(plotPosition.x.toFloat(), plotPosition.y.toFloat())
+
                             redrawTrigger++ // trigger repaint
                         }
                     }.getOrElse { e ->
@@ -248,6 +250,11 @@ class ComposeMouseEventMapper : MouseEventSource, PointerInputEventHandler {
     private var lastClickTime: Long = 0
     private var offsetX: Float = 0f
     private var offsetY: Float = 0f
+
+    fun setOffset(offsetX: Float, offsetY: Float) {
+        this.offsetX = offsetX
+        this.offsetY = offsetY
+    }
 
     override fun addEventHandler(eventSpec: MouseEventSpec, eventHandler: EventHandler<MouseEvent>): Registration {
         return mouseEventPeer.addEventHandler(eventSpec, eventHandler)
