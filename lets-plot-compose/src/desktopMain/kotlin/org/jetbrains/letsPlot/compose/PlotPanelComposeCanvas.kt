@@ -245,6 +245,6 @@ private fun browseLink(string: String) {
         val uri = URI(string)
         Desktop.getDesktop().browse(uri)
     } catch (e: Exception) {
-        LOG.error(e) { "Failed to open link: $string" }
+        LOG.error(e) { "Failed to open link: $string (${e.message})" }
     }
 }
