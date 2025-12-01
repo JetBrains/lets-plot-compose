@@ -82,7 +82,7 @@ fun PlotPanelComposeCanvas(
 
     var plotFigureModel by remember { mutableStateOf<PlotFigureModel?>(null) }
 
-    var errorMessage: String? by remember(processedPlotSpec) { mutableStateOf(null) }
+    var errorMessage: String? by remember(processedPlotSpec, panelSize) { mutableStateOf(null) }
 
     var redrawTrigger by remember { mutableStateOf(0) }
 

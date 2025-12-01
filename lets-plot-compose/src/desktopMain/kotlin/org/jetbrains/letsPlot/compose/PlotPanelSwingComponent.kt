@@ -60,7 +60,7 @@ fun PlotPanelSwingComponent(
     var plotFigureModel by remember { mutableStateOf<PlotFigureModel?>(null) }
 
 
-    var errorMessage: String? by remember(processedPlotSpec) { mutableStateOf(null) }
+    var errorMessage: String? by remember(processedPlotSpec, panelSize) { mutableStateOf(null) }
 
     // Reset the old plot on error to prevent blinking
     // We can't reset PlotContainer using updateViewmodel(), so we create a new one.
