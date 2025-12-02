@@ -58,33 +58,39 @@ fun ggsave(
     val plotSize = toDoubleVector(w, h)
 
     val contentResolver = context.contentResolver
-
-    try {
-        contentResolver.openOutputStream(uri)?.use { outStream ->
-            when (format) {
-                PlotFormat.SVG -> {
-                    val svg = PlotSvgExportCommon.buildSvgImageFromRawSpecs(spec, plotSize, RGBEncoder.DEFAULT, true, unit ?: SizeUnit.PX)
-                    outStream.write(svg.toByteArray())
-                }
-                PlotFormat.HTML -> {
-                    val html = PlotHtmlExport.buildHtmlFromRawSpecs(spec, scriptUrl(VersionChecker.letsPlotJsVersion), true, plotSize)
-                    outStream.write(html.toByteArray())
-                }
-                PlotFormat.PNG, PlotFormat.JPG -> {
-                    val bmp = paintPlot(spec, plotSize, scale, unit, dpi)
+    contentResolver.openOutputStream(uri)?.use { outStream ->
+        when (format) {
+            PlotFormat.SVG -> {
+                val svg = PlotSvgExportCommon.buildSvgImageFromRawSpecs(spec, plotSize, RGBEncoder.DEFAULT, true, unit ?: SizeUnit.PX)
+                outStream.write(svg.toByteArray())
+            }
+            PlotFormat.HTML -> {
+                val html = PlotHtmlExport.buildHtmlFromRawSpecs(spec, scriptUrl(VersionChecker.letsPlotJsVersion), true, plotSize)
+                outStream.write(html.toByteArray())
+            }
+            PlotFormat.PNG, PlotFormat.JPG -> {
+                val bmp = paintPlot(spec, plotSize, scale, unit, dpi)
+                try {
                     val compressFormat = if (format == PlotFormat.PNG) CompressFormat.PNG else CompressFormat.JPEG
                     bmp.compress(compressFormat, 95, outStream)
+                } finally {
+                    bmp.recycle()
                 }
             }
-        } ?: throw IOException("Failed to open output stream for URI: $uri")
-    } catch (e: Exception) {
-        throw e
-    }
+        }
+    } ?: throw IOException("Failed to open output stream for URI: $uri")
 }
 
-private fun paintPlot(spec: MutableMap<String, Any>, plotSize: DoubleVector?, scale: Number?, unit: SizeUnit?, dpi: Number?): Bitmap {
+private fun paintPlot(
+    spec: MutableMap<String, Any>,
+    plotSize: DoubleVector?,
+    scale: Number?,
+    unit: SizeUnit?,
+    dpi: Number?
+): Bitmap {
     val targetDPI = dpi?.toFiniteDouble()
     val (sizingPolicy, scaleFactor) = computeExportParameters(plotSize, targetDPI, unit, scale)
+
     val plotFigure = PlotCanvasFigure2()
     plotFigure.update(
         processedSpec = MonolithicCommon.processRawSpecs(spec, frontendOnly = false),
@@ -93,15 +99,19 @@ private fun paintPlot(spec: MutableMap<String, Any>, plotSize: DoubleVector?, sc
     )
 
     val androidCanvasPeer = AndroidCanvasPeer(scaleFactor)
-    val reg = plotFigure.mapToCanvas(androidCanvasPeer)
 
-    val canvas = androidCanvasPeer.createCanvas(plotFigure.size)
-    plotFigure.paint(canvas.context2d)
-    val bmp = canvas.takeSnapshot().platformBitmap
-
-    reg.dispose()
-    androidCanvasPeer.dispose()
-    return bmp
+    try {
+        val reg = plotFigure.mapToCanvas(androidCanvasPeer)
+        try {
+            val canvas = androidCanvasPeer.createCanvas(plotFigure.size)
+            plotFigure.paint(canvas.context2d)
+            return canvas.takeSnapshot().platformBitmap
+        } finally {
+            reg.dispose()
+        }
+    } finally {
+        androidCanvasPeer.dispose()
+    }
 }
 
 private fun toDoubleVector(x: Number?, y: Number?): DoubleVector? {

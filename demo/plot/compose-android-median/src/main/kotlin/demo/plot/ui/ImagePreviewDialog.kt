@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
@@ -38,6 +39,8 @@ import org.jetbrains.letsPlot.compose.PlotFormat
 fun ImagePreviewDialog(uri: Uri, format: PlotFormat, onDismiss: () -> Unit) {
     val context = LocalContext.current
     var displayName by remember { mutableStateOf<String?>(null) }
+    var resolution by remember { mutableStateOf<String?>(null) }
+
     LaunchedEffect(uri) {
         displayName = getDisplayNameFromUri(context, uri)
     }
@@ -102,7 +105,12 @@ fun ImagePreviewDialog(uri: Uri, format: PlotFormat, onDismiss: () -> Unit) {
                     withContext(Dispatchers.IO) {
                         try {
                             context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                                imageBitmap = BitmapFactory.decodeStream(inputStream)?.asImageBitmap()
+                                val bmp = BitmapFactory.decodeStream(inputStream)
+                                if (bmp != null) {
+                                    // Extract resolution from the decoded bitmap
+                                    resolution = "${bmp.width} x ${bmp.height} px"
+                                    imageBitmap = bmp.asImageBitmap()
+                                }
                             }
                         } catch (e: Exception) {
                             e.printStackTrace()
@@ -124,7 +132,10 @@ fun ImagePreviewDialog(uri: Uri, format: PlotFormat, onDismiss: () -> Unit) {
                 }
             }
 
+            // Display Info Overlay (Name + Resolution)
             displayName?.let { name ->
+                val infoText = if (resolution != null) "$name\n$resolution" else name
+
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopCenter)
@@ -135,9 +146,10 @@ fun ImagePreviewDialog(uri: Uri, format: PlotFormat, onDismiss: () -> Unit) {
                         )
                 ) {
                     Text(
-                        text = name,
+                        text = infoText,
                         color = Color.White,
                         style = MaterialTheme.typography.body1,
+                        textAlign = TextAlign.Center,
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
                     )
                 }
