@@ -96,7 +96,10 @@ fun PlotPanelComposeCanvas(
     }
 
     val reg = remember(plotCanvasFigure2) {
-        plotCanvasFigure2.onHrefClick(::browseLink)
+        // TODO: Enable after updating to Lets-Plot v4.8.2 or higher.
+        if (false) {
+            plotCanvasFigure2.onHrefClick(::browseLink)
+        }
         CompositeRegistration(
             // trigger recomposition on repaint request
             plotCanvasFigure2.onRepaintRequested { redrawTrigger++ },

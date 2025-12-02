@@ -23,7 +23,7 @@ fun PlotPanel(
     modifier: Modifier,
     errorTextStyle: TextStyle = TextStyle(color = Color(0xFF700000)),
     errorModifier: Modifier = Modifier.padding(16.dp),
-    legacyRendering: Boolean = true,
+    legacyRendering: Boolean = false,
     computationMessagesHandler: (List<String>) -> Unit
 ) {
     // Cache the raw spec conversion to avoid recomputing on every recomposition
