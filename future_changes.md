@@ -14,4 +14,5 @@ All artifacts were built with the following versions of dependencies:
 - Android: rendering using Compose Canvas instead of Android View
 
 ### Fixed
+- geomRaster uses incorrect colours [[#46](https://github.com/JetBrains/lets-plot-compose/issues/46)].
 
