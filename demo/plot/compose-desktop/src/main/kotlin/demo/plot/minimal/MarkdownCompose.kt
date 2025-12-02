@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import org.jetbrains.letsPlot.compose.PlotPanelRaw
+import org.jetbrains.letsPlot.compose.PlotPanel
 import plotSpec.MarkdownSpec
 
 fun main() = application {
@@ -23,8 +23,8 @@ fun main() = application {
                 modifier = Modifier.fillMaxSize().padding(start = 10.dp, top = 10.dp, end = 10.dp, bottom = 10.dp),
             ) {
 
-                PlotPanelRaw(
-                    rawSpec = MarkdownSpec().mpg(),
+                PlotPanel(
+                    figure = MarkdownSpec().mpg(),
                     modifier = Modifier.fillMaxSize(),
                     preserveAspectRatio = true,
                 ) { computationMessages ->

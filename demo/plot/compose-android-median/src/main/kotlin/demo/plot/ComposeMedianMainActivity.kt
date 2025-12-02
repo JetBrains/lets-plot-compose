@@ -124,9 +124,11 @@ class ComposeMedianMainActivity : ComponentActivity() {
                     }
 
                     val fig = figures[figureIndex.value].second
-                    if (fig is Map<*, *>) {
+                    if (fig is MutableMap<*, *>) { // only for FrontendExceptionSpec
+                        @Suppress("UNCHECKED_CAST")
+                        val rawSpec = fig as MutableMap<String, Any>
                         PlotPanelRaw(
-                            rawSpec = fig as MutableMap<String, Any>,
+                            rawSpec = rawSpec,
                             preserveAspectRatio = preserveAspectRatio.value,
                             modifier = Modifier.fillMaxSize(),
                             errorModifier = Modifier.padding(16.dp),
