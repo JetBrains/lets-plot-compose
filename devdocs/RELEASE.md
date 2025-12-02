@@ -17,6 +17,9 @@ Update the 'version' property in the root "build.gradle.kts":
 ##### 3. Build and Release Artifacts to Sonatype Central Repository
 
 - `./gradlew clean`
+
+> Note: make sure the `lets-plot-compose/build` is clean (e.g., no old artifacts in `lets-plot-compose/build/maven`).
+
 - `./gradlew build`
 - `./gradlew publishAllPublicationsToMavenRepository`
 - `./gradlew uploadMavenArtifacts`

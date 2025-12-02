@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). All scales should have the 'format' parameter.
 
+## [3.0.1] - 2025-12-02
+
+### Compatibility
+
+All artifacts were built with the following versions of dependencies:
+- Compose Multiplatform: [1.9.3](https://github.com/JetBrains/compose-multiplatform/releases/tag/v1.9.3)
+- Lets-Plot Kotlin API: [4.12.0](https://github.com/JetBrains/lets-plot-kotlin/releases/tag/v4.12.0)
+- Lets-Plot Multiplatform: [4.8.1](https://github.com/JetBrains/lets-plot/releases/tag/v4.8.1)
+
+### Added
+
+- Android: support for `PNG` export in `ggsave()` [[#30](https://github.com/JetBrains/lets-plot-compose/issues/30)].
+
+### Changed
+
+- [**BREAKING**] Artefacts `org.jetbrains.lets-plot:canvas` and `org.jetbrains.lets-plot:plot-raster` \
+  are now required dependencies for both Desktop and Android platforms.  \
+  See REDAME.md "Dependencies" section for details.
+
+
+- Android: rendering using Compose Canvas instead of Android View
+
+### Fixed
+
+- `geomRaster` uses incorrect colours [[#46](https://github.com/JetBrains/lets-plot-compose/issues/46)].
+    
+
 ## [3.0.0] - 2025-09-19
 
 > [!NOTE]
