@@ -11,7 +11,6 @@ import org.jetbrains.letsPlot.Figure
 import org.jetbrains.letsPlot.geom.geomRaster
 import org.jetbrains.letsPlot.letsPlot
 import org.jetbrains.letsPlot.scale.scaleFillIdentity
-import kotlin.random.Random
 
 class RasterSpec : PlotDemoFigure {
 
@@ -20,25 +19,6 @@ class RasterSpec : PlotDemoFigure {
             rasterPlot(rasterData_Blue(), scaleFillIdentity = false),
             rasterPlot(rasterData_RGB(), scaleFillIdentity = true)
         )
-    }
-
-    fun issue46(): Figure {
-        val rand = Random(12)
-        val n = 3
-
-        val data = mapOf(
-            "x" to List(n) { rand.nextDouble() },
-            "y" to List(n) { rand.nextDouble() },
-            "col" to List(n) { rand.nextDouble() },
-        )
-
-
-        // geomRaster with n = 3 shows orange/brown squares
-        return letsPlot(data) + geomRaster {
-            x = "x"
-            y = "y"
-            fill = "col"
-        }
     }
 
     private fun rasterPlot(data: Map<*, *>, scaleFillIdentity: Boolean): Figure {

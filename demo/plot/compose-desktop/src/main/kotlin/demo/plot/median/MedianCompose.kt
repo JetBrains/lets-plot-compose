@@ -31,6 +31,7 @@ fun main() = application {
             "Density Plot" to DensitySpec().simple(ggtb = true),
             "Plot Grid" to PlotGridSpec().createFigure(),
             "25k Points" to PerfSpec().createFigure(),
+            "Raster bin2d" to RasterBin2DSpec().createFigure(),
             "BackendError" to IllegalArgumentSpec().createFigure(),
             "FrontendError" to FrontendExceptionSpec().createRawSpec(),
         )
