@@ -14,8 +14,8 @@ import android.widget.LinearLayout
 import demo.svgModel.ClipPathSvgModel
 import demo.svgModel.ReferenceSvgModel
 import demo.svgModel.SvgImageElementModel
-import org.jetbrains.letsPlot.android.canvas.CanvasView
-import org.jetbrains.letsPlot.raster.view.SvgCanvasFigure
+import org.jetbrains.letsPlot.android.canvas.CanvasView2
+import org.jetbrains.letsPlot.raster.view.SvgCanvasFigure2
 
 class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,22 +35,22 @@ class MainActivity : Activity() {
         })
         // Svg pictures A, B, C
         layout.addView(
-            CanvasView(this).apply {
-                figure = SvgCanvasFigure(ReferenceSvgModel.createModel())
+            CanvasView2(this).apply {
+                figure = SvgCanvasFigure2(ReferenceSvgModel.createModel())
                 setBackgroundColor(Color.GREEN)
             }
         )
 
         layout.addView(
-            CanvasView(this).apply {
-                figure = SvgCanvasFigure(SvgImageElementModel.createModel())
+            CanvasView2(this).apply {
+                figure = SvgCanvasFigure2(SvgImageElementModel.createModel())
                 setBackgroundColor(Color.RED)
             }
         )
 
         layout.addView(
-            CanvasView(this).apply {
-                figure = SvgCanvasFigure(ClipPathSvgModel.createModel())
+            CanvasView2(this).apply {
+                figure = SvgCanvasFigure2(ClipPathSvgModel.createModel())
                 setBackgroundColor(Color.BLUE)
             }
         )

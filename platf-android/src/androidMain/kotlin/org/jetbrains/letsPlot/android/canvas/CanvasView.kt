@@ -31,6 +31,7 @@ import kotlin.math.ceil
 val CanvasFigure.width get() = bounds().get().dimension.x
 val CanvasFigure.height get() = bounds().get().dimension.y
 
+@Deprecated("Migrate to CanvasView2", replaceWith = ReplaceWith("CanvasView", "org.jetbrains.letsPlot.android.canvas"))
 @SuppressLint("ViewConstructor")
 class CanvasView(
     context: Context,

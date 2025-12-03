@@ -10,16 +10,16 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.ViewGroup
 import demo.svgModel.ReferenceSvgModel
-import org.jetbrains.letsPlot.android.canvas.CanvasView
-import org.jetbrains.letsPlot.raster.view.SvgCanvasFigure
+import org.jetbrains.letsPlot.android.canvas.CanvasView2
+import org.jetbrains.letsPlot.raster.view.SvgCanvasFigure2
 
 class SvgReferenceFixedSize : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContentView(
-            CanvasView(this).apply {
-                figure = SvgCanvasFigure(ReferenceSvgModel.createModel())
+            CanvasView2(this).apply {
+                figure = SvgCanvasFigure2(ReferenceSvgModel.createModel())
                 setBackgroundColor(Color.BLUE)
             },
             ViewGroup.LayoutParams(500, 500)
