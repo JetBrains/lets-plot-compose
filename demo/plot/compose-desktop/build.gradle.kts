@@ -10,6 +10,7 @@ val letsPlotKotlinVersion = extra["letsPlotKotlin.version"] as String
 
 dependencies {
     implementation(compose.desktop.currentOs)
+    implementation(compose.components.resources)
 
     implementation("org.jetbrains.lets-plot:lets-plot-kotlin-kernel:$letsPlotKotlinVersion")
     implementation("org.jetbrains.lets-plot:lets-plot-common:$letsPlotVersion")

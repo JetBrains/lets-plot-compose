@@ -11,5 +11,7 @@ All artifacts were built with the following versions of dependencies:
 
 ### Changed
 
+- New required dependency in desktop: `implementation(compose.components.resources)`
+
 ### Fixed
 

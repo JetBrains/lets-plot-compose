@@ -48,6 +48,7 @@ kotlin {
                 compileOnly(compose.runtime)
                 compileOnly(compose.ui)
                 compileOnly(compose.desktop.currentOs)
+                compileOnly(compose.components.resources)
                 compileOnly("org.jetbrains.skiko:skiko:${skikoVersion}")
                 api(project(":platf-skia"))
                 compileOnly("io.github.microutils:kotlin-logging-jvm:$kotlinLoggingVersion")
