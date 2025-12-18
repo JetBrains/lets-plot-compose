@@ -15,3 +15,4 @@ All artifacts were built with the following versions of dependencies:
 
 ### Fixed
 
+- Hyperlinks not opened on Desktop platform.
