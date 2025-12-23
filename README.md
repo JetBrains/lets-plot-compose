@@ -21,26 +21,29 @@ For more details see [Compose multiplatform compatibility and versioning overvie
 ## Dependencies
 
 - Compose Multiplatform: [1.9.3](https://github.com/JetBrains/compose-multiplatform/releases/tag/v1.9.3)
-- Lets-Plot Kotlin API: [4.12.0](https://github.com/JetBrains/lets-plot-kotlin/releases/tag/v4.12.0)
-- Lets-Plot Multiplatform: [4.8.1](https://github.com/JetBrains/lets-plot/releases/tag/v4.8.1)
+- Lets-Plot Kotlin API: [4.12.1](https://github.com/JetBrains/lets-plot-kotlin/releases/tag/v4.12.1)
+- Lets-Plot Multiplatform: [4.8.2](https://github.com/JetBrains/lets-plot/releases/tag/v4.8.2)
 
 ### Compose Multiplatform for Desktop
 
 ```kotlin
 dependencies {
+    implementation(compose.desktop.currentOs)
+    implementation(compose.components.resources)
+
     // Lets-Plot Kotlin API
-    implementation("org.jetbrains.lets-plot:lets-plot-kotlin-kernel:4.12.0")
+    implementation("org.jetbrains.lets-plot:lets-plot-kotlin-kernel:4.12.1")
 
     // Lets-Plot Multiplatform
-    implementation("org.jetbrains.lets-plot:lets-plot-common:4.8.1")
-    implementation("org.jetbrains.lets-plot:canvas:4.8.1")
-    implementation("org.jetbrains.lets-plot:plot-raster:4.8.1")
+    implementation("org.jetbrains.lets-plot:lets-plot-common:4.8.2")
+    implementation("org.jetbrains.lets-plot:canvas:4.8.2")
+    implementation("org.jetbrains.lets-plot:plot-raster:4.8.2")
     
     // Lets-Plot 'image export' (optional - enables exporting to raster formats)
-    implementation("org.jetbrains.lets-plot:lets-plot-image-export:4.8.1")
+    implementation("org.jetbrains.lets-plot:lets-plot-image-export:4.8.2")
 
     // Lets-Plot Compose UI
-    implementation("org.jetbrains.lets-plot:lets-plot-compose:3.0.1")
+    implementation("org.jetbrains.lets-plot:lets-plot-compose:3.0.2")
 }
 ```
 See example: [Compose desktop](https://github.com/JetBrains/lets-plot-compose-demos/blob/main/compose-desktop/build.gradle.kts) demo.
@@ -50,15 +53,15 @@ See example: [Compose desktop](https://github.com/JetBrains/lets-plot-compose-de
 ```kotlin
 dependencies {
     // Lets-Plot Kotlin API
-    implementation("org.jetbrains.lets-plot:lets-plot-kotlin-kernel:4.12.0")
+    implementation("org.jetbrains.lets-plot:lets-plot-kotlin-kernel:4.12.1")
 
     // Lets-Plot Multiplatform
-    implementation("org.jetbrains.lets-plot:lets-plot-common:4.8.1")
-    implementation("org.jetbrains.lets-plot:canvas:4.8.1")
-    implementation("org.jetbrains.lets-plot:plot-raster:4.8.1")
+    implementation("org.jetbrains.lets-plot:lets-plot-common:4.8.2")
+    implementation("org.jetbrains.lets-plot:canvas:4.8.2")
+    implementation("org.jetbrains.lets-plot:plot-raster:4.8.2")
 
     // Lets-Plot Compose UI
-    implementation("org.jetbrains.lets-plot:lets-plot-compose:3.0.1")
+    implementation("org.jetbrains.lets-plot:lets-plot-compose:3.0.2")
 }
 ```
 

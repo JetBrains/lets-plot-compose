@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). All scales should have the 'format' parameter.
 
+## [3.0.2] - 2025-12-22
+
+### Compatibility
+
+All artifacts were built with the following versions of dependencies:
+- Compose Multiplatform: [1.9.3](https://github.com/JetBrains/compose-multiplatform/releases/tag/v1.9.3)
+- Lets-Plot Kotlin API: [4.12.1](https://github.com/JetBrains/lets-plot-kotlin/releases/tag/v4.12.1)
+- Lets-Plot Multiplatform: [4.8.2](https://github.com/JetBrains/lets-plot/releases/tag/v4.8.2)
+
+### Changed
+
+- Updated the toolbar look and feel.
+- New required dependency in Desktop target: `implementation(compose.components.resources)`
+
+### Fixed
+
+- Hyperlinks didn't open on the Desktop platform.
+                                  
+
 ## [3.0.1] - 2025-12-02
 
 ### Compatibility
