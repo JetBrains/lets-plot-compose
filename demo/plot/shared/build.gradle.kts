@@ -4,17 +4,13 @@
  */
 
 plugins {
-    kotlin("jvm")
+    alias(libs.plugins.kotlin.jvm)
 }
 
-val letsPlotVersion = extra["letsPlot.version"] as String
-val letsPlotKotlinVersion = extra["letsPlotKotlin.version"] as String
-
 dependencies {
-    compileOnly("org.jetbrains.lets-plot:lets-plot-kotlin-kernel:$letsPlotKotlinVersion")
-
-    compileOnly("org.jetbrains.lets-plot:commons:$letsPlotVersion")
-    compileOnly("org.jetbrains.lets-plot:datamodel:$letsPlotVersion")
-
-    testImplementation(kotlin("test"))
+    compileOnly(libs.letsplot.kotlin.kernel)
+    compileOnly(libs.letsplot.commons)
+    compileOnly(libs.letsplot.datamodel)
+    
+    testImplementation(libs.kotlin.test)
 }

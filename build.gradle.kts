@@ -3,151 +3,168 @@
  * Use of this source code is governed by the MIT license that can be found in the LICENSE file.
  */
 
+@file:Suppress("UnstableApiUsage")
 
-// okhttp3 added for publishing to the Sonatype Central Repository:
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.asRequestBody
-import java.util.*
+import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import org.jetbrains.kotlin.gradle.plugin.KotlinBasePlugin
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
+import java.util.Base64
+import java.util.Properties
 
-buildscript {
-    dependencies {
-        classpath("com.squareup.okhttp3:okhttp:4.12.0")
-    }
-}
+buildscript { dependencies { classpath(libs.okhttp) } }
 
 plugins {
-    // this is necessary to avoid the plugins to be loaded multiple times
-    // in each subproject's classloader
-    kotlin("multiplatform").apply(false)
-    kotlin("plugin.compose").apply(false)
-    kotlin("jvm").apply(false)
-    id("org.jetbrains.compose").apply(false)
-
-    kotlin("android").apply(false)
-    id("com.android.application").apply(false)
-    id("com.android.library").apply(false)
-
-    id("io.codearte.nexus-staging").apply(false)
-    id("io.github.gradle-nexus.publish-plugin")
+  alias(libs.plugins.kotlin.multiplatform) apply false
+  alias(libs.plugins.kotlin.compose.compiler) apply false
+  alias(libs.plugins.kotlin.jvm) apply false
+  alias(libs.plugins.kotlin.android) apply false
+  alias(libs.plugins.android.application) apply false
+  alias(libs.plugins.android.library) apply false
+  alias(libs.plugins.kotlin.multiplatform.android.library) apply false
+  alias(libs.plugins.nexus.staging) apply false
+  alias(libs.plugins.nexus.publish)
 }
 
-val localProps = Properties()
-if (project.file("local.properties").exists()) {
-    localProps.load(project.file("local.properties").inputStream())
-} else {
-    error("Couldn't read local.properties")
-}
+// =============================
+//     Properties & Config
+// =============================
 
-allprojects {
-    group = "org.jetbrains.lets-plot"
-    version = "3.0.3-SNAPSHOT"
-//    version = "0.0.0-SNAPSHOT" // for local publishing only
-
-    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().all {
-        kotlinOptions {
-            jvmTarget = "11"
-        }
+val localProps =
+    Properties().apply {
+      val localPropertiesFile = rootProject.file("local.properties")
+      if (localPropertiesFile.exists()) {
+        load(localPropertiesFile.inputStream())
+      }
     }
 
-    tasks.withType<JavaCompile>().all {
-        sourceCompatibility = "11"
-        targetCompatibility = "11"
-    }
-}
+val javaVersion: String = libs.versions.java.get()
+val javaLanguageVersion: JavaLanguageVersion = JavaLanguageVersion.of(javaVersion)
 
-// define the Maven Repository URL. Currently set to a local path for uploading
-// artifacts to the Sonatype Central Repository.
-val mavenReleasePublishUrl by extra { layout.buildDirectory.dir("maven/artifacts").get().toString() }
-// define Maven Snapshot repository URL.
+// =============================
+//     Maven Publishing Config
+// =============================
+
+val mavenReleasePublishUrl by extra {
+  layout.buildDirectory.dir("maven/artifacts").get().toString()
+}
 val mavenSnapshotPublishUrl by extra { "https://central.sonatype.com/repository/maven-snapshots/" }
-
-// define Sonatype Central Repository settings:
 val sonatypeUsername by extra { localProps["sonatype.username"] ?: "" }
 val sonatypePassword by extra { localProps["sonatype.password"] ?: "" }
 
-val packageMavenArtifacts by tasks.registering(Zip::class) {
+// =============================
+//     All Projects Config
+// =============================
 
-    from(mavenReleasePublishUrl)
-    archiveFileName.set("${project.name}-artifacts.zip")
-    destinationDirectory.set(layout.buildDirectory)
-}
-val uploadMavenArtifacts by tasks.registering {
-    dependsOn(packageMavenArtifacts)
-
-    doLast {
-        val uriBase = "https://central.sonatype.com/api/v1/publisher/upload"
-        val publishingType = "USER_MANAGED"
-        val deploymentName = "${project.name}-$version"
-        val uri = "$uriBase?name=$deploymentName&publishingType=$publishingType"
-
-        val userName = sonatypeUsername as String
-        val password = sonatypePassword as String
-        val base64Auth = Base64.getEncoder().encode("$userName:$password".toByteArray()).toString(Charsets.UTF_8)
-        val bundleFile = packageMavenArtifacts.get().archiveFile.get().asFile
-
-        println("Sending request to $uri...")
-
-        val client = OkHttpClient()
-        val request = Request.Builder()
-            .url(uri)
-            .header("Authorization", "Bearer $base64Auth")
-            .post(
-                MultipartBody.Builder()
-                    .setType(MultipartBody.FORM)
-                    .addFormDataPart("bundle", bundleFile.name, bundleFile.asRequestBody())
-                    .build()
-            )
-            .build()
-
-        client.newCall(request).execute().use { response ->
-            val statusCode = response.code
-            println("Upload status code: $statusCode")
-            println("Upload result: ${response.body!!.string()}")
-            if (statusCode != 201) {
-                error("Upload error to Central repository. Status code $statusCode.")
-            }
-        }
-    }
+allprojects {
+  group = "org.jetbrains.lets-plot"
+  version = "3.0.3-SNAPSHOT"
 }
 
+// =============================
+//     Subprojects Config
+// =============================
 
 subprojects {
-    repositories {
-        mavenCentral()
-        google()
-        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+  // Kotlin Configuration
+  plugins.withType<KotlinBasePlugin> {
+    extensions.configure<KotlinProjectExtension> {
+      jvmToolchain { languageVersion.set(javaLanguageVersion) }
+    }
 
-        // Repositories where other projects publish their artifacts locally to.
-        localProps["maven.repo.local"]?.let {
-            (it as String).split(",").forEach { repo ->
-                mavenLocal {
-                    url = uri(repo)
-                }
-            }
+    tasks.withType<KotlinCompilationTask<*>>().configureEach {
+      compilerOptions {
+        apiVersion.set(KotlinVersion.KOTLIN_2_2)
+        languageVersion.set(KotlinVersion.KOTLIN_2_2)
+        allWarningsAsErrors.set(false)
+        optIn.addAll("kotlin.RequiresOptIn", "kotlin.ExperimentalStdlibApi")
+        freeCompilerArgs.addAll("-Xjsr305=strict")
+      }
+    }
+  }
+
+  // Java Configuration
+  plugins.withType<JavaPlugin> {
+    tasks.withType<JavaCompile>().configureEach {
+      sourceCompatibility = JavaVersion.toVersion(javaVersion).majorVersion
+      targetCompatibility = JavaVersion.toVersion(javaVersion).majorVersion
+
+      options.apply {
+        encoding = Charsets.UTF_8.name()
+        isFork = true
+        isIncremental = true
+      }
+    }
+  }
+
+  // Javadoc JAR for publishing
+  val jarJavaDocs by
+      tasks.registering(Jar::class) {
+        archiveClassifier.set("javadoc")
+        group = "publishing"
+        from(rootProject.file("README.md"))
+      }
+
+  // Workaround for signing issue: https://github.com/gradle/gradle/issues/26091
+  tasks.withType<AbstractPublishToMaven>().configureEach { mustRunAfter(tasks.withType<Sign>()) }
+}
+
+// =============================
+//     Publishing Tasks
+// =============================
+
+val packageMavenArtifacts by
+    tasks.registering(Zip::class) {
+      group = "publishing"
+      description = "Packages Maven artifacts for upload to Central Repository"
+      from(mavenReleasePublishUrl)
+      archiveFileName.set("${rootProject.name}-artifacts.zip")
+      destinationDirectory.set(layout.buildDirectory)
+    }
+
+val uploadMavenArtifacts by
+    tasks.registering {
+      group = "publishing"
+      description = "Uploads Maven artifacts to Sonatype Central Repository"
+      dependsOn(packageMavenArtifacts)
+
+      doLast {
+        val uploadUrl = buildString {
+          append("https://central.sonatype.com/api/v1/publisher/upload")
+          append("?name=${rootProject.name}-$version")
+          append("&publishingType=USER_MANAGED")
         }
 
-        // SNAPSHOTS
-        maven(url = mavenSnapshotPublishUrl)
+        val credentials = "$sonatypeUsername:$sonatypePassword"
+        val base64Auth = Base64.getEncoder().encodeToString(credentials.toByteArray())
+        val bundleFile = packageMavenArtifacts.get().archiveFile.get().asFile
 
-        mavenLocal()
-    }
+        logger.lifecycle("Uploading to: $uploadUrl")
 
-    val jarJavaDocs by tasks.creating(Jar::class) {
-        archiveClassifier.set("javadoc")
-        group = "lets plot"
-        from("$rootDir/README.md")
-    }
+        val request =
+            Request.Builder()
+                .url(uploadUrl)
+                .header("Authorization", "Bearer $base64Auth")
+                .post(
+                    MultipartBody.Builder()
+                        .setType(MultipartBody.FORM)
+                        .addFormDataPart("bundle", bundleFile.name, bundleFile.asRequestBody())
+                        .build()
+                )
+                .build()
 
-    // ------------------------------------------
-    // Workaround for the error when signing published artifacts.
-    // It seems to appear after switching to Gradle 8.3
-    // For details see: https://github.com/gradle/gradle/issues/26091 :
-    // Publishing a KMP project with signing fails with "Task ... uses this output of task ... without declaring an explicit or implicit dependency"
-    // https://github.com/gradle/gradle/issues/26091
-    tasks.withType<AbstractPublishToMaven>().configureEach {
-        val signingTasks = tasks.withType<Sign>()
-        mustRunAfter(signingTasks)
+        OkHttpClient().newCall(request).execute().use { response ->
+          val statusCode = response.code
+          val responseBody = response.body?.string() ?: ""
+
+          logger.lifecycle("Upload status: $statusCode")
+          logger.lifecycle("Response: $responseBody")
+
+          check(statusCode == 201) { "Upload failed with status $statusCode: $responseBody" }
+        }
+      }
     }
-}

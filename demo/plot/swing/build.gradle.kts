@@ -1,24 +1,21 @@
 plugins {
-    kotlin("jvm")
-    kotlin("plugin.compose")
-    id("org.jetbrains.compose")
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.compose.compiler)
+    alias(libs.plugins.kotlin.compose.multiplatform)
 }
-
-val letsPlotVersion = extra["letsPlot.version"] as String
-val letsPlotKotlinVersion = extra["letsPlotKotlin.version"] as String
 
 dependencies {
     implementation(compose.desktop.currentOs)
     compileOnly(compose.ui)
 
-    implementation("org.jetbrains.lets-plot:lets-plot-kotlin-kernel:$letsPlotKotlinVersion")
-    implementation("org.jetbrains.lets-plot:lets-plot-common:$letsPlotVersion")
-    implementation("org.jetbrains.lets-plot:platf-awt:$letsPlotVersion")
-    implementation("org.jetbrains.lets-plot:canvas:$letsPlotVersion")
-    implementation("org.jetbrains.lets-plot:plot-raster:$letsPlotVersion")
+    implementation(libs.letsplot.kotlin.kernel)
+    implementation(libs.letsplot.common)
+    implementation(libs.letsplot.platf.awt)
+    implementation(libs.letsplot.canvas)
+    implementation(libs.letsplot.plot.raster)
 
-    implementation(project(":lets-plot-compose"))
-    implementation(project(":demo-plot-shared"))
+    implementation(projects.letsPlotCompose)
+    implementation(projects.demo.plot.shared)
 
-    implementation("org.slf4j:slf4j-simple:2.0.17")  // Enable logging to console
+    implementation(libs.slf4j.simple)  // Enable logging to console
 }

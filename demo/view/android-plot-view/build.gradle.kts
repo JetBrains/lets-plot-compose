@@ -4,23 +4,22 @@
  */
 
 plugins {
-    kotlin("android")
-    id("com.android.application")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
-    compileSdk = (findProperty("android.compileSdk") as String).toInt()
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
     namespace = "demo.plot.view"
 
     defaultConfig {
         applicationId = "demo.plot.view"
 
-        minSdk = (findProperty("android.minSdk") as String).toInt()
-        targetSdk = (findProperty("android.targetSdk") as String).toInt()
+        minSdk = libs.versions.android.minSdk.get().toInt()
+        targetSdk = libs.versions.android.compileSdk.get().toInt()
 
         versionCode = 1
         versionName = "1.0"
-
     }
 
     buildTypes {
@@ -30,23 +29,20 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
     kotlin {
-        jvmToolchain(11)
+        jvmToolchain(21)
     }
 }
 
-val letsPlotVersion = extra["letsPlot.version"] as String
-val letsPlotKotlinVersion = extra["letsPlotKotlin.version"] as String
-
 dependencies {
-    implementation(project(":platf-android"))
-    implementation(project(":demo-plot-shared"))
-    implementation("org.jetbrains.lets-plot:lets-plot-kotlin-kernel:${letsPlotKotlinVersion}")
-    implementation("org.jetbrains.lets-plot:lets-plot-common:$letsPlotVersion")
-    implementation("org.jetbrains.lets-plot:canvas:$letsPlotVersion")
-    implementation("org.jetbrains.lets-plot:plot-raster:$letsPlotVersion")
+    implementation(projects.platfAndroid)
+    implementation(projects.demo.plot.shared)
+    implementation(libs.letsplot.kotlin.kernel)
+    implementation(libs.letsplot.common)
+    implementation(libs.letsplot.canvas)
+    implementation(libs.letsplot.plot.raster)
 }
