@@ -5,10 +5,7 @@
 
 package org.jetbrains.letsPlot.compose
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
@@ -22,54 +19,16 @@ actual fun PlotPanelRaw(
     modifier: Modifier,
     errorTextStyle: TextStyle,
     errorModifier: Modifier,
-    legacyRendering: Boolean,
     computationMessagesHandler: (List<String>) -> Unit
 ) {
     Row(modifier = modifier) {
-        @Suppress("SimplifyBooleanWithConstants", "KotlinConstantConditions")
-        if (!devRendering && !legacyRendering) {
-            PlotPanelComposeCanvas(
-                rawSpec = rawSpec,
-                preserveAspectRatio = preserveAspectRatio,
-                modifier = modifier,
-                errorTextStyle = errorTextStyle,
-                errorModifier = errorModifier,
-                computationMessagesHandler = computationMessagesHandler
-            )
-        } else if (!devRendering && legacyRendering) {
-            PlotPanelAndroidView(
-                rawSpec = rawSpec,
-                preserveAspectRatio = preserveAspectRatio,
-                modifier = modifier,
-                errorTextStyle = errorTextStyle,
-                errorModifier = errorModifier,
-                computationMessagesHandler = computationMessagesHandler
-            )
-
-        } else {
-            Column(modifier = Modifier.weight(1f)) {
-                BasicText(text = "Android View")
-                PlotPanelAndroidView(
-                    rawSpec = rawSpec,
-                    preserveAspectRatio = preserveAspectRatio,
-                    modifier = Modifier.weight(1f).fillMaxWidth(),
-                    errorTextStyle = errorTextStyle,
-                    errorModifier = errorModifier,
-                    computationMessagesHandler = computationMessagesHandler
-                )
-            }
-
-            Column(modifier = Modifier.weight(1f)) {
-                BasicText(text = "Compose Canvas")
-                PlotPanelComposeCanvas(
-                    rawSpec = rawSpec,
-                    preserveAspectRatio = preserveAspectRatio,
-                    modifier = Modifier.weight(1f).fillMaxWidth(),
-                    errorTextStyle = errorTextStyle,
-                    errorModifier = errorModifier,
-                    computationMessagesHandler = computationMessagesHandler
-                )
-            }
-        }
+        PlotPanelComposeCanvas(
+            rawSpec = rawSpec,
+            preserveAspectRatio = preserveAspectRatio,
+            modifier = modifier,
+            errorTextStyle = errorTextStyle,
+            errorModifier = errorModifier,
+            computationMessagesHandler = computationMessagesHandler
+        )
     }
 }

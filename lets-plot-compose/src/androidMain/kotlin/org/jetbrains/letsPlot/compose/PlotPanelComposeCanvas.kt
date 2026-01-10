@@ -38,7 +38,7 @@ import org.jetbrains.letsPlot.core.spec.front.SpecOverrideUtil.applySpecOverride
 import org.jetbrains.letsPlot.core.util.MonolithicCommon.processRawSpecs
 import org.jetbrains.letsPlot.core.util.PlotThemeHelper
 import org.jetbrains.letsPlot.core.util.sizing.SizingPolicy.Companion.fitContainerSize
-import org.jetbrains.letsPlot.raster.view.PlotCanvasFigure2
+import org.jetbrains.letsPlot.raster.view.PlotCanvasFigure
 import kotlin.math.roundToInt
 
 //import org.jetbrains.letsPlot.compose.util.NaiveLogger
@@ -91,7 +91,7 @@ fun PlotPanelComposeCanvas(
     // Reset the old plot on error to prevent blinking
     // We can't reset PlotContainer using updateViewmodel(), so we create a new one.
     val plotCanvasFigure2 = remember(errorMessage) {
-        PlotCanvasFigure2().apply {
+        PlotCanvasFigure().apply {
             eventPeer.addEventSource(composeMouseEventMapper)
         }
     }

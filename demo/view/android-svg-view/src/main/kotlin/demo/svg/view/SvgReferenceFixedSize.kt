@@ -11,7 +11,7 @@ import android.os.Bundle
 import android.view.ViewGroup
 import demo.svgModel.ReferenceSvgModel
 import org.jetbrains.letsPlot.android.canvas.CanvasView2
-import org.jetbrains.letsPlot.raster.view.SvgCanvasFigure2
+import org.jetbrains.letsPlot.raster.view.SvgCanvasFigure
 
 class SvgReferenceFixedSize : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,7 +19,7 @@ class SvgReferenceFixedSize : Activity() {
 
         setContentView(
             CanvasView2(this).apply {
-                figure = SvgCanvasFigure2(ReferenceSvgModel.createModel())
+                figure = SvgCanvasFigure(ReferenceSvgModel.createModel())
                 setBackgroundColor(Color.BLUE)
             },
             ViewGroup.LayoutParams(500, 500)

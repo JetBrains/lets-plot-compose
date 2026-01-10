@@ -6,17 +6,16 @@ import android.graphics.Bitmap.CompressFormat
 import android.net.Uri
 import org.jetbrains.letsPlot.Figure
 import org.jetbrains.letsPlot.android.canvas.AndroidCanvasPeer
-import org.jetbrains.letsPlot.commons.encoding.RGBEncoder
 import org.jetbrains.letsPlot.commons.geometry.DoubleVector
 import org.jetbrains.letsPlot.core.util.MonolithicCommon
 import org.jetbrains.letsPlot.core.util.PlotExportCommon.SizeUnit
 import org.jetbrains.letsPlot.core.util.PlotExportCommon.computeExportParameters
 import org.jetbrains.letsPlot.core.util.PlotHtmlExport
 import org.jetbrains.letsPlot.core.util.PlotHtmlHelper.scriptUrl
-import org.jetbrains.letsPlot.core.util.PlotSvgExportCommon
+import org.jetbrains.letsPlot.core.util.PlotSvgExport
 import org.jetbrains.letsPlot.export.VersionChecker
 import org.jetbrains.letsPlot.intern.toSpec
-import org.jetbrains.letsPlot.raster.view.PlotCanvasFigure2
+import org.jetbrains.letsPlot.raster.view.PlotCanvasFigure
 import java.io.IOException
 
 /**
@@ -61,13 +60,20 @@ fun ggsave(
     contentResolver.openOutputStream(uri)?.use { outStream ->
         when (format) {
             PlotFormat.SVG -> {
-                val svg = PlotSvgExportCommon.buildSvgImageFromRawSpecs(spec, plotSize, RGBEncoder.DEFAULT, true, unit ?: SizeUnit.PX)
+                val svg = PlotSvgExport.buildSvgImageFromRawSpecs(spec, plotSize)
                 outStream.write(svg.toByteArray())
             }
+
             PlotFormat.HTML -> {
-                val html = PlotHtmlExport.buildHtmlFromRawSpecs(spec, scriptUrl(VersionChecker.letsPlotJsVersion), true, plotSize)
+                val html = PlotHtmlExport.buildHtmlFromRawSpecs(
+                    spec,
+                    scriptUrl(VersionChecker.letsPlotJsVersion),
+                    true,
+                    plotSize
+                )
                 outStream.write(html.toByteArray())
             }
+
             PlotFormat.PNG, PlotFormat.JPG -> {
                 val bmp = paintPlot(spec, plotSize, scale, unit, dpi)
                 try {
@@ -91,7 +97,7 @@ private fun paintPlot(
     val targetDPI = dpi?.toFiniteDouble()
     val (sizingPolicy, scaleFactor) = computeExportParameters(plotSize, targetDPI, unit, scale)
 
-    val plotFigure = PlotCanvasFigure2()
+    val plotFigure = PlotCanvasFigure()
     plotFigure.update(
         processedSpec = MonolithicCommon.processRawSpecs(spec, frontendOnly = false),
         sizingPolicy = sizingPolicy,
@@ -100,18 +106,17 @@ private fun paintPlot(
 
     val androidCanvasPeer = AndroidCanvasPeer(scaleFactor)
 
+    val reg = plotFigure.mapToCanvas(androidCanvasPeer)
+    val canvas = androidCanvasPeer.createCanvas(plotFigure.size)
+    val ctx = canvas.context2d
     try {
-        val reg = plotFigure.mapToCanvas(androidCanvasPeer)
-        try {
-            val canvas = androidCanvasPeer.createCanvas(plotFigure.size)
-            plotFigure.paint(canvas.context2d)
-            return canvas.takeSnapshot().platformBitmap
-        } finally {
-            reg.dispose()
-        }
+        plotFigure.paint(canvas.context2d)
+        return canvas.takeSnapshot().platformBitmap
     } finally {
-        androidCanvasPeer.dispose()
+        ctx.dispose()
+        reg.dispose()
     }
+
 }
 
 private fun toDoubleVector(x: Number?, y: Number?): DoubleVector? {

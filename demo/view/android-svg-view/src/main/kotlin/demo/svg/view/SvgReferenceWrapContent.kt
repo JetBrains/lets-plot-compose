@@ -12,7 +12,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import demo.svgModel.ReferenceSvgModel
 import org.jetbrains.letsPlot.android.canvas.CanvasView2
-import org.jetbrains.letsPlot.raster.view.SvgCanvasFigure2
+import org.jetbrains.letsPlot.raster.view.SvgCanvasFigure
 
 class SvgReferenceWrapContent : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,7 +20,7 @@ class SvgReferenceWrapContent : Activity() {
 
         setContentView(
             CanvasView2(this).apply {
-                figure = SvgCanvasFigure2(ReferenceSvgModel.createModel())
+                figure = SvgCanvasFigure(ReferenceSvgModel.createModel())
                 setBackgroundColor(Color.BLUE)
             },
             LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)

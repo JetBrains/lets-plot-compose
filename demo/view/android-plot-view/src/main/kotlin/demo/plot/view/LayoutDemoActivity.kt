@@ -9,7 +9,7 @@ import org.jetbrains.letsPlot.android.canvas.CanvasView2
 import org.jetbrains.letsPlot.core.util.MonolithicCommon
 import org.jetbrains.letsPlot.core.util.sizing.SizingPolicy
 import org.jetbrains.letsPlot.intern.toSpec
-import org.jetbrains.letsPlot.raster.view.PlotCanvasFigure2
+import org.jetbrains.letsPlot.raster.view.PlotCanvasFigure
 import org.jetbrains.letsPlot.themes.flavorDarcula
 import plotSpec.BarPlotSpec
 
@@ -37,7 +37,7 @@ class LayoutDemoActivity : Activity() {
 
 
     private lateinit var demoView: CanvasView2
-    private val plotFigure = PlotCanvasFigure2()
+    private val plotFigure = PlotCanvasFigure()
     private val plotSpec = (BarPlotSpec().basic + flavorDarcula()).toSpec()
 
     override fun onCreate(savedInstanceState: Bundle?) {

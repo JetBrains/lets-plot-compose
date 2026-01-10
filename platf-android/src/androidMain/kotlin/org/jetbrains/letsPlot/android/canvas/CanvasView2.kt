@@ -82,7 +82,6 @@ class CanvasView2(
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         figureRegistration.remove()
-        canvasPeer.dispose()
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {

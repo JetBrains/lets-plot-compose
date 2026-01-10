@@ -18,7 +18,7 @@ import org.jetbrains.letsPlot.core.spec.config.PlotConfig
 import org.jetbrains.letsPlot.core.util.MonolithicCommon.processRawSpecs
 import org.jetbrains.letsPlot.core.util.PlotThemeHelper
 import org.jetbrains.letsPlot.core.util.sizing.SizingPolicy
-import org.jetbrains.letsPlot.raster.view.PlotCanvasFigure2
+import org.jetbrains.letsPlot.raster.view.PlotCanvasFigure
 
 //import org.jetbrains.letsPlot.compose.util.NaiveLogger
 
@@ -42,7 +42,7 @@ fun PlotPanelAndroidView(
         println("PlotPanel: recomposition")
     }
 
-    var plotCanvasFigure: PlotCanvasFigure2? by remember { mutableStateOf(null) }
+    var plotCanvasFigure: PlotCanvasFigure? by remember { mutableStateOf(null) }
     val sizingPolicy = SizingPolicy.fitContainerSize(preserveAspectRatio)
 
     // Cache processed plot spec to avoid reprocessing the same raw spec on every recomposition.
@@ -103,7 +103,7 @@ fun PlotPanelAndroidView(
         AndroidView(
             modifier = finalModifier,
             factory = { ctx ->
-                plotCanvasFigure = plotCanvasFigure ?: PlotCanvasFigure2()
+                plotCanvasFigure = plotCanvasFigure ?: PlotCanvasFigure()
                 CanvasView2(ctx).apply {
                     figure = plotCanvasFigure
                     onError = { e ->
