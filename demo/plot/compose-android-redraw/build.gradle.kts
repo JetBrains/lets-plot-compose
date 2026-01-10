@@ -4,14 +4,13 @@
  */
 
 plugins {
-    kotlin("android")
-    id("com.android.application")
-    kotlin("plugin.compose")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose.compiler)
 }
 
-
 android {
-    compileSdk = (findProperty("android.compileSdk") as String).toInt()
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
     namespace = "demo.letsPlot"
 
     buildFeatures {
@@ -21,8 +20,8 @@ android {
     defaultConfig {
         applicationId = "demo.letsPlot.composeMinDemo"
 
-        minSdk = (findProperty("android.minSdk") as String).toInt()
-        targetSdk = (findProperty("android.targetSdk") as String).toInt()
+        minSdk = libs.versions.android.minSdk.get().toInt()
+        targetSdk = libs.versions.android.compileSdk.get().toInt()
 
         versionCode = 1
         versionName = "1.0"
@@ -38,32 +37,26 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
     kotlin {
-        jvmToolchain(11)
+        jvmToolchain(21)
     }
 }
 
-val androidComposeBom = extra["androidx.compose.bom"] as String
-val androidxActivityCompose = extra["androidx.activity.compose"] as String
-val letsPlotVersion = extra["letsPlot.version"] as String
-val letsPlotKotlinVersion = extra["letsPlotKotlin.version"] as String
-
 dependencies {
-    implementation(platform("androidx.compose:compose-bom:$androidComposeBom"))
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.material:material")
-    implementation("androidx.activity:activity-compose:$androidxActivityCompose")
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.material)
+    implementation(libs.androidx.activity.compose)
 
-    implementation("org.jetbrains.lets-plot:lets-plot-kotlin-kernel:$letsPlotKotlinVersion")
-    implementation("org.jetbrains.lets-plot:lets-plot-common:$letsPlotVersion")
+    implementation(libs.letsplot.kotlin.kernel)
+    implementation(libs.letsplot.common)
+    implementation(libs.letsplot.canvas)
+    implementation(libs.letsplot.plot.raster)
 
-    implementation("org.jetbrains.lets-plot:canvas:$letsPlotVersion")
-    implementation("org.jetbrains.lets-plot:plot-raster:$letsPlotVersion")
-
-    implementation(project(":lets-plot-compose"))
-    implementation(project(":demo-plot-shared"))
+    implementation(projects.letsPlotCompose)
+    implementation(projects.demo.plot.shared)
 }

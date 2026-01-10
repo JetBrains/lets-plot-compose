@@ -4,95 +4,60 @@
  */
 
 plugins {
-    kotlin("multiplatform")
-    kotlin("plugin.compose")
-    id("com.android.library")
-    id("org.jetbrains.compose")
+    alias(libs.plugins.kotlin.multiplatform.android.library)
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.kotlin.compose.compiler)
+    alias(libs.plugins.kotlin.compose.multiplatform)
     `maven-publish`
     signing
 }
 
-val androidComposeBom = extra["androidx.compose.bom"] as String
-val skikoVersion = extra["skiko.version"] as String
-val letsPlotVersion = extra["letsPlot.version"] as String
-val letsPlotKotlinVersion = extra["letsPlotKotlin.version"] as String
-val kotlinLoggingVersion = extra["kotlinLogging.version"] as String
-
 kotlin {
-    jvm("desktop") {
-        compilations.all {
-            kotlinOptions.jvmTarget = "11"
-        }
-    }
+    jvm("desktop")
 
-    androidTarget {
-        publishLibraryVariants("release")
+    androidLibrary {
+        namespace = "org.jetbrains.letsPlot.compose"
+        compileSdk = libs.versions.android.compileSdk.get().toInt()
+        minSdk = libs.versions.android.minSdk.get().toInt()
     }
 
     sourceSets {
-        named("commonMain") {
+        commonMain {
             dependencies {
                 compileOnly(compose.runtime)
                 compileOnly(compose.ui)
                 compileOnly(compose.foundation)
 
-                compileOnly("org.jetbrains.lets-plot:lets-plot-kotlin-kernel:$letsPlotKotlinVersion")
-                compileOnly("org.jetbrains.lets-plot:lets-plot-common:$letsPlotVersion")
-                compileOnly("org.jetbrains.lets-plot:plot-raster:$letsPlotVersion")
-                compileOnly("org.jetbrains.lets-plot:canvas:$letsPlotVersion")
+                compileOnly(libs.letsplot.kotlin.kernel)
+                compileOnly(libs.letsplot.common)
+                compileOnly(libs.letsplot.plot.raster)
+                compileOnly(libs.letsplot.canvas)
+                implementation(libs.kotlinx.datetime)
             }
         }
 
-        named("desktopMain") {
+        val desktopMain by getting {
             dependencies {
                 compileOnly(compose.runtime)
                 compileOnly(compose.ui)
                 compileOnly(compose.desktop.currentOs)
                 compileOnly(compose.components.resources)
-                compileOnly("org.jetbrains.skiko:skiko:${skikoVersion}")
-                api(project(":platf-skia"))
-                compileOnly("io.github.microutils:kotlin-logging-jvm:$kotlinLoggingVersion")
+                compileOnly(libs.skiko)
+                api(projects.platfSkia)
+                compileOnly(libs.kotlin.logging.jvm)
             }
         }
 
-        named("androidMain") {
+        val androidMain by getting {
             dependencies {
-                implementation(project.dependencies.platform("androidx.compose:compose-bom:$androidComposeBom"))
-                implementation("androidx.compose.ui:ui")
-                implementation("androidx.compose.ui:ui-graphics")
-                api(project(":platf-android"))
-                compileOnly("org.jetbrains.lets-plot:plot-raster:$letsPlotVersion")
-                compileOnly("org.jetbrains.lets-plot:canvas:$letsPlotVersion")
+                implementation(project.dependencies.platform(libs.androidx.compose.bom))
+                implementation(libs.androidx.compose.ui)
+                implementation(libs.androidx.compose.ui.graphics)
+                api(projects.platfAndroid)
+                compileOnly(libs.letsplot.plot.raster)
+                compileOnly(libs.letsplot.canvas)
             }
         }
-    }
-}
-
-android {
-    namespace = "org.jetbrains.letsPlot.compose"
-
-    compileSdk = (findProperty("android.compileSdk") as String).toInt()
-
-    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
-
-    defaultConfig {
-        minSdk = (findProperty("android.minSdk") as String).toInt()
-    }
-
-    buildTypes {
-        getByName("release") {
-            isMinifyEnabled = false // true - error: when compiling demo cant resolve classes
-//            proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
-        }
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-
-    kotlin {
-        jvmToolchain(11)
     }
 }
 
@@ -133,7 +98,7 @@ afterEvaluate {
 
         repositories {
             mavenLocal {
-                url = uri("$rootDir/.maven-publish-dev-repo")
+                url = rootDir.resolve(".maven-publish-dev-repo").toURI()
             }
             maven {
                 // For SNAPSHOT publication use separate URL and credentials:

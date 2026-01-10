@@ -1,80 +1,71 @@
+/*
+ * Copyright (c) 2023. JetBrains s.r.o.
+ * Use of this source code is governed by the MIT license that can be found in the LICENSE file.
+ */
+
+@file:Suppress("UnstableApiUsage")
+
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
+rootProject.name = "lets-plot-compose-root"
+
 pluginManagement {
-    repositories {
-        gradlePluginPortal()
-        mavenCentral()
-        google()
-        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
-    }
-
-    plugins {
-        val kotlinVersion = extra["kotlin.version"] as String
-        val composeVersion = extra["compose.version"] as String
-        val agpVersion = extra["agp.version"] as String
-        val nexusStagingVersion = extra["nexusStaging.version"] as String
-        val nexusPublishVersion = extra["nexusPublish.version"] as String
-
-        kotlin("jvm").version(kotlinVersion)
-        kotlin("multiplatform").version(kotlinVersion)
-        kotlin("plugin.compose").version(kotlinVersion)
-        id("org.jetbrains.compose").version(composeVersion)
-
-        kotlin("android").version(kotlinVersion)
-        id("com.android.application").version(agpVersion)
-        id("com.android.library").version(agpVersion)
-
-        id("io.codearte.nexus-staging") version nexusStagingVersion
-        id("io.github.gradle-nexus.publish-plugin") version nexusPublishVersion
-    }
+  repositories {
+    gradlePluginPortal()
+    mavenCentral()
+    google()
+    maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+  }
 }
 
-include("lets-plot-compose")
-include("platf-android")
-include("platf-skia")
+dependencyResolutionManagement {
+  repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS
 
-// =============================
-//          Plot Demos
-// =============================
+  repositories {
+    google()
+    mavenCentral()
+    maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+    maven("https://central.sonatype.com/repository/maven-snapshots/")
+    mavenLocal()
 
-include("demo-plot-shared")
-project(":demo-plot-shared").projectDir = File("./demo/plot/shared")
+    // Load local.properties for custom maven repos
+    val localPropertiesFile = rootDir.resolve("local.properties")
+    if (localPropertiesFile.exists()) {
+      val localProps = java.util.Properties().apply { load(localPropertiesFile.inputStream()) }
+      localProps["maven.repo.local"]?.let { repos ->
+        (repos as String).split(",").forEach { repo ->
+          maven { url = uri(repo.trim()) }
+        }
+      }
+    }
+  }
+}
 
-include("demo-plot-compose-desktop")
-project(":demo-plot-compose-desktop").projectDir = File("./demo/plot/compose-desktop")
+include(
+    ":lets-plot-compose",
+    ":platf-android",
+    ":platf-skia",
 
-include("demo-plot-swing")
-project(":demo-plot-swing").projectDir = File("./demo/plot/swing")
+    // =========================================
+    // Plot Demos
+    // =========================================
+    ":demo:plot:shared",
+    ":demo:plot:compose-desktop",
+    ":demo:plot:swing",
+    ":demo:plot:compose-android-min",
+    ":demo:plot:compose-android-median",
+    ":demo:plot:compose-android-redraw",
 
-include("demo-plot-compose-android-min")
-project(":demo-plot-compose-android-min").projectDir = File("./demo/plot/compose-android-min")
+    // =========================================
+    // Pure SVG Rendering - Internal for testing
+    // =========================================
+    ":demo:svg:shared",
+    ":demo:svg:compose-desktop",
+    ":demo:svg:swing",
 
-include("demo-plot-compose-android-median")
-project(":demo-plot-compose-android-median").projectDir = File("./demo/plot/compose-android-median")
-
-include("demo-plot-compose-android-redraw")
-project(":demo-plot-compose-android-redraw").projectDir = File("./demo/plot/compose-android-redraw")
-
-
-// =============================
-// Pure SVG Rendering
-// Internal - for testing.
-// =============================
-
-include("demo-svg-shared")
-project(":demo-svg-shared").projectDir = File("./demo/svg/shared")
-
-include("demo-svg-compose-desktop")
-project(":demo-svg-compose-desktop").projectDir = File("./demo/svg/compose-desktop")
-
-include("demo-svg-swing")
-project(":demo-svg-swing").projectDir = File("./demo/svg/swing")
-
-// =============================
-// SVG View Rendering
-// Internal - for testing.
-// =============================
-
-include("demo-svg-view-android")
-project(":demo-svg-view-android").projectDir = File("./demo/view/android-svg-view")
-
-include("demo-plot-view-android")
-project(":demo-plot-view-android").projectDir = File("./demo/view/android-plot-view")
+    // =========================================
+    // SVG View Rendering - Internal for testing
+    // =========================================
+    ":demo:view:android-svg-view",
+    ":demo:view:android-plot-view"
+)
