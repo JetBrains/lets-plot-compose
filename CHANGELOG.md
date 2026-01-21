@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). All scales should have the 'format' parameter.
 
+## [Unreleased]
+
+### Changed
+
+- Migrated to Gradle Version Catalog (`libs.versions.toml`) for centralized dependency management
+- Updated Kotlin from 2.1.0 to 2.2.20
+- Updated Gradle wrapper from 8.6 to 8.13.2  
+- Updated Android Gradle Plugin from 8.6.0 to 8.13.2
+- Updated AndroidX Compose BOM to 2025.12.01
+- Updated AndroidX Activity Compose to 1.12.2
+
+### Internal
+
+- Centralized version management in `gradle/libs.versions.toml`
+- Removed version declarations from `gradle.properties`
+- Updated all subproject build scripts to use version catalog references
+- Updated Gradle wrapper scripts and binary to 8.13.2
+
 ## [3.0.2] - 2025-12-22
 
 ### Compatibility

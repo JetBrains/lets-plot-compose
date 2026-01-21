@@ -4,17 +4,14 @@
  */
 
 plugins {
-    kotlin("jvm")
+    alias(libs.plugins.kotlin.jvm)
 }
 
-val kotlinLoggingVersion = extra["kotlinLogging.version"] as String
-val letsPlotVersion = extra["letsPlot.version"] as String
-
 dependencies {
-    implementation("io.github.microutils:kotlin-logging-jvm:$kotlinLoggingVersion")
+    implementation(libs.kotlin.logging.jvm)
 
-    compileOnly("org.jetbrains.lets-plot:commons:$letsPlotVersion")
-    compileOnly("org.jetbrains.lets-plot:datamodel:$letsPlotVersion")
+    compileOnly(libs.letsplot.commons)
+    compileOnly(libs.letsplot.datamodel)
 
-    testImplementation(kotlin("test"))
+    testImplementation(libs.kotlin.test)
 }
