@@ -13,12 +13,60 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import org.jetbrains.letsPlot.Figure
+import org.jetbrains.letsPlot.core.plot.builder.interact.tools.FigureModel
 import org.jetbrains.letsPlot.intern.toSpec
 
+/**
+ * Displays a plot figure.
+ *
+ * @param figure The plot figure to display
+ * @param figureModel Optional [FigureModel] for controlling plot interactions programmatically.
+ *                    Use [rememberPlotFigureModel] to create a model that can be accessed externally.
+ * @param preserveAspectRatio Whether to preserve the plot's aspect ratio
+ * @param modifier Modifier for the plot container
+ * @param errorTextStyle Text style for error messages
+ * @param errorModifier Modifier for error message container
+ * @param legacyRendering Whether to use legacy rendering (SVG-based)
+ * @param computationMessagesHandler Callback for computation messages
+ *
+ * Example with external FigureModel:
+ * ```kotlin
+ * val figureModel = rememberPlotFigureModel()
+ *
+ * PlotPanel(
+ *     figure = myPlot,
+ *     figureModel = figureModel,
+ *     modifier = Modifier.fillMaxSize(),
+ *     computationMessagesHandler = { messages -> println(messages) }
+ * )
+ *
+ * // Control the plot programmatically.
+ * // For exampl, set figure default interactions.
+ * val defaultInteractions = listOf(
+ *     InteractionSpec(
+ *         InteractionSpec.Name.WHEEL_ZOOM,
+ *         keyModifiers = listOf(
+ *             InteractionSpec.KeyModifier.CTRL,
+ *             InteractionSpec.KeyModifier.SHIFT
+ *         )
+ *     ),
+ *     InteractionSpec(
+ *         InteractionSpec.Name.DRAG_PAN,
+ *         keyModifiers = listOf(
+ *             InteractionSpec.KeyModifier.CTRL,
+ *             InteractionSpec.KeyModifier.SHIFT
+ *         )
+ *     )
+ * )
+ *
+ * figureModel.setDefaultInteractions(defaultInteractions)
+ * ```
+ */
 @Suppress("FunctionName")
 @Composable
 fun PlotPanel(
     figure: Figure,
+    figureModel: FigureModel? = null,
     preserveAspectRatio: Boolean = false,
     modifier: Modifier,
     errorTextStyle: TextStyle = TextStyle(color = Color(0xFF700000)),
@@ -31,6 +79,7 @@ fun PlotPanel(
 
     PlotPanelRaw(
         rawSpec = rawSpec,
+        figureModel = figureModel,
         preserveAspectRatio = preserveAspectRatio,
         modifier = modifier,
         errorTextStyle = errorTextStyle,

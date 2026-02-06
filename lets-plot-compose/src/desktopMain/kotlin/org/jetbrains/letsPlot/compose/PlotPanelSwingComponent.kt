@@ -16,7 +16,7 @@ import org.jetbrains.letsPlot.commons.geometry.DoubleVector
 import org.jetbrains.letsPlot.commons.logging.PortableLogging
 import org.jetbrains.letsPlot.compose.desktop.PlotContainer
 import org.jetbrains.letsPlot.compose.desktop.SvgViewPanel
-import org.jetbrains.letsPlot.core.plot.builder.interact.tools.FigureModelHelper
+import org.jetbrains.letsPlot.core.plot.builder.interact.tools.FigureModel
 import org.jetbrains.letsPlot.core.spec.Option
 import org.jetbrains.letsPlot.core.spec.config.PlotConfig
 import org.jetbrains.letsPlot.core.spec.front.SpecOverrideUtil
@@ -33,6 +33,7 @@ private const val logRecompositions = false
 @Composable
 fun PlotPanelSwingComponent(
     rawSpec: MutableMap<String, Any>,
+    figureModel: FigureModel,
     preserveAspectRatio: Boolean,
     modifier: Modifier,
     errorTextStyle: TextStyle,
@@ -56,9 +57,9 @@ fun PlotPanelSwingComponent(
 
     var panelSize by remember { mutableStateOf(DoubleVector.ZERO) }
     var dispatchComputationMessages by remember { mutableStateOf(true) }
-    var specOverrideList by remember { mutableStateOf(emptyList<Map<String, Any>>()) }
-    var plotFigureModel by remember { mutableStateOf<PlotFigureModel?>(null) }
 
+    // Observe spec override list from figureModel
+    val specOverrideList by (figureModel as PlotFigureModel).specOverrideListState
 
     var errorMessage: String? by remember(processedPlotSpec, panelSize) { mutableStateOf(null) }
 
@@ -95,8 +96,8 @@ fun PlotPanelSwingComponent(
     }
 
     Column(modifier = finalModifier) {
-        if (plotFigureModel != null && Option.Meta.Kind.GG_TOOLBAR in processedPlotSpec) {
-            PlotToolbar(plotFigureModel!!)
+        if (Option.Meta.Kind.GG_TOOLBAR in processedPlotSpec) {
+            PlotToolbar(figureModel)
         }
 
         Box(
@@ -144,19 +145,8 @@ fun PlotPanelSwingComponent(
                                 }
                             }
 
-
-                            if (plotFigureModel == null) {
-                                plotFigureModel = PlotFigureModel(
-                                    onUpdateView = { specOverride ->
-                                        specOverrideList = FigureModelHelper.updateSpecOverrideList(
-                                            specOverrideList = specOverrideList,
-                                            newSpecOverride = specOverride
-                                        )
-                                    }
-                                )
-                            }
-
-                            plotFigureModel!!.toolEventDispatcher = viewModel.toolEventDispatcher
+                            // Connect the figure model to the plot component
+                            figureModel.toolEventDispatcher = viewModel.toolEventDispatcher
 
                             val plotWidth = viewModel.svg.width().get() ?: panelSize.x
                             val plotHeight = viewModel.svg.height().get() ?: panelSize.y

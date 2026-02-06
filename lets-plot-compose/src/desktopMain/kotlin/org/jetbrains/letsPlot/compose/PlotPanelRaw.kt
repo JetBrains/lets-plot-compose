@@ -9,14 +9,20 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
+import org.jetbrains.letsPlot.core.plot.builder.interact.tools.FigureModel
 
 private const val devRendering = false
 
+/**
+ * Desktop implementation of [PlotPanelRaw].
+ */
 @Composable
 actual fun PlotPanelRaw(
     rawSpec: MutableMap<String, Any>,
+    figureModel: FigureModel?,
     preserveAspectRatio: Boolean,
     modifier: Modifier,
     errorTextStyle: TextStyle,
@@ -24,11 +30,14 @@ actual fun PlotPanelRaw(
     legacyRendering: Boolean,
     computationMessagesHandler: (List<String>) -> Unit
 ) {
+    val actualFigureModel = figureModel ?: remember { PlotFigureModel() }
+
     Row(modifier = modifier) {
         @Suppress("SimplifyBooleanWithConstants", "KotlinConstantConditions")
         if (!devRendering && !legacyRendering) {
             PlotPanelComposeCanvas(
                 rawSpec = rawSpec,
+                figureModel = actualFigureModel,
                 preserveAspectRatio = preserveAspectRatio,
                 modifier = modifier,
                 errorTextStyle = errorTextStyle,
@@ -38,6 +47,7 @@ actual fun PlotPanelRaw(
         } else if (!devRendering && legacyRendering) {
             PlotPanelSwingComponent(
                 rawSpec = rawSpec,
+                figureModel = actualFigureModel,
                 preserveAspectRatio = preserveAspectRatio,
                 modifier = modifier,
                 errorTextStyle = errorTextStyle,
@@ -50,6 +60,7 @@ actual fun PlotPanelRaw(
                 androidx.compose.material.Text(text = "Skia mapper")
                 PlotPanelSwingComponent(
                     rawSpec = rawSpec,
+                    figureModel = actualFigureModel,
                     preserveAspectRatio = preserveAspectRatio,
                     modifier = Modifier.weight(1f).fillMaxWidth(),
                     errorTextStyle = errorTextStyle,
@@ -62,6 +73,7 @@ actual fun PlotPanelRaw(
                 androidx.compose.material.Text(text = "Skia Canvas + plot_raster")
                 PlotPanelComposeCanvas(
                     rawSpec = rawSpec,
+                    figureModel = actualFigureModel,
                     preserveAspectRatio = preserveAspectRatio,
                     modifier = Modifier.weight(1f).fillMaxWidth(),
                     errorTextStyle = errorTextStyle,

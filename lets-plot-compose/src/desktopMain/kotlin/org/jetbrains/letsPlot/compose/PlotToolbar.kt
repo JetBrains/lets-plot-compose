@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import org.jetbrains.letsPlot.commons.registration.Registration
 import org.jetbrains.letsPlot.core.plot.builder.interact.tools.DefaultFigureToolsController
+import org.jetbrains.letsPlot.core.plot.builder.interact.tools.FigureModel
 import org.jetbrains.letsPlot.core.plot.builder.interact.tools.ToggleTool
 import org.jetbrains.letsPlot.core.plot.builder.interact.tools.ToggleToolModel
 import org.jetbrains.letsPlot.core.plot.builder.interact.tools.ToolSpecs.BBOX_ZOOM_TOOL_SPEC
@@ -28,7 +29,7 @@ import org.jetbrains.letsPlot.core.plot.builder.interact.tools.res.ToolbarIcons
 
 @Suppress("FunctionName")
 @Composable
-fun PlotToolbar(figureModel: PlotFigureModel) {
+fun PlotToolbar(figureModel: FigureModel) {
     var registration by remember { mutableStateOf(Registration.EMPTY) }
     var panToolState by remember { mutableStateOf(false) }
     var bboxZoomToolState by remember { mutableStateOf(false) }

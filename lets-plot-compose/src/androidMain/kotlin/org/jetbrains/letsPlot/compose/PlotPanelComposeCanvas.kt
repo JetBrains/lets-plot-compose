@@ -32,7 +32,7 @@ import org.jetbrains.letsPlot.commons.intern.observable.event.EventHandler
 import org.jetbrains.letsPlot.commons.logging.PortableLogging
 import org.jetbrains.letsPlot.commons.registration.CompositeRegistration
 import org.jetbrains.letsPlot.commons.registration.Registration
-import org.jetbrains.letsPlot.core.plot.builder.interact.tools.FigureModelHelper
+import org.jetbrains.letsPlot.core.plot.builder.interact.tools.FigureModel
 import org.jetbrains.letsPlot.core.spec.config.PlotConfig
 import org.jetbrains.letsPlot.core.spec.front.SpecOverrideUtil.applySpecOverride
 import org.jetbrains.letsPlot.core.util.MonolithicCommon.processRawSpecs
@@ -54,6 +54,7 @@ private const val logRecompositions = false
 @Composable
 fun PlotPanelComposeCanvas(
     rawSpec: MutableMap<String, Any>,
+    figureModel: FigureModel,
     preserveAspectRatio: Boolean,
     modifier: Modifier,
     errorTextStyle: TextStyle,
@@ -78,9 +79,9 @@ fun PlotPanelComposeCanvas(
     var panelSize by remember { mutableStateOf(DoubleVector.ZERO) }
     var plotPosition by remember { mutableStateOf(DoubleVector.ZERO) }
     var dispatchComputationMessages by remember { mutableStateOf(true) }
-    var specOverrideList by remember { mutableStateOf(emptyList<Map<String, Any>>()) }
 
-    var plotFigureModel by remember { mutableStateOf<PlotFigureModel?>(null) }
+    // Observe spec override list from figureModel
+    val specOverrideList by (figureModel as PlotFigureModel).specOverrideListState
 
     var errorMessage: String? by remember(processedPlotSpec, panelSize) { mutableStateOf(null) }
 
@@ -178,18 +179,8 @@ fun PlotPanelComposeCanvas(
                                 }
                             }
 
-                            if (plotFigureModel == null) {
-                                plotFigureModel = PlotFigureModel(
-                                    onUpdateView = { specOverride ->
-                                        specOverrideList = FigureModelHelper.updateSpecOverrideList(
-                                            specOverrideList = specOverrideList,
-                                            newSpecOverride = specOverride
-                                        )
-                                    }
-                                )
-                            }
-
-                            plotFigureModel!!.toolEventDispatcher = plotCanvasFigure2.toolEventDispatcher
+                            // Connect the figure model to the plot component
+                            figureModel.toolEventDispatcher = plotCanvasFigure2.toolEventDispatcher
 
 
                             val plotWidth = plotCanvasFigure2.size.x
