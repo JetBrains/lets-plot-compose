@@ -29,7 +29,6 @@ import org.jetbrains.letsPlot.commons.registration.Registration
 import org.jetbrains.letsPlot.compose.canvas.SkiaCanvasPeer
 import org.jetbrains.letsPlot.compose.canvas.SkiaContext2d
 import org.jetbrains.letsPlot.compose.canvas.SkiaFontManager
-import org.jetbrains.letsPlot.core.plot.builder.interact.tools.FigureModel
 import org.jetbrains.letsPlot.core.spec.Option.Meta.Kind.GG_TOOLBAR
 import org.jetbrains.letsPlot.core.spec.config.PlotConfig
 import org.jetbrains.letsPlot.core.spec.front.SpecOverrideUtil.applySpecOverride
@@ -52,7 +51,7 @@ private const val logRecompositions = false
 @Composable
 fun PlotPanelComposeCanvas(
     rawSpec: MutableMap<String, Any>,
-    figureModel: FigureModel,
+    figureModel: PlotFigureModel,
     preserveAspectRatio: Boolean,
     modifier: Modifier,
     errorTextStyle: TextStyle,
@@ -80,7 +79,7 @@ fun PlotPanelComposeCanvas(
     var dispatchComputationMessages by remember { mutableStateOf(true) }
 
     // Observe spec override list from figureModel
-    val specOverrideList by (figureModel as PlotFigureModel).specOverrideListState
+    val specOverrideList by figureModel.specOverrideListState
 
     var errorMessage: String? by remember(processedPlotSpec, panelSize) { mutableStateOf(null) }
 
@@ -96,7 +95,7 @@ fun PlotPanelComposeCanvas(
         }
     }
 
-    val reg = remember(plotCanvasFigure2) {
+    val plotComponentRegistrations = remember(plotCanvasFigure2) {
         plotCanvasFigure2.onHrefClick(::browseLink)
         CompositeRegistration(
             // trigger recomposition on repaint request
@@ -124,15 +123,15 @@ fun PlotPanelComposeCanvas(
     }
 
 
-    DisposableEffect(reg) {
+    DisposableEffect(plotComponentRegistrations) {
         onDispose {
             // Try/catch to ensure that any exception in dispose() does not break the Composable lifecycle
             // Otherwise, the app window gets unclosable.
             try {
-                reg.dispose()
+                plotComponentRegistrations.dispose()
                 //plotCanvasFigure2.dispose()
             } catch (e: Exception) {
-                LOG.error(e) { "reg.dispose() failed" }
+                LOG.error(e) { "plotComponentRegistrations.dispose() failed: ${e.message}" }
             }
         }
     }
@@ -184,7 +183,9 @@ fun PlotPanelComposeCanvas(
 
                             // Connect the figure model to the plot component
                             figureModel.toolEventDispatcher = plotCanvasFigure2.toolEventDispatcher
-
+                            plotComponentRegistrations.add(Registration.onRemove {
+                                figureModel.toolEventDispatcher = null
+                            })
 
                             val plotWidth = plotCanvasFigure2.size.x
                             val plotHeight = plotCanvasFigure2.size.y

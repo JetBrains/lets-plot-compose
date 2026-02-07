@@ -1,6 +1,7 @@
 package org.jetbrains.letsPlot.compose
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import org.jetbrains.letsPlot.commons.registration.Disposable
 import org.jetbrains.letsPlot.commons.registration.Registration
 import org.jetbrains.letsPlot.core.interact.InteractionSpec
@@ -9,27 +10,44 @@ import org.jetbrains.letsPlot.core.plot.builder.interact.tools.FigureModel
 import org.jetbrains.letsPlot.core.plot.builder.interact.tools.FigureModelHelper
 
 /**
- * Creates and remembers a [FigureModel] instance.
+ * FigureModel implementation for Compose that manages plot interactions and state.
  *
- * The returned FigureModel can be used to:
- * - Control plot interactions programmatically
- * - Attach custom external toolbars
- * - Observe plot state changes
+ * This class enables programmatic control of plot interactions (pan, zoom, etc.) and allows
+ * external toolbars to control plots. The same FigureModel instance can be reused across
+ * multiple plots - it automatically reconnects when the plot changes.
+ *
+ * ## Lifecycle
+ * - If created externally and passed to PlotPanel/PlotPanelRaw via the `figureModel` parameter,
+ *   the caller is responsible for disposal (or it lives until the window closes).
+ * - If not provided (null), PlotPanelRaw creates an internal instance and handles disposal automatically.
+ *
+ * ## Usage
+ * ```kotlin
+ * // External control with toolbar
+ * val figureModel = remember { PlotFigureModel() }
+ * SandboxToolbarCmp(figureModel = figureModel)
+ * PlotPanel(figure = myPlot, figureModel = figureModel, ...)
+ *
+ * // Set default interactions (e.g., Ctrl+Shift for pan/zoom)
+ * figureModel.setDefaultInteractions(listOf(
+ *     InteractionSpec(
+ *         InteractionSpec.Name.WHEEL_ZOOM,
+ *         keyModifiers = listOf(
+ *             InteractionSpec.KeyModifier.CTRL,
+ *             InteractionSpec.KeyModifier.SHIFT
+ *         )
+ *     ),
+ *     InteractionSpec(
+ *         InteractionSpec.Name.DRAG_PAN,
+ *         keyModifiers = listOf(
+ *             InteractionSpec.KeyModifier.CTRL,
+ *             InteractionSpec.KeyModifier.SHIFT
+ *         )
+ *     )
+ * ))
+ * ```
  */
-@Composable
-fun rememberPlotFigureModel(): FigureModel {
-    val figureModel = remember { PlotFigureModel() }
-
-    DisposableEffect(figureModel) {
-        onDispose {
-            figureModel.dispose()
-        }
-    }
-
-    return figureModel
-}
-
-internal class PlotFigureModel internal constructor() : FigureModel {
+class PlotFigureModel() : FigureModel {
     private val toolEventCallbacks = mutableListOf<(Map<String, Any>) -> Unit>()
     private val disposableTools = mutableListOf<Disposable>()
     private var defaultInteractions: List<InteractionSpec> = emptyList()
@@ -45,8 +63,14 @@ internal class PlotFigureModel internal constructor() : FigureModel {
 
     internal var toolEventDispatcher: ToolEventDispatcher? = null
         set(value) {
-            // De-activate and re-activate ongoing interactions when replacing the dispatcher.
-            val wereInteractions = field?.deactivateAllSilently() ?: emptyMap()
+            val wereInteractions = if (value != null) {
+                // De-activate and re-activate ongoing interactions when replacing the dispatcher.
+                field?.deactivateAllSilently() ?: emptyMap()
+            } else {
+                // Shut down all interactions when the dispatcher is set to null
+                field?.deactivateAll()
+                emptyMap()
+            }
             field = value
             value?.let { newDispatcher ->
                 newDispatcher.initToolEventCallback { event ->

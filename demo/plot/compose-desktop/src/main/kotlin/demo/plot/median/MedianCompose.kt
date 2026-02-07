@@ -20,7 +20,9 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import demo.plot.median.ui.DemoList
 import org.jetbrains.letsPlot.Figure
+import org.jetbrains.letsPlot.compose.PlotFigureModel
 import org.jetbrains.letsPlot.compose.PlotPanelRaw
+import org.jetbrains.letsPlot.compose.sandbox.SandboxToolbarCmp
 import org.jetbrains.letsPlot.intern.toSpec
 import plotSpec.*
 
@@ -38,6 +40,7 @@ fun main() = application {
 
         val preserveAspectRatio = remember { mutableStateOf(false) }
         val figureIndex = remember { mutableStateOf(0) }
+        val figureModel = remember { PlotFigureModel() }
 
         MaterialTheme {
             Row {
@@ -64,6 +67,12 @@ fun main() = application {
                 Column(
                     modifier = Modifier.fillMaxSize().padding(start = 10.dp, top = 10.dp, end = 10.dp, bottom = 10.dp),
                 ) {
+                    // Sandbox toolbar - stays fixed while plots switch
+                    SandboxToolbarCmp(
+                        figureModel = figureModel,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
                     Column(
                         modifier = Modifier.fillMaxSize()
                             .padding(start = 10.dp, top = 10.dp, end = 10.dp, bottom = 10.dp),
@@ -80,6 +89,7 @@ fun main() = application {
                         @Suppress("UNCHECKED_CAST")
                         PlotPanelRaw(
                             rawSpec = rawSpec as MutableMap<String, Any>,
+                            figureModel = figureModel,
                             preserveAspectRatio = preserveAspectRatio.value,
                             modifier = Modifier.fillMaxSize()
                         ) { computationMessages ->

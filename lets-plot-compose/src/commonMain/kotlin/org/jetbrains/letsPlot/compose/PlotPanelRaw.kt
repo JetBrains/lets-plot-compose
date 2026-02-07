@@ -18,7 +18,6 @@ import org.jetbrains.letsPlot.core.plot.builder.interact.tools.FigureModel
  *
  * @param rawSpec Raw plot specification map
  * @param figureModel Optional [FigureModel] for controlling plot interactions programmatically.
- *                    Use [rememberPlotFigureModel] to create a model that can be accessed externally.
  * @param preserveAspectRatio Whether to preserve the plot's aspect ratio
  * @param modifier Modifier for the plot container
  * @param errorTextStyle Text style for error messages
@@ -28,7 +27,7 @@ import org.jetbrains.letsPlot.core.plot.builder.interact.tools.FigureModel
  *
  * Example with external FigureModel:
  * ```kotlin
- * val figureModel = rememberPlotFigureModel()
+ * val figureModel = remember { PlotFigureModel() }
  *
  * PlotPanelRaw(
  *     rawSpec = myRawSpec,
@@ -63,7 +62,7 @@ import org.jetbrains.letsPlot.core.plot.builder.interact.tools.FigureModel
 @Composable
 expect fun PlotPanelRaw(
     rawSpec: MutableMap<String, Any>,
-    figureModel: FigureModel? = null,
+    figureModel: PlotFigureModel? = null,
     preserveAspectRatio: Boolean,
     modifier: Modifier,
     errorTextStyle: TextStyle = TextStyle(color = Color(0xFF700000)),

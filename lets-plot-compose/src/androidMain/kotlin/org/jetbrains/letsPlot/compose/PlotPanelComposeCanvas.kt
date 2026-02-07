@@ -129,7 +129,7 @@ fun PlotPanelComposeCanvas(
                 reg.dispose()
                 //plotCanvasFigure2.dispose()
             } catch (e: Exception) {
-                LOG.error(e) { "reg.dispose() failed" }
+                LOG.error(e) { "reg.dispose() failed: ${e.message}" }
             }
         }
     }

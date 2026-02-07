@@ -21,7 +21,6 @@ import org.jetbrains.letsPlot.intern.toSpec
  *
  * @param figure The plot figure to display
  * @param figureModel Optional [FigureModel] for controlling plot interactions programmatically.
- *                    Use [rememberPlotFigureModel] to create a model that can be accessed externally.
  * @param preserveAspectRatio Whether to preserve the plot's aspect ratio
  * @param modifier Modifier for the plot container
  * @param errorTextStyle Text style for error messages
@@ -31,7 +30,7 @@ import org.jetbrains.letsPlot.intern.toSpec
  *
  * Example with external FigureModel:
  * ```kotlin
- * val figureModel = rememberPlotFigureModel()
+ * val figureModel = remember { PlotFigureModel() }
  *
  * PlotPanel(
  *     figure = myPlot,
@@ -41,7 +40,7 @@ import org.jetbrains.letsPlot.intern.toSpec
  * )
  *
  * // Control the plot programmatically.
- * // For exampl, set figure default interactions.
+ * // For example, set figure default interactions.
  * val defaultInteractions = listOf(
  *     InteractionSpec(
  *         InteractionSpec.Name.WHEEL_ZOOM,
@@ -66,7 +65,7 @@ import org.jetbrains.letsPlot.intern.toSpec
 @Composable
 fun PlotPanel(
     figure: Figure,
-    figureModel: FigureModel? = null,
+    figureModel: PlotFigureModel? = null,
     preserveAspectRatio: Boolean = false,
     modifier: Modifier,
     errorTextStyle: TextStyle = TextStyle(color = Color(0xFF700000)),

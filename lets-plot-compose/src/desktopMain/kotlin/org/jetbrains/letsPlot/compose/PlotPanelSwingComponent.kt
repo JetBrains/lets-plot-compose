@@ -90,7 +90,7 @@ fun PlotPanelSwingComponent(
             try {
                 plotContainer.dispose()
             } catch (e: Exception) {
-                LOG.error(e) { "PlotContainer.dispose() failed" }
+                LOG.error(e) { "plotContainer.dispose() failed: ${e.message}" }
             }
         }
     }

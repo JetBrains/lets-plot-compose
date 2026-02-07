@@ -10,10 +10,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
-import org.jetbrains.letsPlot.core.plot.builder.interact.tools.FigureModel
 
 private const val devRendering = false
 
@@ -23,7 +23,7 @@ private const val devRendering = false
 @Composable
 actual fun PlotPanelRaw(
     rawSpec: MutableMap<String, Any>,
-    figureModel: FigureModel?,
+    figureModel: PlotFigureModel?,
     preserveAspectRatio: Boolean,
     modifier: Modifier,
     errorTextStyle: TextStyle,
@@ -32,6 +32,15 @@ actual fun PlotPanelRaw(
     computationMessagesHandler: (List<String>) -> Unit
 ) {
     val actualFigureModel = figureModel ?: remember { PlotFigureModel() }
+
+    // Dispose internally-created figureModel when this component is removed
+    if (figureModel == null) {
+        DisposableEffect(actualFigureModel) {
+            onDispose {
+                actualFigureModel.dispose()
+            }
+        }
+    }
 
     Row(modifier = modifier) {
         @Suppress("SimplifyBooleanWithConstants", "KotlinConstantConditions")
