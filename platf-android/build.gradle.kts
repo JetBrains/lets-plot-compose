@@ -3,10 +3,6 @@
  * Use of this source code is governed by the MIT license that can be found in the LICENSE file.
  */
 
-import java.io.ByteArrayOutputStream
-import java.io.FileInputStream
-import java.util.*
-
 plugins {
     kotlin("multiplatform")
     id("com.android.library")
@@ -57,6 +53,7 @@ kotlin {
                 implementation("org.jetbrains.lets-plot:plot-builder:$letsPlotVersion")
                 implementation("org.jetbrains.lets-plot:plot-stem:$letsPlotVersion")
                 implementation("org.jetbrains.lets-plot:plot-raster:$letsPlotVersion")
+                //implementation("org.jetbrains.lets-plot:visual-testing:$letsPlotVersion")
             }
         }
     }
@@ -91,97 +88,82 @@ android {
     }
 }
 
-tasks.register("pullDebugImages") {
+
+tasks.register<Exec>("clearDeviceImages") {
+    group = "verification"
+    isIgnoreExitValue = true
+    val adb = android.adbExecutable.path
+    // Clean the GLOBAL folder
+    val remoteDir = "/sdcard/Download/VisualTestResults/"
+    commandLine(adb, "shell", "rm", "-rf", remoteDir)
+}
+
+tasks.register<Exec>("pullTestImages") {
+    group = "verification"
+    isIgnoreExitValue = true
+    val adb = android.adbExecutable.path
+
+    val remoteDir = "/sdcard/Download/VisualTestResults"
+    val finalDir = layout.buildDirectory.dir("reports").get().asFile
+    // We use a temporary folder for the raw pull
+    val tempDir = layout.buildDirectory.dir("tmp/visual_pull_buffer").get().asFile
+
+    doFirst {
+        // Ensure both directories exist
+        finalDir.mkdirs()
+        tempDir.mkdirs()
+        println("📥 Pulling images to temp buffer...")
+    }
+
+    // 1. Pull the folder into the temp directory
+    // This creates: build/tmp/visual_pull_buffer/VisualTestResults/...
+    commandLine(adb, "pull", remoteDir, tempDir.absolutePath)
+
     doLast {
-        val destDir = File(projectDir, "build/test-results/")
-        destDir.mkdirs()
+        // 2. Locate the specific folder ADB created
+        val pulledSubDir = file("${tempDir.absolutePath}/VisualTestResults")
 
-        // 1. Load local.properties
-        val localProperties = Properties()
-        val localPropertiesFile = File(rootProject.projectDir, "local.properties")
-        if (localPropertiesFile.exists()) {
-            FileInputStream(localPropertiesFile).use { fis ->
-                localProperties.load(fis)
-            }
-        }
+        if (pulledSubDir.exists()) {
+            println("📂 Moving files to final destination...")
 
-        // 2. Get sdk.dir from local.properties
-        val sdkDir = localProperties.getProperty("sdk.dir") ?: System.getenv("ANDROID_HOME")
-        ?: System.getProperty("android.home")
-        if (sdkDir == null) {
-            throw GradleException("sdk.dir not found in local.properties and ANDROID_HOME or android.home not set")
-        }
-
-        // 3. Construct adb executable path
-        val adbPath = "$sdkDir/platform-tools/adb"
-        val adbFile = File(adbPath)
-        if (!adbFile.exists()) {
-            throw GradleException("adb not found at $adbPath")
-        }
-        val adbExecutable = adbFile.absolutePath
-
-        // Get the list of connected devices using adb devices
-        val adbDevicesOutput = ByteArrayOutputStream()
-        exec {
-            commandLine(adbExecutable, "devices", "-l")
-            standardOutput = adbDevicesOutput
-            isIgnoreExitValue = true
-        }
-
-        val devicesOutput = adbDevicesOutput.toString()
-
-        val devices = devicesOutput.reader().readLines()
-            .drop(1) // Skip the header line
-            .filter { it.isNotBlank() && !it.startsWith("* daemon") } // Remove empty lines
-            .map { it.split("\\s+".toRegex())[0] }
-
-        if (devices.isEmpty()) {
-            println("No connected Android devices found.")
-            return@doLast
-        }
-
-        devices.forEach { deviceSerial ->
-            println("Pulling images from device: $deviceSerial")
-
-            //The directory on device to pull from
-            val devicePicturesDir =
-                "/storage/emulated/0/Android/data/org.jetbrains.letsPlot.android.canvas.test/files/Pictures/"
-            //The local directory to initially pull the images to
-            val tempLocalDir = File(destDir, "temp_pictures")
-            if (tempLocalDir.exists()) {
-                tempLocalDir.deleteRecursively()
-            }
-            tempLocalDir.mkdirs()
-
-            // Pull the images from the device to the temporary directory
-            exec {
-                commandLine(
-                    adbExecutable,
-                    "-s",
-                    deviceSerial,
-                    "pull",
-                    devicePicturesDir,
-                    tempLocalDir.absolutePath
-                )
+            // 3. Use Gradle's safe copy to move just the files, flattening the structure
+            copy {
+                from(pulledSubDir)
+                into(finalDir)
             }
 
-            val tempPicturesDir = File(tempLocalDir, "Pictures")
-            val diffImagesDir = File(destDir, "/diff_images/")
-            if (diffImagesDir.exists()) {
-                diffImagesDir.deleteRecursively()
-            }
-            diffImagesDir.mkdirs()
-
-            //Move files from temporary dir to destination dir
-            tempPicturesDir.listFiles()?.forEach { file ->
-                file.copyTo(File(diffImagesDir, file.name))
-            }
-            //Delete temporary dir
-            tempLocalDir.deleteRecursively()
+            println("✅ Images saved to: ${finalDir.absolutePath}")
+        } else {
+            println("⚠️ No images found on device (Test passed or skipped).")
         }
+
+        // 4. Cleanup the temp folder
+        tempDir.deleteRecursively()
     }
 }
 
+// Keep the hook configuration the same
+tasks.configureEach {
+    if (name.contains("connected") && name.contains("AndroidTest")) {
+        dependsOn("clearDeviceImages")
+        finalizedBy("pullTestImages")
+    }
+}
+
+// 4. AUTOMATION HOOK (Corrected)
+// We use 'configureEach' on the generic Task type to avoid importing internal classes.
+tasks.configureEach {
+    // Check if the task name matches the standard pattern for Android Instrumentation tests
+    // e.g., "connectedDebugAndroidTest", "connectedDemoDebugAndroidTest"
+    if (name.contains("connected") && name.contains("AndroidTest")) {
+
+        // Step A: Run 'clearDeviceImages' BEFORE the test starts
+        //dependsOn("clearDeviceImages")
+
+        // Step B: Run 'pullTestImages' AFTER the test finishes (fail or success)
+        finalizedBy("pullTestImages")
+    }
+}
 
 ///////////////////////////////////////////////
 //  Publishing

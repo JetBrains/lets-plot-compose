@@ -54,6 +54,18 @@ kotlin {
             }
         }
 
+        named("desktopTest") {
+            dependencies {
+                implementation(compose.runtime)
+                implementation(compose.ui)
+                implementation(compose.desktop.currentOs)
+                implementation(compose.components.resources)
+                //implementation("org.jetbrains.lets-plot:visual-testing:${letsPlotVersion}")
+                implementation("io.github.microutils:kotlin-logging-jvm:$kotlinLoggingVersion")
+                implementation(kotlin("test"))
+            }
+        }
+
         named("androidMain") {
             dependencies {
                 implementation(project.dependencies.platform("androidx.compose:compose-bom:$androidComposeBom"))
