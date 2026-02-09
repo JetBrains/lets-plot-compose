@@ -92,7 +92,7 @@ fun PlotPanelComposeCanvas(
     // We can't reset PlotContainer using updateViewmodel(), so we create a new one.
     val plotCanvasFigure2 = remember(errorMessage) {
         PlotCanvasFigure().apply {
-            eventPeer.addEventSource(composeMouseEventMapper)
+            mouseEventPeer.addEventSource(composeMouseEventMapper)
         }
     }
 

@@ -24,6 +24,7 @@ import org.jetbrains.letsPlot.commons.values.Bitmap
 import org.jetbrains.letsPlot.core.canvas.AnimationProvider
 import org.jetbrains.letsPlot.core.canvas.Canvas
 import org.jetbrains.letsPlot.core.canvas.CanvasControl
+import org.jetbrains.letsPlot.core.canvas.CanvasPeer
 import org.jetbrains.letsPlot.core.canvasFigure.CanvasFigure
 import java.util.*
 import kotlin.math.ceil
@@ -174,6 +175,7 @@ class CanvasView(
                 (this@CanvasView.width / pixelDensity).toInt(),
                 (this@CanvasView.height / pixelDensity).toInt()
             )
+        override val canvasPeer: CanvasPeer = AndroidCanvasPeer()
 
         override val pixelDensity: Double = context.resources.displayMetrics.density.toDouble()
 

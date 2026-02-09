@@ -31,7 +31,7 @@ class CanvasView2(
 
             figureRegistration.remove()
             if (fig != null) {
-                fig.eventPeer.addEventSource(mouseEventSource)
+                fig.mouseEventPeer.addEventSource(mouseEventSource)
                 figureRegistration = Registration.from(
                     fig.mapToCanvas(canvasPeer),
                     fig.onRepaintRequested { invalidate() }
