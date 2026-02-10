@@ -97,7 +97,7 @@ fun PlotPanelComposeCanvas(
         }
     }
 
-    val reg = remember(plotCanvasFigure2) {
+    val plotComponentRegistrations = remember(plotCanvasFigure2) {
         CompositeRegistration(
             // trigger recomposition on repaint request
             plotCanvasFigure2.onRepaintRequested { redrawTrigger++ },
@@ -121,15 +121,15 @@ fun PlotPanelComposeCanvas(
     }
 
 
-    DisposableEffect(reg) {
+    DisposableEffect(plotComponentRegistrations) {
         onDispose {
             // Try/catch to ensure that any exception in dispose() does not break the Composable lifecycle
             // Otherwise, the app window gets unclosable.
             try {
-                reg.dispose()
+                plotComponentRegistrations.dispose()
                 //plotCanvasFigure2.dispose()
             } catch (e: Exception) {
-                LOG.error(e) { "reg.dispose() failed: ${e.message}" }
+                LOG.error(e) { "plotComponentRegistrations.dispose() failed: ${e.message}" }
             }
         }
     }
@@ -181,7 +181,9 @@ fun PlotPanelComposeCanvas(
 
                             // Connect the figure model to the plot component
                             figureModel.toolEventDispatcher = plotCanvasFigure2.toolEventDispatcher
-
+                            plotComponentRegistrations.add(Registration.onRemove {
+                                figureModel.toolEventDispatcher = null
+                            })
 
                             val plotWidth = plotCanvasFigure2.size.x
                             val plotHeight = plotCanvasFigure2.size.y
