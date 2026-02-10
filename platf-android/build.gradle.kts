@@ -1,3 +1,6 @@
+import org.gradle.kotlin.dsl.configure
+import kotlin.text.set
+
 /*
  * Copyright (c) 2023. JetBrains s.r.o.
  * Use of this source code is governed by the MIT license that can be found in the LICENSE file.
@@ -18,7 +21,11 @@ val espressoCoreVersion = extra["espresso.core.version"] as String
 kotlin {
     jvm {
         compilations.all {
-            kotlinOptions.jvmTarget = "11"
+            compileTaskProvider.configure {
+                compilerOptions {
+                    jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
+                }
+            }
         }
     }
 

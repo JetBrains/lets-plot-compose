@@ -46,8 +46,8 @@ allprojects {
 //    version = "0.0.0-SNAPSHOT" // for local publishing only
 
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().all {
-        kotlinOptions {
-            jvmTarget = "11"
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
         }
     }
 
@@ -134,7 +134,7 @@ subprojects {
         mavenLocal()
     }
 
-    val jarJavaDocs by tasks.creating(Jar::class) {
+    val jarJavaDocs by tasks.registering(Jar::class) {
         archiveClassifier.set("javadoc")
         group = "lets plot"
         from("$rootDir/README.md")

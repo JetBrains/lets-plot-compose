@@ -1,9 +1,6 @@
 package org.jetbrains.letsPlot.compose
 
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.PointerInputEventHandler
-import androidx.compose.ui.input.pointer.PointerInputScope
+import androidx.compose.ui.input.pointer.*
 import org.jetbrains.letsPlot.commons.event.*
 import org.jetbrains.letsPlot.commons.event.MouseEventSpec.*
 import org.jetbrains.letsPlot.commons.geometry.Vector
@@ -41,9 +38,12 @@ class ComposeMouseEventMapper : MouseEventSource, PointerInputEventHandler {
                 val adjustedY = ((position.y / density) - offsetY).roundToInt()
                 val vector = Vector(adjustedX, adjustedY)
 
+                // Extract keyboard modifiers from the pointer event
+                val modifiers = extractModifiers(event)
+
                 val mouseEvent = when {
-                    change.pressed -> MouseEvent.leftButton(vector)
-                    else -> MouseEvent.noButton(vector)
+                    change.pressed -> MouseEvent(vector.x, vector.y, Button.LEFT, modifiers)
+                    else -> MouseEvent(vector.x, vector.y, Button.NONE, modifiers)
                 }
 
                 when (event.type) {
@@ -61,8 +61,7 @@ class ComposeMouseEventMapper : MouseEventSource, PointerInputEventHandler {
 
                     PointerEventType.Release -> {
                         if (clickCount > 0) {
-                            val pos = event.changes.first().position
-                            dispatchClick(pos, clickCount, density.toDouble())
+                            dispatchClick(event, clickCount, density.toDouble())
                             if (clickCount > 1) {
                                 clickCount = 0 // Reset after a double click
                             }
@@ -88,12 +87,19 @@ class ComposeMouseEventMapper : MouseEventSource, PointerInputEventHandler {
 
                     PointerEventType.Scroll -> {
                         val scrollDelta = change.scrollDelta
+                        // Use the dominant scroll direction (x or y, whichever has larger absolute value)
+                        val scrollAmount = if (kotlin.math.abs(scrollDelta.x) > kotlin.math.abs(scrollDelta.y)) {
+                            scrollDelta.x.toDouble()
+                        } else {
+                            scrollDelta.y.toDouble()
+                        }
+
                         val wheelMouseEvent = MouseWheelEvent(
                             x = vector.x,
                             y = vector.y,
                             button = Button.NONE,
-                            modifiers = KeyModifiers.emptyModifiers(),
-                            scrollAmount = scrollDelta.y.toDouble()
+                            modifiers = modifiers,
+                            scrollAmount = scrollAmount
                         )
                         mouseEventPeer.dispatch(MOUSE_WHEEL_ROTATED, wheelMouseEvent)
                     }
@@ -102,18 +108,29 @@ class ComposeMouseEventMapper : MouseEventSource, PointerInputEventHandler {
         }
     }
 
-    private fun dispatchClick(position: Offset, clickCount: Int, density: Double) {
+    private fun dispatchClick(event: PointerEvent, clickCount: Int, density: Double) {
+        val position = event.changes.first().position
         // Convert logical pixel coordinates to physical pixel coordinates for SVG interaction
         val adjustedX = ((position.x / density) - offsetX).roundToInt()
         val adjustedY = ((position.y / density) - offsetY).roundToInt()
         val vector = Vector(adjustedX, adjustedY)
-        val mouseEvent = MouseEvent.leftButton(vector)
+        val modifiers = extractModifiers(event)
+        val mouseEvent = MouseEvent(vector.x, vector.y, Button.LEFT, modifiers)
 
         when (clickCount) {
             1 -> mouseEventPeer.dispatch(MOUSE_CLICKED, mouseEvent)
             2 -> mouseEventPeer.dispatch(MOUSE_DOUBLE_CLICKED, mouseEvent)
             else -> return
         }
+    }
+
+    private fun extractModifiers(event: PointerEvent): KeyModifiers {
+        return KeyModifiers(
+            isCtrl = event.keyboardModifiers.isCtrlPressed,
+            isAlt = event.keyboardModifiers.isAltPressed,
+            isShift = event.keyboardModifiers.isShiftPressed,
+            isMeta = event.keyboardModifiers.isMetaPressed
+        )
     }
 
 }
