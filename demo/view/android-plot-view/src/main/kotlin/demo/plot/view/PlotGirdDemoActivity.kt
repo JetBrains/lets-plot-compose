@@ -12,7 +12,7 @@ import org.jetbrains.letsPlot.android.canvas.CanvasView2
 import org.jetbrains.letsPlot.core.util.MonolithicCommon
 import org.jetbrains.letsPlot.core.util.sizing.SizingPolicy
 import org.jetbrains.letsPlot.intern.toSpec
-import org.jetbrains.letsPlot.raster.view.PlotCanvasFigure
+import org.jetbrains.letsPlot.raster.view.PlotCanvasDrawable
 import plotSpec.PlotGridSpec
 
 class PlotGirdDemoActivity : Activity() {
@@ -23,7 +23,7 @@ class PlotGirdDemoActivity : Activity() {
 
         setContentView(
             CanvasView2(this).apply {
-                figure = PlotCanvasFigure().apply {
+                canvasDrawable = PlotCanvasDrawable().apply {
                     update(
                         processedSpec = MonolithicCommon.processRawSpecs(plotFigure.toSpec(), frontendOnly = false),
                         sizingPolicy = SizingPolicy.fitContainerSize(false),

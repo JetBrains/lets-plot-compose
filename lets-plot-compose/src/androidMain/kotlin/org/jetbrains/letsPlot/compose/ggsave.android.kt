@@ -15,7 +15,7 @@ import org.jetbrains.letsPlot.core.util.PlotHtmlHelper.scriptUrl
 import org.jetbrains.letsPlot.core.util.PlotSvgExport
 import org.jetbrains.letsPlot.export.VersionChecker
 import org.jetbrains.letsPlot.intern.toSpec
-import org.jetbrains.letsPlot.raster.view.PlotCanvasFigure
+import org.jetbrains.letsPlot.raster.view.PlotCanvasDrawable
 import java.io.IOException
 
 /**
@@ -97,8 +97,8 @@ private fun paintPlot(
     val targetDPI = dpi?.toFiniteDouble()
     val (sizingPolicy, scaleFactor) = computeExportParameters(plotSize, targetDPI, unit, scale)
 
-    val plotFigure = PlotCanvasFigure()
-    plotFigure.update(
+    val plotDrawable = PlotCanvasDrawable()
+    plotDrawable.update(
         processedSpec = MonolithicCommon.processRawSpecs(spec, frontendOnly = false),
         sizingPolicy = sizingPolicy,
         computationMessagesHandler = {}
@@ -106,11 +106,11 @@ private fun paintPlot(
 
     val androidCanvasPeer = AndroidCanvasPeer(scaleFactor)
 
-    val reg = plotFigure.mapToCanvas(androidCanvasPeer)
-    val canvas = androidCanvasPeer.createCanvas(plotFigure.size)
+    val reg = plotDrawable.mapToCanvas(androidCanvasPeer)
+    val canvas = androidCanvasPeer.createCanvas(plotDrawable.size)
     val ctx = canvas.context2d
     try {
-        plotFigure.paint(canvas.context2d)
+        plotDrawable.paint(canvas.context2d)
         return canvas.takeSnapshot().platformBitmap
     } finally {
         ctx.dispose()

@@ -38,7 +38,7 @@ import org.jetbrains.letsPlot.core.spec.front.SpecOverrideUtil.applySpecOverride
 import org.jetbrains.letsPlot.core.util.MonolithicCommon.processRawSpecs
 import org.jetbrains.letsPlot.core.util.PlotThemeHelper
 import org.jetbrains.letsPlot.core.util.sizing.SizingPolicy.Companion.fitContainerSize
-import org.jetbrains.letsPlot.raster.view.PlotCanvasFigure
+import org.jetbrains.letsPlot.raster.view.PlotCanvasDrawable
 import kotlin.math.roundToInt
 
 //import org.jetbrains.letsPlot.compose.util.NaiveLogger
@@ -85,23 +85,23 @@ fun PlotPanelComposeCanvas(
 
     var errorMessage: String? by remember(processedPlotSpec, panelSize) { mutableStateOf(null) }
 
-    var redrawTrigger by remember { mutableStateOf(0) }
+    var redrawTrigger by remember { mutableIntStateOf(0) }
 
     val androidCanvasPeer = remember { AndroidCanvasPeer() }
 
     // Reset the old plot on error to prevent blinking
     // We can't reset PlotContainer using updateViewmodel(), so we create a new one.
-    val plotCanvasFigure2 = remember(errorMessage) {
-        PlotCanvasFigure().apply {
+    val plotDrawable = remember(errorMessage) {
+        PlotCanvasDrawable().apply {
             mouseEventPeer.addEventSource(composeMouseEventMapper)
         }
     }
 
-    val plotComponentRegistrations = remember(plotCanvasFigure2) {
+    val plotComponentRegistrations = remember(plotDrawable) {
         CompositeRegistration(
             // trigger recomposition on repaint request
-            plotCanvasFigure2.onRepaintRequested { redrawTrigger++ },
-            plotCanvasFigure2.mapToCanvas(androidCanvasPeer)
+            plotDrawable.onRepaintRequested { redrawTrigger++ },
+            plotDrawable.mapToCanvas(androidCanvasPeer)
         )
     }
 
@@ -171,7 +171,7 @@ fun PlotPanelComposeCanvas(
                         if (panelSize != DoubleVector.ZERO) {
                             val plotSpec = applySpecOverride(processedPlotSpec, specOverrideList).toMutableMap()
 
-                            plotCanvasFigure2.update(plotSpec, fitContainerSize(preserveAspectRatio)) { messages ->
+                            plotDrawable.update(plotSpec, fitContainerSize(preserveAspectRatio)) { messages ->
                                 if (dispatchComputationMessages) {
                                     // do once
                                     dispatchComputationMessages = false
@@ -180,13 +180,13 @@ fun PlotPanelComposeCanvas(
                             }
 
                             // Connect the figure model to the plot component
-                            figureModel.toolEventDispatcher = plotCanvasFigure2.toolEventDispatcher
+                            figureModel.toolEventDispatcher = plotDrawable.toolEventDispatcher
                             plotComponentRegistrations.add(Registration.onRemove {
                                 figureModel.toolEventDispatcher = null
                             })
 
-                            val plotWidth = plotCanvasFigure2.size.x
-                            val plotHeight = plotCanvasFigure2.size.y
+                            val plotWidth = plotDrawable.size.x
+                            val plotHeight = plotDrawable.size.y
 
                             // Calculate centering position in physical pixels
                             // Both panelSize and plot dimensions are in physical pixels
@@ -211,7 +211,7 @@ fun PlotPanelComposeCanvas(
                         .pointerHoverIcon(PointerIcon(TYPE_CROSSHAIR))
                         .onSizeChanged { size ->
                             // Convert canvas logical pixels (from Compose layout) to physical pixels (plot SVG pixels)
-                            plotCanvasFigure2.resize(size.width / density, size.height / density)
+                            plotDrawable.resize(size.width / density, size.height / density)
                         }
                         .pointerInput(composeMouseEventMapper, composeMouseEventMapper)
                 ) {
@@ -223,7 +223,7 @@ fun PlotPanelComposeCanvas(
                     ctx.scale(density.toDouble(), density.toDouble()) // logical → physical pixels
 
                     ctx.translate(plotPosition.x, plotPosition.y)
-                    plotCanvasFigure2.paint(ctx)
+                    plotDrawable.paint(ctx)
                 }
             }
         }

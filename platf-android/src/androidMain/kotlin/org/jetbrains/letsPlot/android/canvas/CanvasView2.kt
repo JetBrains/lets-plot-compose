@@ -13,14 +13,14 @@ import android.view.View
 import org.jetbrains.letsPlot.commons.event.MouseEventSource
 import org.jetbrains.letsPlot.commons.geometry.DoubleVector
 import org.jetbrains.letsPlot.commons.registration.Registration
-import org.jetbrains.letsPlot.core.canvasFigure.CanvasFigure2
+import org.jetbrains.letsPlot.core.canvas.CanvasDrawable
 
 @SuppressLint("ViewConstructor")
 class CanvasView2(
     context: Context,
 ) : View(context) {
     var onError: (Throwable) -> Unit = { _ -> }
-    var figure: CanvasFigure2? = null
+    var canvasDrawable: CanvasDrawable? = null
         set(fig) {
             if (field == fig) {
                 return
@@ -45,7 +45,8 @@ class CanvasView2(
     private val canvasPeer = AndroidCanvasPeer()
 
     private var figureRegistration: Registration = Registration.EMPTY
-    private val mouseEventSource: MouseEventSource = AndroidMouseEventMapper(this, context) { x, y -> DoubleVector(x - centerOffsetX, y - centerOffsetY) }
+    private val mouseEventSource: MouseEventSource =
+        AndroidMouseEventMapper(this, context) { x, y -> DoubleVector(x - centerOffsetX, y - centerOffsetY) }
     private var centerOffsetX: Float = 0f
     private var centerOffsetY: Float = 0f
     private val eraser = Paint().apply {
@@ -59,20 +60,23 @@ class CanvasView2(
         val w = w / density
         val h = h / density
 
-        figure?.resize(w, h)
+        canvasDrawable?.resize(w, h)
     }
 
     override fun onDraw(canvas: android.graphics.Canvas) {
         super.onDraw(canvas)
 
-        val fig = figure ?: return
+        val fig = canvasDrawable ?: return
 
         val context2d = AndroidContext2d(canvas, resources.displayMetrics.density.toDouble())
         centerOffsetX = ((width - fig.size.x * resources.displayMetrics.density) / 2f)
         centerOffsetY = ((height - fig.size.y * resources.displayMetrics.density) / 2f)
 
         context2d.save()
-        context2d.translate(centerOffsetX.toDouble() / resources.displayMetrics.density, centerOffsetY.toDouble() / resources.displayMetrics.density)
+        context2d.translate(
+            centerOffsetX.toDouble() / resources.displayMetrics.density,
+            centerOffsetY.toDouble() / resources.displayMetrics.density
+        )
 
         fig.paint(context2d)
 
@@ -87,8 +91,8 @@ class CanvasView2(
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val density = resources.displayMetrics.density
 
-        val figureWidthInDp = figure?.size?.x ?: 0
-        val figureHeightInDp = figure?.size?.y ?: 0
+        val figureWidthInDp = canvasDrawable?.size?.x ?: 0
+        val figureHeightInDp = canvasDrawable?.size?.y ?: 0
 
         val desiredWidth = (figureWidthInDp * density).toInt()
         val desiredHeight = (figureHeightInDp * density).toInt()

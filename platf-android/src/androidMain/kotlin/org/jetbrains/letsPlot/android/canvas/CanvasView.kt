@@ -21,16 +21,12 @@ import org.jetbrains.letsPlot.commons.intern.observable.event.EventHandler
 import org.jetbrains.letsPlot.commons.intern.observable.property.PropertyChangeEvent
 import org.jetbrains.letsPlot.commons.registration.Registration
 import org.jetbrains.letsPlot.commons.values.Bitmap
-import org.jetbrains.letsPlot.core.canvas.AnimationProvider
-import org.jetbrains.letsPlot.core.canvas.Canvas
-import org.jetbrains.letsPlot.core.canvas.CanvasControl
-import org.jetbrains.letsPlot.core.canvas.CanvasPeer
-import org.jetbrains.letsPlot.core.canvasFigure.CanvasFigure
+import org.jetbrains.letsPlot.core.canvas.*
 import java.util.*
 import kotlin.math.ceil
 
-val CanvasFigure.width get() = bounds().get().dimension.x
-val CanvasFigure.height get() = bounds().get().dimension.y
+val CanvasDrawable.width get() = size.x
+val CanvasDrawable.height get() = size.y
 
 @Deprecated("Migrate to CanvasView2", replaceWith = ReplaceWith("CanvasView", "org.jetbrains.letsPlot.android.canvas"))
 @SuppressLint("ViewConstructor")
@@ -38,7 +34,7 @@ class CanvasView(
     context: Context,
 ) : View(context) {
     var onError: (Throwable) -> Unit = { _ -> }
-    var figure: CanvasFigure? = null
+    var canvasDrawable: CanvasDrawable? = null
         set(fig) {
             if (field == fig) {
                 return
@@ -82,7 +78,8 @@ class CanvasView(
     private val canvasControl = AndroidCanvasControl()
     private var figureRegistration: Registration = Registration.EMPTY
     private val sizeListeners = mutableListOf<(Vector) -> Unit>()
-    private val mouseEventSource: MouseEventSource = AndroidMouseEventMapper(this, context) { x, y -> DoubleVector(x - centerOffsetX, y - centerOffsetY) }
+    private val mouseEventSource: MouseEventSource =
+        AndroidMouseEventMapper(this, context) { x, y -> DoubleVector(x - centerOffsetX, y - centerOffsetY) }
     private var centerOffsetX: Float = 0f
     private var centerOffsetY: Float = 0f
     private val eraser = Paint().apply {
@@ -111,7 +108,7 @@ class CanvasView(
             return
         }
 
-        val fig = figure ?: return
+        val fig = canvasDrawable ?: return
 
         centerOffsetX = ((width - fig.width * resources.displayMetrics.density) / 2f)
         centerOffsetY = ((height - fig.height * resources.displayMetrics.density) / 2f)
@@ -138,8 +135,8 @@ class CanvasView(
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val density = resources.displayMetrics.density
 
-        val figureWidthInDp = figure?.width ?: 0
-        val figureHeightInDp = figure?.height ?: 0
+        val figureWidthInDp = canvasDrawable?.width ?: 0
+        val figureHeightInDp = canvasDrawable?.height ?: 0
 
         val desiredWidth = (figureWidthInDp * density).toInt()
         val desiredHeight = (figureHeightInDp * density).toInt()
@@ -166,7 +163,9 @@ class CanvasView(
         override fun createCanvas(size: Vector) = AndroidCanvas.create(size, pixelDensity)
         override fun createSnapshot(bitmap: Bitmap) = AndroidSnapshot.fromBitmap(bitmap)
         override fun snapshot() = error("Snapshot not supported in AndroidCanvasControl")
-        override fun decodeDataImageUrl(dataUrl: String) = error("decodeDataImageUrl not supported in AndroidCanvasControl")
+        override fun decodeDataImageUrl(dataUrl: String) =
+            error("decodeDataImageUrl not supported in AndroidCanvasControl")
+
         override fun decodePng(png: ByteArray) = error("decodePng not supported in AndroidCanvasControl")
         override fun <T> schedule(f: () -> T) = error("schedule not supported in AndroidCanvasControl")
 
