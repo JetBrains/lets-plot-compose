@@ -53,7 +53,6 @@ kotlin {
                 compileOnly(compose.ui)
                 compileOnly(compose.desktop.currentOs)
                 compileOnly(compose.components.resources)
-                compileOnly("org.jetbrains.skiko:skiko:${skikoVersion}")
                 compileOnly("io.github.microutils:kotlin-logging-jvm:$kotlinLoggingVersion")
             }
         }
