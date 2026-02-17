@@ -78,8 +78,8 @@ fun PlotPanelComposeCanvas(
     var plotPosition by remember { mutableStateOf(DoubleVector.ZERO) }
     var dispatchComputationMessages by remember { mutableStateOf(true) }
 
-    // Observe spec override list from figureModel
-    val specOverrideList by figureModel.specOverrideListState
+    // Observe spec override state from figureModel
+    val specOverrideState by figureModel.specOverrideState
 
     var errorMessage: String? by remember(processedPlotSpec, panelSize) { mutableStateOf(null) }
 
@@ -162,7 +162,7 @@ fun PlotPanelComposeCanvas(
                 )
             } else {
                 // Render the plot
-                LaunchedEffect(panelSize, processedPlotSpec, specOverrideList, preserveAspectRatio) {
+                LaunchedEffect(panelSize, processedPlotSpec, specOverrideState, preserveAspectRatio) {
 
                     if (PlotConfig.isFailure(processedPlotSpec)) {
                         errorMessage = PlotConfig.getErrorMessage(processedPlotSpec)
@@ -171,7 +171,7 @@ fun PlotPanelComposeCanvas(
 
                     runCatching {
                         if (panelSize != DoubleVector.ZERO) {
-                            val plotSpec = applySpecOverride(processedPlotSpec, specOverrideList).toMutableMap()
+                            val plotSpec = applySpecOverride(processedPlotSpec, specOverrideState).toMutableMap()
 
                             plotDrawable.update(plotSpec, fitContainerSize(preserveAspectRatio)) { messages ->
                                 if (dispatchComputationMessages) {

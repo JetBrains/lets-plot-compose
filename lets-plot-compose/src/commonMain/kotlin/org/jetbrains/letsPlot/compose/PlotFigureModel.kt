@@ -4,6 +4,8 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import org.jetbrains.letsPlot.core.plot.builder.interact.tools.FigureModelBase
 import org.jetbrains.letsPlot.core.plot.builder.interact.tools.FigureModelHelper
+import org.jetbrains.letsPlot.core.plot.builder.interact.tools.FigureModelOptions.TARGET_ID
+import org.jetbrains.letsPlot.core.plot.builder.interact.tools.SpecOverrideState
 
 /**
  * FigureModel implementation for Compose that manages plot interactions and state.
@@ -45,19 +47,31 @@ import org.jetbrains.letsPlot.core.plot.builder.interact.tools.FigureModelHelper
  */
 class PlotFigureModel() : FigureModelBase() {
 
-    private val _specOverrideListState = mutableStateOf<List<Map<String, Any>>>(emptyList())
+    private var currSpecOverrideList: List<Map<String, Any>> = emptyList()
+
+    private val _specOverrideState = mutableStateOf(SpecOverrideState.empty())
 
     /**
      * Exposed as a read-only State for plot rendering.
-     * Plot components can observe this to trigger recomposition only when spec changes.
+     * Plot components observe this to trigger recomposition when spec overrides change.
      */
-    val specOverrideListState: State<List<Map<String, Any>>> = _specOverrideListState
+    val specOverrideState: State<SpecOverrideState> = _specOverrideState
 
     override fun updateView(specOverride: Map<String, Any>?) {
-        // Update the spec override list internally - this triggers recomposition of the plot
-        _specOverrideListState.value = FigureModelHelper.updateSpecOverrideList(
-            specOverrideList = _specOverrideListState.value,
+        // Sync with any expansion that happened during the previous rebuild.
+        val currentState = _specOverrideState.value
+        if (currentState.expandedOverrides.isNotEmpty()) {
+            currSpecOverrideList = currentState.expandedOverrides
+        }
+
+        currSpecOverrideList = FigureModelHelper.updateSpecOverrideList(
+            specOverrideList = currSpecOverrideList,
             newSpecOverride = specOverride
         )
+
+        val activeTargetId = specOverride?.get(TARGET_ID) as? String
+
+        // Create a new state instance to trigger recomposition.
+        _specOverrideState.value = SpecOverrideState(currSpecOverrideList, activeTargetId)
     }
 }
