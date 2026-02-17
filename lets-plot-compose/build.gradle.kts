@@ -13,7 +13,6 @@ plugins {
 }
 
 val androidComposeBom = extra["androidx.compose.bom"] as String
-val skikoVersion = extra["skiko.version"] as String
 val letsPlotVersion = extra["letsPlot.version"] as String
 val letsPlotKotlinVersion = extra["letsPlotKotlin.version"] as String
 val kotlinLoggingVersion = extra["kotlinLogging.version"] as String
@@ -53,7 +52,6 @@ kotlin {
                 compileOnly(compose.ui)
                 compileOnly(compose.desktop.currentOs)
                 compileOnly(compose.components.resources)
-                compileOnly("org.jetbrains.skiko:skiko:${skikoVersion}")
                 compileOnly("io.github.microutils:kotlin-logging-jvm:$kotlinLoggingVersion")
             }
         }
