@@ -36,13 +36,7 @@ kotlin {
     sourceSets {
         named("androidMain") {
             dependencies {
-                compileOnly("org.jetbrains.lets-plot:commons:$letsPlotVersion")
-                compileOnly("org.jetbrains.lets-plot:datamodel:$letsPlotVersion")
-                compileOnly("org.jetbrains.lets-plot:canvas:$letsPlotVersion")
-                compileOnly("org.jetbrains.lets-plot:plot-base:$letsPlotVersion")
-                compileOnly("org.jetbrains.lets-plot:plot-builder:$letsPlotVersion")
-                compileOnly("org.jetbrains.lets-plot:plot-stem:$letsPlotVersion")
-                compileOnly("org.jetbrains.lets-plot:plot-raster:$letsPlotVersion")
+                compileOnly("org.jetbrains.lets-plot:lets-plot-common:$letsPlotVersion")
             }
         }
 
@@ -53,14 +47,8 @@ kotlin {
                 implementation("androidx.test.espresso:espresso-core:$espressoCoreVersion")
 
                 implementation("org.assertj:assertj-core:$assertjVersion")
-                implementation("org.jetbrains.lets-plot:commons:$letsPlotVersion")
-                implementation("org.jetbrains.lets-plot:datamodel:$letsPlotVersion")
-                implementation("org.jetbrains.lets-plot:canvas:$letsPlotVersion")
-                implementation("org.jetbrains.lets-plot:plot-base:$letsPlotVersion")
-                implementation("org.jetbrains.lets-plot:plot-builder:$letsPlotVersion")
-                implementation("org.jetbrains.lets-plot:plot-stem:$letsPlotVersion")
-                implementation("org.jetbrains.lets-plot:plot-raster:$letsPlotVersion")
-                //implementation("org.jetbrains.lets-plot:visual-testing:$letsPlotVersion")
+                implementation("org.jetbrains.lets-plot:lets-plot-common:${letsPlotVersion}")
+                implementation("org.jetbrains.lets-plot:visual-testing:$letsPlotVersion")
             }
         }
     }
