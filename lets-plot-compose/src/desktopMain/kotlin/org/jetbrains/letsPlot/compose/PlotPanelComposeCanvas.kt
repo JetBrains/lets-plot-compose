@@ -23,6 +23,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import org.jetbrains.letsPlot.commons.geometry.DoubleVector
+import org.jetbrains.letsPlot.commons.geometry.Vector
 import org.jetbrains.letsPlot.commons.logging.PortableLogging
 import org.jetbrains.letsPlot.commons.registration.CompositeRegistration
 import org.jetbrains.letsPlot.commons.registration.Registration
@@ -39,6 +40,7 @@ import org.jetbrains.letsPlot.raster.view.PlotCanvasDrawable
 import java.awt.Cursor
 import java.awt.Desktop
 import java.net.URI
+import kotlin.math.ceil
 
 //import org.jetbrains.letsPlot.compose.util.NaiveLogger
 
@@ -85,7 +87,7 @@ fun PlotPanelComposeCanvas(
 
     var redrawTrigger by remember { mutableStateOf(0) }
 
-    val skiaCanvasPeer = remember { SkiaCanvasPeer() }
+    val skiaCanvasPeer = remember { SkiaCanvasPeer(SkiaFontManager.DEFAULT) }
 
     // Reset the old plot on error to prevent blinking
     // We can't reset PlotContainer using updateViewmodel(), so we create a new one.
@@ -221,7 +223,8 @@ fun PlotPanelComposeCanvas(
                     // this Canvas block whenever it changes.
                     redrawTrigger
 
-                    val ctx = SkiaContext2d(drawContext.canvas.nativeCanvas, skiaFontManager)
+                    val canvasSize = Vector(ceil(drawContext.size.width).toInt(), ceil(drawContext.size.height).toInt())
+                    val ctx = SkiaContext2d(drawContext.canvas.nativeCanvas, canvasSize, skiaFontManager)
                     ctx.scale(density.toDouble(), density.toDouble()) // logical → physical pixels
 
                     ctx.translate(plotPosition.x, plotPosition.y)

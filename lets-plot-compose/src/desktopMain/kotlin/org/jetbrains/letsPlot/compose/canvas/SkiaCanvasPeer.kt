@@ -6,13 +6,15 @@ import org.jetbrains.letsPlot.commons.values.Bitmap
 import org.jetbrains.letsPlot.core.canvas.Canvas
 import org.jetbrains.letsPlot.core.canvas.CanvasPeer
 
-class SkiaCanvasPeer : CanvasPeer {
+class SkiaCanvasPeer(
+    private val fontManager: SkiaFontManager
+) : CanvasPeer {
     override fun createCanvas(size: Vector): Canvas {
-        return SkiaCanvas.create(size, contentScale = 1.0)
+        return SkiaCanvas.create(size, contentScale = 1.0, fontManager = fontManager)
     }
 
     override fun createCanvas(size: Vector, contentScale: Double): Canvas {
-        return SkiaCanvas.create(size, contentScale)
+        return SkiaCanvas.create(size, contentScale, fontManager)
     }
 
     override fun createSnapshot(bitmap: Bitmap): SkiaSnapshot {

@@ -6,9 +6,10 @@ import org.jetbrains.letsPlot.core.canvas.Context2d
 
 class SkiaCanvas private constructor(
     private val skBitmap: org.jetbrains.skia.Bitmap,
-    override val size: Vector
+    override val size: Vector,
+    fontManager: SkiaFontManager
 ) : Canvas {
-    override val context2d: Context2d = SkiaContext2d(org.jetbrains.skia.Canvas(skBitmap), SkiaFontManager())
+    override val context2d: Context2d = SkiaContext2d(org.jetbrains.skia.Canvas(skBitmap), size, fontManager)
 
     override fun takeSnapshot(): Canvas.Snapshot {
         val skImage = org.jetbrains.skia.Image.makeFromBitmap(skBitmap)
@@ -16,9 +17,9 @@ class SkiaCanvas private constructor(
     }
 
     companion object {
-        fun create(size: Vector, contentScale: Double): SkiaCanvas {
+        fun create(size: Vector, contentScale: Double, fontManager: SkiaFontManager): SkiaCanvas {
             val bitmap = SkiaUtil.createBitmap(size.x, size.y, contentScale)
-            return SkiaCanvas(bitmap, size)
+            return SkiaCanvas(bitmap, size, fontManager)
         }
     }
 }

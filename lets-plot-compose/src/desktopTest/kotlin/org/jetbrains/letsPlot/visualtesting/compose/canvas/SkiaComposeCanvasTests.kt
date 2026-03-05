@@ -4,6 +4,7 @@ import org.jetbrains.letsPlot.compose.canvas.SkiaCanvasPeer
 import org.jetbrains.letsPlot.visualtesting.AwtBitmapIO
 import org.jetbrains.letsPlot.visualtesting.ImageComparer
 import org.jetbrains.letsPlot.visualtesting.canvas.AllCanvasTests
+import org.jetbrains.letsPlot.visualtesting.compose.NotoFontManager
 import kotlin.test.Ignore
 import kotlin.test.Test
 
@@ -17,7 +18,8 @@ class SkiaComposeCanvasTests {
             expectedImagesDir = "/src/desktopTest/resources/expected-images",
             subdir = "/canvas"
         )
-        val canvasPeer = SkiaCanvasPeer()
+        val fontManager = NotoFontManager.INSTANCE
+        val canvasPeer = SkiaCanvasPeer(fontManager)
         val imageComparer = ImageComparer(canvasPeer, awtBitmapIO, silent = true)
 
         AllCanvasTests.runAllTests(canvasPeer, imageComparer)

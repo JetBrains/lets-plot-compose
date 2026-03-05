@@ -2,6 +2,8 @@ package org.jetbrains.letsPlot.compose.canvas
 
 import org.jetbrains.letsPlot.commons.geometry.AffineTransform
 import org.jetbrains.letsPlot.commons.geometry.DoubleRectangle
+import org.jetbrains.letsPlot.commons.geometry.DoubleVector
+import org.jetbrains.letsPlot.commons.geometry.Vector
 import org.jetbrains.letsPlot.commons.registration.Disposable
 import org.jetbrains.letsPlot.commons.values.Color
 import org.jetbrains.letsPlot.core.canvas.*
@@ -11,6 +13,7 @@ import org.jetbrains.skia.Color.TRANSPARENT
 
 class SkiaContext2d(
     val skCanvas: org.jetbrains.skia.Canvas,
+    private val size: Vector,
     private val skiaFontManager: SkiaFontManager,
     private val contextState: ContextStateDelegate = ContextStateDelegate(failIfNotImplemented = false),
 ) : Context2d by contextState, Disposable {
@@ -152,7 +155,11 @@ class SkiaContext2d(
     }
 
     override fun clearRect(rect: DoubleRectangle) {
-        skCanvas.drawRect(skiaRectFromDoubleRectangle(rect), backgroundPaint)
+        if (rect.origin == DoubleVector.ZERO && rect.dimension == size.toDoubleVector()) {
+            skCanvas.clear(TRANSPARENT)
+        } else {
+            skCanvas.drawRect(skiaRectFromDoubleRectangle(rect), backgroundPaint)
+        }
     }
 
     override fun fillRect(x: Double, y: Double, w: Double, h: Double) {

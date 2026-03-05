@@ -5,9 +5,14 @@
 
 package org.jetbrains.letsPlot.compose.canvas
 
+import org.jetbrains.letsPlot.core.canvas.Font.FontVariant
 import org.jetbrains.skia.*
 
-class SkiaFontManager {
+class SkiaFontManager(
+    private val fontResolver: ((org.jetbrains.letsPlot.core.canvas.Font) -> Font?) = { null }
+) {
+    private val fonts: MutableMap<Pair<String, FontVariant>, Font> = mutableMapOf()
+
     fun matchFamiliesStyle(fontFamily: List<String>, fontStyle: FontStyle): Typeface {
         val fontConfig = fontFamily to fontStyle
 
@@ -55,6 +60,11 @@ class SkiaFontManager {
     }
 
     fun findFont(f: org.jetbrains.letsPlot.core.canvas.Font): Font {
+        val font = fontResolver(f)
+        if (font != null) {
+            return font(font.typeface!!, f.fontSize.toFloat())
+        }
+
         val fontStyle = FontStyle(
             when (f.fontWeight) {
                 org.jetbrains.letsPlot.core.canvas.FontWeight.NORMAL -> FontWeight.NORMAL
@@ -73,4 +83,8 @@ class SkiaFontManager {
 
     private val typefaceCache = mutableMapOf<Pair<List<String>, FontStyle>, Typeface>()
     private val fontCache = mutableMapOf<Pair<Typeface, Float>, Font>()
+
+    companion object {
+        val DEFAULT = SkiaFontManager()
+    }
 }

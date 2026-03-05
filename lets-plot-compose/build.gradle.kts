@@ -50,8 +50,6 @@ kotlin {
                 compileOnly(compose.ui)
                 compileOnly(compose.desktop.currentOs)
                 compileOnly(compose.components.resources)
-                // add skia dependency for desktop only, as it is used in SkiaCanvasControl, which is desktop-specific
-                compileOnly("org.jetbrains.skiko:skiko:0.9.22.2")
                 compileOnly("io.github.microutils:kotlin-logging-jvm:$kotlinLoggingVersion")
             }
         }
@@ -62,6 +60,7 @@ kotlin {
                 implementation(compose.ui)
                 implementation(compose.desktop.currentOs)
                 implementation(compose.components.resources)
+                implementation("org.jetbrains.lets-plot:lets-plot-common:$letsPlotVersion")
                 implementation("org.jetbrains.lets-plot:visual-testing:$letsPlotVersion")
                 implementation("io.github.microutils:kotlin-logging-jvm:$kotlinLoggingVersion")
                 implementation(kotlin("test"))
