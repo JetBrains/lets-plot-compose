@@ -4,7 +4,7 @@
  */
 
 package org.jetbrains.letsPlot.visualtesting
-/*
+
 import android.graphics.BitmapFactory
 import android.os.Environment
 import android.util.Log
@@ -12,10 +12,20 @@ import androidx.test.platform.app.InstrumentationRegistry
 import org.jetbrains.letsPlot.commons.values.Bitmap
 import java.io.File
 
-object AndroidBitmapIO : ImageComparer.BitmapIO {
-    // Hardcoded path relative to the project root.
-    // IntelliJ Console will recognize this and make it clickable.
-    private const val REPORT_PATH = "/Users/ikupriyanov/Projects/lets-plot-compose/platf-android/build/reports"
+class AndroidBitmapIO(
+    expectedImagesDir: String = DEFAULT_EXPECTED_IMAGES_DIR,
+    outputDir: String = DEFAULT_OUTPUT_DIR,
+    subdir: String = ""
+
+) : ImageComparer.BitmapIO {
+    companion object {
+        const val DEFAULT_EXPECTED_IMAGES_DIR = "/src/test/resources/expected-images"
+        const val DEFAULT_OUTPUT_DIR = "/build/reports/actual-images"
+
+        // Hardcoded path relative to the project root.
+        // IntelliJ Console will recognize this and make it clickable.
+        private const val REPORT_PATH = "/Users/ikupriyanov/Projects/lets-plot-compose/platf-android/build/reports"
+    }
 
     override fun getActualFileReportPath(fileName: String): String {
         return "$REPORT_PATH/$fileName"
@@ -112,4 +122,3 @@ object AndroidBitmapIO : ImageComparer.BitmapIO {
         }
     }
 }
-*/
