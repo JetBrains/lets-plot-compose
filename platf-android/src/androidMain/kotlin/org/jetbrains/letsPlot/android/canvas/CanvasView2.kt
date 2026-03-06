@@ -68,7 +68,10 @@ class CanvasView2(
 
         val fig = canvasDrawable ?: return
 
-        val context2d = AndroidContext2d(canvas, resources.displayMetrics.density.toDouble())
+        @SuppressLint("DrawAllocation")
+        val context2d = AndroidContext2d(canvas, AndroidFontManager.DEFAULT)
+
+        context2d.scale(resources.displayMetrics.density.toDouble())
         centerOffsetX = ((width - fig.size.x * resources.displayMetrics.density) / 2f)
         centerOffsetY = ((height - fig.size.y * resources.displayMetrics.density) / 2f)
 

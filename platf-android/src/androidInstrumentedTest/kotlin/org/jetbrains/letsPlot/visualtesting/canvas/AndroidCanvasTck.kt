@@ -10,7 +10,10 @@ class AndroidCanvasTck {
     @Test
     fun runAllTests() {
         val canvasPeer = AndroidCanvasPeer()
-        val bitmapIO = AndroidBitmapIO(subdir = "/canvas")
+        val bitmapIO = AndroidBitmapIO(
+            expectedImagesDir = "expected-images",
+            subdir = "/canvas"
+        )
         val imageComparer = ImageComparer(canvasPeer, bitmapIO)
         AllCanvasTests.runAllTests(canvasPeer, imageComparer)
     }

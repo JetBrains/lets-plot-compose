@@ -81,6 +81,12 @@ android {
     kotlin {
         jvmToolchain(11)
     }
+
+    packaging {
+        resources {
+            excludes += "/META-INF/INDEX.LIST"
+        }
+    }
 }
 
 

@@ -42,12 +42,7 @@ class SkiaFontManager(
     }
 
     fun font(typeface: Typeface, fontSize: Float): Font {
-        return fontCache
-            .getOrPut(typeface to fontSize) {
-                Font(typeface, fontSize).apply {
-                    isSubpixel = true
-                }
-            }
+        return fontCache.getOrPut(typeface to fontSize) { Font(typeface, fontSize).apply { isSubpixel = true } }
     }
 
     fun dispose() {

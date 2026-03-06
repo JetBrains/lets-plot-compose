@@ -24,6 +24,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import org.jetbrains.letsPlot.android.canvas.AndroidCanvasPeer
 import org.jetbrains.letsPlot.android.canvas.AndroidContext2d
+import org.jetbrains.letsPlot.android.canvas.AndroidFontManager
 import org.jetbrains.letsPlot.commons.event.*
 import org.jetbrains.letsPlot.commons.event.MouseEventSpec.*
 import org.jetbrains.letsPlot.commons.geometry.DoubleVector
@@ -218,7 +219,7 @@ fun PlotPanelComposeCanvas(
                     // this Canvas block whenever it changes.
                     redrawTrigger
 
-                    val ctx = AndroidContext2d(drawContext.canvas.nativeCanvas, pixelDensity = 1.0)
+                    val ctx = AndroidContext2d(drawContext.canvas.nativeCanvas, AndroidFontManager.DEFAULT)
                     ctx.scale(density.toDouble(), density.toDouble()) // logical → physical pixels
 
                     ctx.translate(plotPosition.x, plotPosition.y)

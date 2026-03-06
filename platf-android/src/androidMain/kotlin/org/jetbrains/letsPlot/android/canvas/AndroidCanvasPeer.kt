@@ -7,7 +7,8 @@ import org.jetbrains.letsPlot.core.canvas.Canvas
 import org.jetbrains.letsPlot.core.canvas.CanvasPeer
 
 class AndroidCanvasPeer(
-    val pixelDensity: Double = 1.0
+    val pixelDensity: Double = 1.0,
+    fontManager: AndroidFontManager = AndroidFontManager()
 ) : CanvasPeer {
     private val measureCanvas = AndroidCanvas.create(Vector(1, 1), pixelDensity)
 

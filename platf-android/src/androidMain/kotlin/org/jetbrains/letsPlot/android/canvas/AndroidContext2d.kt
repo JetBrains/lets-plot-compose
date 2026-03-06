@@ -11,22 +11,10 @@ import org.jetbrains.letsPlot.core.canvas.Canvas.Snapshot
 
 class AndroidContext2d(
     canvas: Canvas,
-    pixelDensity: Double,
-    private val stateDelegate: ContextStateDelegate = ContextStateDelegate(
-        failIfNotImplemented = false,
-        logEnabled = true
-    ),
+    val fontManager: AndroidFontManager,
+    private val stateDelegate: ContextStateDelegate = ContextStateDelegate(failIfNotImplemented = false),
 ) : Context2d by stateDelegate {
-    constructor(
-        platformBitmap: Bitmap,
-        pixelDensity: Double,
-        stateDelegate: ContextStateDelegate = ContextStateDelegate(failIfNotImplemented = false, logEnabled = true)
-    ) : this(Canvas(platformBitmap), pixelDensity, stateDelegate) {
-    }
-
-    private val platformCanvas = canvas.apply {
-        this.scale(pixelDensity.toFloat(), pixelDensity.toFloat())
-    }
+    private val platformCanvas = canvas
 
     private val strokePaint = Paint().apply {
         style = Paint.Style.STROKE
@@ -137,18 +125,7 @@ class AndroidContext2d(
     }
 
     override fun setFont(f: Font) {
-        val style = when (f.fontStyle) {
-            FontStyle.NORMAL -> when (f.fontWeight) {
-                FontWeight.NORMAL -> Typeface.NORMAL
-                FontWeight.BOLD -> Typeface.BOLD
-            }
-            FontStyle.ITALIC -> when (f.fontWeight) {
-                FontWeight.NORMAL -> Typeface.ITALIC
-                FontWeight.BOLD -> Typeface.BOLD_ITALIC
-            }
-        }
-
-        val typeface = Typeface.create(f.fontFamily, style)
+        val typeface = fontManager.getTypeface(f)
 
         fillPaint.typeface = typeface
         strokePaint.typeface = typeface

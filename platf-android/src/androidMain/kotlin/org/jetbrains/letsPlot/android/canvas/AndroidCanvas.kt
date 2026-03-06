@@ -27,10 +27,14 @@ class AndroidCanvas(
         }
     }
 
-    override val context2d: Context2d = AndroidContext2d(platformBitmap, pixelDensity)
+    override val context2d: Context2d = AndroidContext2d(
+        canvas = android.graphics.Canvas(platformBitmap),
+        fontManager = AndroidFontManager.DEFAULT
+    ).apply {
+        scale(pixelDensity)
+    }
 
     override fun takeSnapshot(): AndroidSnapshot {
         return AndroidSnapshot(platformBitmap.copy(Bitmap.Config.ARGB_8888, false))
     }
-
 }

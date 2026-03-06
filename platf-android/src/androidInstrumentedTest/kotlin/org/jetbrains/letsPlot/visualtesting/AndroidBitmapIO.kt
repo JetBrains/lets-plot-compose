@@ -19,13 +19,16 @@ class AndroidBitmapIO(
 
 ) : ImageComparer.BitmapIO {
     companion object {
-        const val DEFAULT_EXPECTED_IMAGES_DIR = "/src/test/resources/expected-images"
+        const val DEFAULT_EXPECTED_IMAGES_DIR = "expected-images"
         const val DEFAULT_OUTPUT_DIR = "/build/reports/actual-images"
 
         // Hardcoded path relative to the project root.
         // IntelliJ Console will recognize this and make it clickable.
         private const val REPORT_PATH = "/Users/ikupriyanov/Projects/lets-plot-compose/platf-android/build/reports"
     }
+
+    val expectedImagesDir = if (subdir.isNotEmpty()) "$expectedImagesDir$subdir" else expectedImagesDir
+    val outputDir = if (subdir.isNotEmpty()) "$outputDir/$subdir" else outputDir
 
     override fun getActualFileReportPath(fileName: String): String {
         return "$REPORT_PATH/$fileName"
@@ -61,7 +64,9 @@ class AndroidBitmapIO(
         copyToGlobalStorage(fileName, privatePath)    }
 
     override fun read(fileName: String): Bitmap {
-        val stream = javaClass.classLoader?.getResourceAsStream("expected-images/$fileName")
+        val filePath = getReadFilePath(fileName)
+        //val filePath = "expected-images/canvas/canvas_clip_fill.png"
+        val stream = javaClass.classLoader?.getResourceAsStream(filePath)
 
         val expectedBitmap = BitmapFactory.decodeStream(stream)
             ?: error("Failed to read expected image: $stream")
@@ -84,7 +89,7 @@ class AndroidBitmapIO(
     }
 
     override fun getReadFilePath(fileName: String): String {
-        return fileName
+        return "$expectedImagesDir/$fileName"
     }
 
     override fun getWriteFilePath(fileName: String): String {
