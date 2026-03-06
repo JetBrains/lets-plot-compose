@@ -9,7 +9,7 @@ class SkiaCanvas private constructor(
     override val size: Vector,
     fontManager: SkiaFontManager
 ) : Canvas {
-    override val context2d: Context2d = SkiaContext2d(org.jetbrains.skia.Canvas(skBitmap), size, fontManager)
+    override val context2d: Context2d = SkiaContext2d(org.jetbrains.skia.Canvas(skBitmap), fontManager)
 
     override fun takeSnapshot(): Canvas.Snapshot {
         val skImage = org.jetbrains.skia.Image.makeFromBitmap(skBitmap)

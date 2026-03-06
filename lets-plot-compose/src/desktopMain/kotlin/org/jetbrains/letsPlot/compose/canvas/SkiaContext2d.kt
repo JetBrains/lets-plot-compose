@@ -2,28 +2,31 @@ package org.jetbrains.letsPlot.compose.canvas
 
 import org.jetbrains.letsPlot.commons.geometry.AffineTransform
 import org.jetbrains.letsPlot.commons.geometry.DoubleRectangle
-import org.jetbrains.letsPlot.commons.geometry.DoubleVector
-import org.jetbrains.letsPlot.commons.geometry.Vector
 import org.jetbrains.letsPlot.commons.registration.Disposable
 import org.jetbrains.letsPlot.commons.values.Color
 import org.jetbrains.letsPlot.core.canvas.*
 import org.jetbrains.letsPlot.core.canvas.Canvas.Snapshot
 import org.jetbrains.skia.*
 import org.jetbrains.skia.Color.TRANSPARENT
+import java.util.*
 
 class SkiaContext2d(
     val skCanvas: org.jetbrains.skia.Canvas,
-    private val size: Vector,
     private val skiaFontManager: SkiaFontManager,
     private val contextState: ContextStateDelegate = ContextStateDelegate(failIfNotImplemented = false),
 ) : Context2d by contextState, Disposable {
+    private val graphicsStack = Stack<Pair<Paint, Paint>>()
 
-    private val strokePaint = Paint().apply {
+    private val clearPaint = Paint().apply {
+        blendMode = BlendMode.CLEAR
+    }
+
+    private var strokePaint = Paint().apply {
         setStroke(true)
         isAntiAlias = true
     }
 
-    private val fillPaint = Paint().apply {
+    private var fillPaint = Paint().apply {
         isAntiAlias = true
     }
 
@@ -104,11 +107,19 @@ class SkiaContext2d(
 
     override fun save() {
         contextState.save()
+        graphicsStack.push(strokePaint.makeClone() to fillPaint.makeClone())
         skCanvas.save()
     }
 
     override fun restore() {
         contextState.restore()
+
+        val (restoredStroke, restoredFill) = graphicsStack.pop()
+        strokePaint.close()
+        fillPaint.close()
+        strokePaint = restoredStroke
+        fillPaint = restoredFill
+
         skCanvas.restore()
     }
 
@@ -155,11 +166,11 @@ class SkiaContext2d(
     }
 
     override fun clearRect(rect: DoubleRectangle) {
-        if (rect.origin == DoubleVector.ZERO && rect.dimension == size.toDoubleVector()) {
-            skCanvas.clear(TRANSPARENT)
-        } else {
-            skCanvas.drawRect(skiaRectFromDoubleRectangle(rect), backgroundPaint)
-        }
+        clearRect(rect.left, rect.top, rect.width, rect.height)
+    }
+
+    override fun clearRect(x: Double, y: Double, w: Double, h: Double) {
+        skCanvas.drawRect(skiaRectFromXYWH(x, y, w, h), clearPaint)
     }
 
     override fun fillRect(x: Double, y: Double, w: Double, h: Double) {
@@ -351,19 +362,17 @@ class SkiaContext2d(
     override fun dispose() {
         strokePaint.close()
         fillPaint.close()
+        clearPaint.close()
+
+        graphicsStack.forEach { (stroke, fill) ->
+            stroke.close()
+            fill.close()
+        }
+
         backgroundPaint.close()
     }
 
     companion object {
-        private fun skiaRectFromDoubleRectangle(rect: DoubleRectangle): Rect {
-            return Rect(
-                rect.left.toFloat(),
-                rect.top.toFloat(),
-                rect.right.toFloat(),
-                rect.bottom.toFloat()
-            )
-        }
-
         private fun skiaRectFromXYWH(x: Double, y: Double, w: Double, h: Double): Rect {
             return Rect(
                 x.toFloat(),

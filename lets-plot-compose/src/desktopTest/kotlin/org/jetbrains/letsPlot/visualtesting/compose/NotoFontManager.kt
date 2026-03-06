@@ -3,13 +3,13 @@ package org.jetbrains.letsPlot.visualtesting.compose
 import org.jetbrains.letsPlot.compose.canvas.SkiaFontManager
 import org.jetbrains.letsPlot.core.canvas.Font.FontVariant.*
 import org.jetbrains.skia.Data
-import org.jetbrains.skia.Font
 import org.jetbrains.skia.FontMgr
+import org.jetbrains.skia.Typeface
 import java.io.IOException
 
 object NotoFontManager {
     val INSTANCE = SkiaFontManager(
-        fontResolver = { font ->
+        typefaceResolver = { font ->
             when (font.fontFamily) {
                 "Noto Sans Regular" -> notoSans[NORMAL]
                 "Noto Serif Regular" -> notoSerif[NORMAL]
@@ -29,7 +29,7 @@ object NotoFontManager {
 
                     fontFamily[font.variant]
                 }
-            } ?: error("Font not found: $font")
+            }
         }
     )
 
@@ -54,14 +54,12 @@ object NotoFontManager {
         BOLD_ITALIC to createFont("fonts/NotoSansMono-Bold.ttf")
     )
 
-    private fun createFont(resourceName: String): Font {
+    private fun createFont(resourceName: String): Typeface? {
         val fontStream = NotoFontManager::class.java.getClassLoader().getResourceAsStream(resourceName)
             ?: error("Font resource not found: $resourceName")
         try {
-
             val fontData = Data.makeFromBytes(fontStream.readAllBytes())
-            val typeface = FontMgr.default.makeFromData(fontData)
-            return Font(typeface, 12f) // Default size, can be adjusted as needed
+            return FontMgr.default.makeFromData(fontData)
         } finally {
             try {
                 fontStream.close()

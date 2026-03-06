@@ -5,13 +5,11 @@
 
 package org.jetbrains.letsPlot.compose.canvas
 
-import org.jetbrains.letsPlot.core.canvas.Font.FontVariant
 import org.jetbrains.skia.*
 
 class SkiaFontManager(
-    private val fontResolver: ((org.jetbrains.letsPlot.core.canvas.Font) -> Font?) = { null }
+    private val typefaceResolver: ((org.jetbrains.letsPlot.core.canvas.Font) -> Typeface?) = { null }
 ) {
-    private val fonts: MutableMap<Pair<String, FontVariant>, Font> = mutableMapOf()
 
     fun matchFamiliesStyle(fontFamily: List<String>, fontStyle: FontStyle): Typeface {
         val fontConfig = fontFamily to fontStyle
@@ -60,25 +58,36 @@ class SkiaFontManager(
     }
 
     fun findFont(f: org.jetbrains.letsPlot.core.canvas.Font): Font {
-        val font = fontResolver(f)
-        if (font != null) {
-            return font(font.typeface!!, f.fontSize.toFloat())
+        val typeface = typefaceResolver(f)
+            ?: run {
+                val fontStyle = FontStyle(
+                    when (f.fontWeight) {
+                        org.jetbrains.letsPlot.core.canvas.FontWeight.NORMAL -> FontWeight.NORMAL
+                        org.jetbrains.letsPlot.core.canvas.FontWeight.BOLD -> FontWeight.BOLD
+                    },
+                    FontWidth.NORMAL,
+                    when (f.fontStyle) {
+                        org.jetbrains.letsPlot.core.canvas.FontStyle.NORMAL -> FontSlant.UPRIGHT
+                        org.jetbrains.letsPlot.core.canvas.FontStyle.ITALIC -> FontSlant.ITALIC
+                    }
+                )
+
+                matchFamiliesStyle(listOf(f.fontFamily), fontStyle)
+            }
+
+        val font = font(typeface, f.fontSize.toFloat())
+        if (f.fontWeight == org.jetbrains.letsPlot.core.canvas.FontWeight.BOLD && !typeface.isBold) {
+            font.isEmboldened = true // Synthesizes Bold
         }
 
-        val fontStyle = FontStyle(
-            when (f.fontWeight) {
-                org.jetbrains.letsPlot.core.canvas.FontWeight.NORMAL -> FontWeight.NORMAL
-                org.jetbrains.letsPlot.core.canvas.FontWeight.BOLD -> FontWeight.BOLD
-            },
-            FontWidth.NORMAL,
-            when (f.fontStyle) {
-                org.jetbrains.letsPlot.core.canvas.FontStyle.NORMAL -> FontSlant.UPRIGHT
-                org.jetbrains.letsPlot.core.canvas.FontStyle.ITALIC -> FontSlant.ITALIC
-            }
-        )
+        if (f.fontStyle == org.jetbrains.letsPlot.core.canvas.FontStyle.ITALIC && !typeface.isItalic) {
+            font.skewX = -0.20f // Synthesizes Italic (standard skew value)
+        }
 
-        val typeface =  matchFamiliesStyle(listOf(f.fontFamily), fontStyle)
-        return font(typeface, f.fontSize.toFloat())
+        font.isSubpixel = true
+        font.isLinearMetrics = true
+
+        return font
     }
 
     private val typefaceCache = mutableMapOf<Pair<List<String>, FontStyle>, Typeface>()
