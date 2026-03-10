@@ -12,8 +12,10 @@ class AndroidFontManager(
     private val typefaceResolver: ((org.jetbrains.letsPlot.core.canvas.Font) -> Typeface?) = { null }
 ) {
     fun getTypeface(f: org.jetbrains.letsPlot.core.canvas.Font): Typeface? {
-        val fontBase = typefaceResolver(f)
-            ?: return null
+        val typeface = typefaceResolver(f)
+        if (typeface != null) {
+            return typeface
+        }
 
         val style = when(f.variant) {
             org.jetbrains.letsPlot.core.canvas.Font.FontVariant.BOLD_ITALIC -> Typeface.BOLD_ITALIC

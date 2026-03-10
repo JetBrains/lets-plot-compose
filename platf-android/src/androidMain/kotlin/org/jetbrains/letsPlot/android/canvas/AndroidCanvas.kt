@@ -14,22 +14,23 @@ import kotlin.math.roundToInt
 class AndroidCanvas(
     val platformBitmap: Bitmap,
     override val size: Vector,
-    pixelDensity: Double
+    pixelDensity: Double,
+    private val fontManager: AndroidFontManager
 ) : Canvas {
     companion object {
-        fun create(size: Vector, pixelDensity: Double): AndroidCanvas {
+        fun create(size: Vector, pixelDensity: Double, fontManager: AndroidFontManager = AndroidFontManager.DEFAULT): AndroidCanvas {
             val w = (size.x * pixelDensity).roundToInt().coerceAtLeast(1)
             val h = (size.y * pixelDensity).roundToInt().coerceAtLeast(1)
 
             val bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
 
-            return AndroidCanvas(bitmap, size, pixelDensity)
+            return AndroidCanvas(bitmap, size, pixelDensity, fontManager)
         }
     }
 
     override val context2d: Context2d = AndroidContext2d(
         canvas = android.graphics.Canvas(platformBitmap),
-        fontManager = AndroidFontManager.DEFAULT
+        fontManager = fontManager
     ).apply {
         scale(pixelDensity)
     }

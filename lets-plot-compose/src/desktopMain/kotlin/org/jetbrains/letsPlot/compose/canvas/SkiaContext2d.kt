@@ -15,7 +15,7 @@ class SkiaContext2d(
     private val skiaFontManager: SkiaFontManager,
     private val contextState: ContextStateDelegate = ContextStateDelegate(failIfNotImplemented = false),
 ) : Context2d by contextState, Disposable {
-    private val graphicsStack = Stack<Pair<Paint, Paint>>()
+    private val paintStack = Stack<Pair<Paint, Paint>>()
 
     private val clearPaint = Paint().apply {
         blendMode = BlendMode.CLEAR
@@ -107,14 +107,14 @@ class SkiaContext2d(
 
     override fun save() {
         contextState.save()
-        graphicsStack.push(strokePaint.makeClone() to fillPaint.makeClone())
+        paintStack.push(strokePaint.makeClone() to fillPaint.makeClone())
         skCanvas.save()
     }
 
     override fun restore() {
         contextState.restore()
 
-        val (restoredStroke, restoredFill) = graphicsStack.pop()
+        val (restoredStroke, restoredFill) = paintStack.pop()
         strokePaint.close()
         fillPaint.close()
         strokePaint = restoredStroke
@@ -207,6 +207,7 @@ class SkiaContext2d(
         }
 
         skCanvas.drawTextBlob(textBlob, x.toFloat(), y.toFloat(), paint)
+        textBlob.close()
     }
 
     override fun measureText(str: String): TextMetrics {
@@ -364,7 +365,7 @@ class SkiaContext2d(
         fillPaint.close()
         clearPaint.close()
 
-        graphicsStack.forEach { (stroke, fill) ->
+        paintStack.forEach { (stroke, fill) ->
             stroke.close()
             fill.close()
         }

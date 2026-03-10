@@ -8,19 +8,14 @@ import org.jetbrains.letsPlot.core.canvas.CanvasPeer
 
 class AndroidCanvasPeer(
     val pixelDensity: Double = 1.0,
-    fontManager: AndroidFontManager = AndroidFontManager()
+    val fontManager: AndroidFontManager = AndroidFontManager()
 ) : CanvasPeer {
-    private val measureCanvas = AndroidCanvas.create(Vector(1, 1), pixelDensity)
-
     override fun createCanvas(size: Vector): AndroidCanvas {
-        return AndroidCanvas.create(size, pixelDensity)
+        return AndroidCanvas.create(size, pixelDensity, fontManager)
     }
 
-    override fun createCanvas(
-        size: Vector,
-        contentScale: Double
-    ): Canvas {
-        return AndroidCanvas.create(size, contentScale)
+    override fun createCanvas(size: Vector, contentScale: Double): Canvas {
+        return AndroidCanvas.create(size, contentScale, fontManager)
     }
 
     override fun createSnapshot(bitmap: Bitmap): AndroidSnapshot {

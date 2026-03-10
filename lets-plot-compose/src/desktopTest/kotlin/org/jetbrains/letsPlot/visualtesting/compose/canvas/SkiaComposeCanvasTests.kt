@@ -5,11 +5,9 @@ import org.jetbrains.letsPlot.visualtesting.AwtBitmapIO
 import org.jetbrains.letsPlot.visualtesting.ImageComparer
 import org.jetbrains.letsPlot.visualtesting.canvas.AllCanvasTests
 import org.jetbrains.letsPlot.visualtesting.compose.NotoFontManager
-import kotlin.test.Ignore
 import kotlin.test.Test
 
 
-@Ignore
 class SkiaComposeCanvasTests {
 
     @Test

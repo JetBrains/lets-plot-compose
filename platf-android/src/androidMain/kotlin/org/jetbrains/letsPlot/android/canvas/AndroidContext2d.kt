@@ -8,20 +8,22 @@ import org.jetbrains.letsPlot.commons.geometry.DoubleRectangle
 import org.jetbrains.letsPlot.commons.values.Color
 import org.jetbrains.letsPlot.core.canvas.*
 import org.jetbrains.letsPlot.core.canvas.Canvas.Snapshot
+import java.util.*
 
 class AndroidContext2d(
     canvas: Canvas,
     val fontManager: AndroidFontManager,
     private val stateDelegate: ContextStateDelegate = ContextStateDelegate(failIfNotImplemented = false),
 ) : Context2d by stateDelegate {
+    private val paintStack = Stack<Pair<Paint, Paint>>()
     private val platformCanvas = canvas
 
-    private val strokePaint = Paint().apply {
+    private var strokePaint = Paint().apply {
         style = Paint.Style.STROKE
         isAntiAlias = true
     }
 
-    private val fillPaint = Paint().apply {
+    private var fillPaint = Paint().apply {
         style = Paint.Style.FILL
         isAntiAlias = true
     }
@@ -30,6 +32,12 @@ class AndroidContext2d(
         style = Paint.Style.FILL
         isAntiAlias = true
         color = android.graphics.Color.TRANSPARENT
+    }
+
+    private val clearPaint = Paint().apply {
+        color = android.graphics.Color.RED
+        style = Paint.Style.FILL
+        xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
     }
 
     override fun drawImage(snapshot: Snapshot) {
@@ -57,11 +65,24 @@ class AndroidContext2d(
 
     override fun save() {
         stateDelegate.save()
+
+        // copy paints
+        paintStack.push(strokePaint to fillPaint)
+
+        strokePaint = Paint(strokePaint)
+        fillPaint = Paint(fillPaint)
+
         platformCanvas.save()
     }
 
     override fun restore() {
         stateDelegate.restore()
+
+        // restore paints
+        val (prevStroke, prevFill) = paintStack.pop()
+        strokePaint = prevStroke
+        fillPaint = prevFill
+
         platformCanvas.restore()
     }
 
@@ -107,8 +128,12 @@ class AndroidContext2d(
         })
     }
 
+    override fun clearRect(x: Double, y: Double, w: Double, h: Double) {
+        platformCanvas.drawRect(x.toFloat(), y.toFloat(), (x+w).toFloat(), (y+h).toFloat(), clearPaint)
+    }
+
     override fun clearRect(rect: DoubleRectangle) {
-        platformCanvas.drawRect(rect.left.toFloat(), rect.top.toFloat(), rect.right.toFloat(), rect.bottom.toFloat(), backgroundPaint)
+        clearRect(rect.left, rect.top, rect.width, rect.height)
     }
 
     override fun fillRect(x: Double, y: Double, w: Double, h: Double) {
