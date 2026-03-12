@@ -10,7 +10,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.FrameLayout
-import org.jetbrains.letsPlot.android.canvas.CanvasView2
+import org.jetbrains.letsPlot.android.canvas.CanvasView
 import org.jetbrains.letsPlot.core.util.MonolithicCommon
 import org.jetbrains.letsPlot.core.util.sizing.SizingPolicy
 import org.jetbrains.letsPlot.intern.toSpec
@@ -23,7 +23,7 @@ class ResizingWithFixedPlotSizePolicyDemoActivity : Activity() {
         super.onCreate(savedInstanceState)
         val plotFigure = DensitySpec().createFigure()
 
-        val view = CanvasView2(this).apply {
+        val view = CanvasView(this).apply {
             canvasDrawable = PlotCanvasDrawable().apply {
                 update(
                     processedSpec = MonolithicCommon.processRawSpecs(plotFigure.toSpec(), frontendOnly = false),

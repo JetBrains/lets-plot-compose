@@ -5,7 +5,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.ViewGroup
 import android.widget.*
-import org.jetbrains.letsPlot.android.canvas.CanvasView2
+import org.jetbrains.letsPlot.android.canvas.CanvasView
 import org.jetbrains.letsPlot.core.util.MonolithicCommon
 import org.jetbrains.letsPlot.core.util.sizing.SizingPolicy
 import org.jetbrains.letsPlot.intern.toSpec
@@ -36,7 +36,7 @@ class LayoutDemoActivity : Activity() {
     private lateinit var parentHeightSlider: SeekBar
 
 
-    private lateinit var demoView: CanvasView2
+    private lateinit var demoView: CanvasView
     private val plotDrawable = PlotCanvasDrawable()
     private val plotSpec = (BarPlotSpec().basic + flavorDarcula()).toSpec()
 
@@ -59,7 +59,7 @@ class LayoutDemoActivity : Activity() {
         parentWidthSlider = findViewById(R.id.parent_width_slider)
         parentHeightSlider = findViewById(R.id.parent_height_slider)
 
-        demoView = CanvasView2(this).apply {
+        demoView = CanvasView(this).apply {
             canvasDrawable = plotDrawable
             setBackgroundColor(Color.GREEN)
         }

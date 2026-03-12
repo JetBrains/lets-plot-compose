@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.viewinterop.AndroidView
-import org.jetbrains.letsPlot.android.canvas.CanvasView2
+import org.jetbrains.letsPlot.android.canvas.CanvasView
 import org.jetbrains.letsPlot.commons.logging.PortableLogging
 import org.jetbrains.letsPlot.core.plot.builder.interact.tools.FigureModel
 import org.jetbrains.letsPlot.core.spec.config.PlotConfig
@@ -106,7 +106,7 @@ fun PlotPanelAndroidView(
             modifier = finalModifier,
             factory = { ctx ->
                 plotDrawable = plotDrawable ?: PlotCanvasDrawable()
-                CanvasView2(ctx).apply {
+                CanvasView(ctx).apply {
                     canvasDrawable = plotDrawable
                     onError = { e ->
                         @Suppress("AssignedValueIsNeverRead")

@@ -11,7 +11,7 @@ import android.os.Bundle
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import demo.svgModel.ReferenceSvgModel
-import org.jetbrains.letsPlot.android.canvas.CanvasView2
+import org.jetbrains.letsPlot.android.canvas.CanvasView
 import org.jetbrains.letsPlot.raster.view.SvgCanvasDrawable
 
 class SvgReferenceWrapContent : Activity() {
@@ -19,7 +19,7 @@ class SvgReferenceWrapContent : Activity() {
         super.onCreate(savedInstanceState)
 
         setContentView(
-            CanvasView2(this).apply {
+            CanvasView(this).apply {
                 canvasDrawable = SvgCanvasDrawable(ReferenceSvgModel.createModel())
                 setBackgroundColor(Color.BLUE)
             },
