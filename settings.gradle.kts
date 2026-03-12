@@ -29,7 +29,6 @@ pluginManagement {
 
 include("lets-plot-compose")
 include("platf-android")
-include("platf-skia")
 
 // =============================
 //          Plot Demos

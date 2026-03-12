@@ -12,14 +12,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.viewinterop.AndroidView
-import org.jetbrains.letsPlot.android.canvas.CanvasView2
+import org.jetbrains.letsPlot.android.canvas.CanvasView
 import org.jetbrains.letsPlot.commons.logging.PortableLogging
 import org.jetbrains.letsPlot.core.plot.builder.interact.tools.FigureModel
 import org.jetbrains.letsPlot.core.spec.config.PlotConfig
 import org.jetbrains.letsPlot.core.util.MonolithicCommon.processRawSpecs
 import org.jetbrains.letsPlot.core.util.PlotThemeHelper
 import org.jetbrains.letsPlot.core.util.sizing.SizingPolicy
-import org.jetbrains.letsPlot.raster.view.PlotCanvasFigure2
+import org.jetbrains.letsPlot.raster.view.PlotCanvasDrawable
 
 //import org.jetbrains.letsPlot.compose.util.NaiveLogger
 
@@ -44,7 +44,7 @@ fun PlotPanelAndroidView(
         println("PlotPanel: recomposition")
     }
 
-    var plotCanvasFigure: PlotCanvasFigure2? by remember { mutableStateOf(null) }
+    var plotDrawable: PlotCanvasDrawable? by remember { mutableStateOf(null) }
     val sizingPolicy = SizingPolicy.fitContainerSize(preserveAspectRatio)
 
     // Cache processed plot spec to avoid reprocessing the same raw spec on every recomposition.
@@ -62,7 +62,7 @@ fun PlotPanelAndroidView(
             if (PlotConfig.isFailure(processedPlotSpec)) {
                 errorMessage = PlotConfig.getErrorMessage(processedPlotSpec)
             } else {
-                plotCanvasFigure?.update(processedPlotSpec, sizingPolicy, computationMessagesHandler)
+                plotDrawable?.update(processedPlotSpec, sizingPolicy, computationMessagesHandler)
                     ?: LOG.info { "Error updating plot figure - plotCanvasFigure is null" }
             }
         }.onFailure { e ->
@@ -90,7 +90,7 @@ fun PlotPanelAndroidView(
         // Reset the figure to resolve the 'Registration already removed' error.
         // On error, the CanvasView is removed and the plotCanvasFigure changes state to 'detached',
         // meaning it cannot be reused.
-        plotCanvasFigure = null
+        plotDrawable = null
 
         // Show error message
         BasicTextField(
@@ -105,9 +105,9 @@ fun PlotPanelAndroidView(
         AndroidView(
             modifier = finalModifier,
             factory = { ctx ->
-                plotCanvasFigure = plotCanvasFigure ?: PlotCanvasFigure2()
-                CanvasView2(ctx).apply {
-                    figure = plotCanvasFigure
+                plotDrawable = plotDrawable ?: PlotCanvasDrawable()
+                CanvasView(ctx).apply {
+                    canvasDrawable = plotDrawable
                     onError = { e ->
                         @Suppress("AssignedValueIsNeverRead")
                         errorMessage = e.message ?: "Unknown error: ${e::class.simpleName}"

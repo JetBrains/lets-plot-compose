@@ -21,6 +21,7 @@ import org.jetbrains.letsPlot.compose.sandbox.SandboxToolbarCmp
 import org.jetbrains.letsPlot.core.interact.InteractionSpec
 import org.jetbrains.letsPlot.interact.ggtb
 import plotSpec.AutoSpec
+import plotSpec.IrisSpec
 
 /**
  * Demo showing:
@@ -86,7 +87,8 @@ fun main() = application {
                 )
 
                 // Plot
-                val plot = remember { AutoSpec().scatter() + ggtb() }
+//                val plot = remember { AutoSpec().scatter() + ggtb() }
+                val plot = remember { IrisSpec().pair() + ggtb() }
                 PlotPanel(
                     figure = plot,
                     figureModel = figureModel,

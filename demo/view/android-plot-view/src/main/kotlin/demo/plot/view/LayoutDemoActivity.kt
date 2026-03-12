@@ -5,11 +5,11 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.ViewGroup
 import android.widget.*
-import org.jetbrains.letsPlot.android.canvas.CanvasView2
+import org.jetbrains.letsPlot.android.canvas.CanvasView
 import org.jetbrains.letsPlot.core.util.MonolithicCommon
 import org.jetbrains.letsPlot.core.util.sizing.SizingPolicy
 import org.jetbrains.letsPlot.intern.toSpec
-import org.jetbrains.letsPlot.raster.view.PlotCanvasFigure2
+import org.jetbrains.letsPlot.raster.view.PlotCanvasDrawable
 import org.jetbrains.letsPlot.themes.flavorDarcula
 import plotSpec.BarPlotSpec
 
@@ -36,14 +36,15 @@ class LayoutDemoActivity : Activity() {
     private lateinit var parentHeightSlider: SeekBar
 
 
-    private lateinit var demoView: CanvasView2
-    private val plotFigure = PlotCanvasFigure2()
+    private lateinit var demoView: CanvasView
+    private val plotDrawable = PlotCanvasDrawable()
     private val plotSpec = (BarPlotSpec().basic + flavorDarcula()).toSpec()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.layout_demo_activity)
 
+        @Suppress("DuplicatedCode")
         sizingPolicyOptions = findViewById(R.id.sizing_policy_options)
         preserveAspectRatio = findViewById(R.id.preserve_aspect_ratio)
         plotWidthSlider = findViewById(R.id.plot_width_slider)
@@ -58,8 +59,8 @@ class LayoutDemoActivity : Activity() {
         parentWidthSlider = findViewById(R.id.parent_width_slider)
         parentHeightSlider = findViewById(R.id.parent_height_slider)
 
-        demoView = CanvasView2(this).apply {
-            figure = plotFigure
+        demoView = CanvasView(this).apply {
+            canvasDrawable = plotDrawable
             setBackgroundColor(Color.GREEN)
         }
 
@@ -129,7 +130,7 @@ class LayoutDemoActivity : Activity() {
         }
 
         val processedSpec = MonolithicCommon.processRawSpecs(plotSpec, frontendOnly = false)
-        plotFigure.update(processedSpec, sizingPolicy) { _ -> }
+        plotDrawable.update(processedSpec, sizingPolicy) { _ -> }
     }
 
     private fun updateDemoViewLayoutParams() {
@@ -180,6 +181,7 @@ class LayoutDemoActivity : Activity() {
                 // Disable the "fixed" size options
                 setGroupEnabled(fixedSizeOptionsGroup, false)
             }
+
             R.id.sizing_policy_fixed -> {
                 // Disable the "fitContainerSize" options
                 setGroupEnabled(containerOptionsGroup, false)

@@ -13,7 +13,6 @@ plugins {
 }
 
 val androidComposeBom = extra["androidx.compose.bom"] as String
-val skikoVersion = extra["skiko.version"] as String
 val letsPlotVersion = extra["letsPlot.version"] as String
 val letsPlotKotlinVersion = extra["letsPlotKotlin.version"] as String
 val kotlinLoggingVersion = extra["kotlinLogging.version"] as String
@@ -21,7 +20,11 @@ val kotlinLoggingVersion = extra["kotlinLogging.version"] as String
 kotlin {
     jvm("desktop") {
         compilations.all {
-            kotlinOptions.jvmTarget = "11"
+            compileTaskProvider.configure {
+                compilerOptions {
+                    jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
+                }
+            }
         }
     }
 
@@ -38,8 +41,6 @@ kotlin {
 
                 compileOnly("org.jetbrains.lets-plot:lets-plot-kotlin-kernel:$letsPlotKotlinVersion")
                 compileOnly("org.jetbrains.lets-plot:lets-plot-common:$letsPlotVersion")
-                compileOnly("org.jetbrains.lets-plot:plot-raster:$letsPlotVersion")
-                compileOnly("org.jetbrains.lets-plot:canvas:$letsPlotVersion")
             }
         }
 
@@ -49,9 +50,20 @@ kotlin {
                 compileOnly(compose.ui)
                 compileOnly(compose.desktop.currentOs)
                 compileOnly(compose.components.resources)
-                compileOnly("org.jetbrains.skiko:skiko:${skikoVersion}")
-                api(project(":platf-skia"))
                 compileOnly("io.github.microutils:kotlin-logging-jvm:$kotlinLoggingVersion")
+            }
+        }
+
+        named("desktopTest") {
+            dependencies {
+                implementation(compose.runtime)
+                implementation(compose.ui)
+                implementation(compose.desktop.currentOs)
+                implementation(compose.components.resources)
+                implementation("org.jetbrains.lets-plot:lets-plot-common:$letsPlotVersion")
+                implementation("org.jetbrains.lets-plot:visual-testing:$letsPlotVersion")
+                implementation("io.github.microutils:kotlin-logging-jvm:$kotlinLoggingVersion")
+                implementation(kotlin("test"))
             }
         }
 
@@ -61,8 +73,6 @@ kotlin {
                 implementation("androidx.compose.ui:ui")
                 implementation("androidx.compose.ui:ui-graphics")
                 api(project(":platf-android"))
-                compileOnly("org.jetbrains.lets-plot:plot-raster:$letsPlotVersion")
-                compileOnly("org.jetbrains.lets-plot:canvas:$letsPlotVersion")
             }
         }
     }

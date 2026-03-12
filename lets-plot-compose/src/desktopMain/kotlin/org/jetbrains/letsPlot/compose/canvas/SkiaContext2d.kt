@@ -8,19 +8,25 @@ import org.jetbrains.letsPlot.core.canvas.*
 import org.jetbrains.letsPlot.core.canvas.Canvas.Snapshot
 import org.jetbrains.skia.*
 import org.jetbrains.skia.Color.TRANSPARENT
+import java.util.*
 
 class SkiaContext2d(
-    val platformCanvas: org.jetbrains.skia.Canvas,
+    val skCanvas: org.jetbrains.skia.Canvas,
     private val skiaFontManager: SkiaFontManager,
     private val contextState: ContextStateDelegate = ContextStateDelegate(failIfNotImplemented = false),
 ) : Context2d by contextState, Disposable {
+    private val paintStack = Stack<Pair<Paint, Paint>>()
 
-    private val strokePaint = Paint().apply {
+    private val clearPaint = Paint().apply {
+        blendMode = BlendMode.CLEAR
+    }
+
+    private var strokePaint = Paint().apply {
         setStroke(true)
         isAntiAlias = true
     }
 
-    private val fillPaint = Paint().apply {
+    private var fillPaint = Paint().apply {
         isAntiAlias = true
     }
 
@@ -89,7 +95,7 @@ class SkiaContext2d(
         val srcRect = Rect(sx.toFloat(), sy.toFloat(), (sx + sw).toFloat(), (sy + sh).toFloat())
         val dstRect = Rect(dx.toFloat(), dy.toFloat(), (dx + dw).toFloat(), (dy + dh).toFloat())
         val paint = Paint()
-        platformCanvas.drawImageRect(
+        skCanvas.drawImageRect(
             snapshot.skImage,
             srcRect,
             dstRect,
@@ -101,27 +107,35 @@ class SkiaContext2d(
 
     override fun save() {
         contextState.save()
-        platformCanvas.save()
+        paintStack.push(strokePaint.makeClone() to fillPaint.makeClone())
+        skCanvas.save()
     }
 
     override fun restore() {
         contextState.restore()
-        platformCanvas.restore()
+
+        val (restoredStroke, restoredFill) = paintStack.pop()
+        strokePaint.close()
+        fillPaint.close()
+        strokePaint = restoredStroke
+        fillPaint = restoredFill
+
+        skCanvas.restore()
     }
 
     override fun rotate(angle: Double) {
         contextState.rotate(angle)
-        platformCanvas.rotate(angle.toFloat())
+        skCanvas.rotate(angle.toFloat())
     }
 
     override fun translate(x: Double, y: Double) {
         contextState.translate(x, y)
-        platformCanvas.translate(x.toFloat(), y.toFloat())
+        skCanvas.translate(x.toFloat(), y.toFloat())
     }
 
     override fun transform(sx: Double, ry: Double, rx: Double, sy: Double, tx: Double, ty: Double) {
         contextState.transform(sx = sx, ry = ry, rx = rx, sy = sy, tx = tx, ty = ty)
-        platformCanvas.concat(
+        skCanvas.concat(
             Matrix33(
                 sx.toFloat(), rx.toFloat(), tx.toFloat(),
                 ry.toFloat(), sy.toFloat(), ty.toFloat(),
@@ -132,17 +146,17 @@ class SkiaContext2d(
 
     override fun scale(x: Double, y: Double) {
         contextState.scale(x, y)
-        platformCanvas.scale(x.toFloat(), y.toFloat())
+        skCanvas.scale(x.toFloat(), y.toFloat())
     }
 
     override fun scale(xy: Double) {
         contextState.scale(xy)
-        platformCanvas.scale(xy.toFloat(), xy.toFloat())
+        skCanvas.scale(xy.toFloat(), xy.toFloat())
     }
 
     override fun setTransform(m00: Double, m10: Double, m01: Double, m11: Double, m02: Double, m12: Double) {
         contextState.setTransform(m00, m10, m01, m11, m02, m12)
-        platformCanvas.setMatrix(
+        skCanvas.setMatrix(
             Matrix33(
                 m00.toFloat(), m10.toFloat(), 0f,
                 m01.toFloat(), m11.toFloat(), 0f,
@@ -152,20 +166,24 @@ class SkiaContext2d(
     }
 
     override fun clearRect(rect: DoubleRectangle) {
-        platformCanvas.drawRect(skiaRectFromDoubleRectangle(rect), backgroundPaint)
+        clearRect(rect.left, rect.top, rect.width, rect.height)
+    }
+
+    override fun clearRect(x: Double, y: Double, w: Double, h: Double) {
+        skCanvas.drawRect(skiaRectFromXYWH(x, y, w, h), clearPaint)
     }
 
     override fun fillRect(x: Double, y: Double, w: Double, h: Double) {
-        platformCanvas.drawRect(skiaRectFromXYWH(x, y, w, h), fillPaint)
+        skCanvas.drawRect(skiaRectFromXYWH(x, y, w, h), fillPaint)
     }
 
     override fun strokeRect(x: Double, y: Double, w: Double, h: Double) {
-        platformCanvas.drawRect(skiaRectFromXYWH(x, y, w, h), strokePaint)
+        skCanvas.drawRect(skiaRectFromXYWH(x, y, w, h), strokePaint)
     }
 
     override fun drawCircle(x: Double, y: Double, radius: Double) {
-        platformCanvas.drawCircle(x.toFloat(), y.toFloat(), radius.toFloat(), strokePaint)
-        platformCanvas.drawCircle(x.toFloat(), y.toFloat(), radius.toFloat(), fillPaint)
+        skCanvas.drawCircle(x.toFloat(), y.toFloat(), radius.toFloat(), strokePaint)
+        skCanvas.drawCircle(x.toFloat(), y.toFloat(), radius.toFloat(), fillPaint)
     }
 
     override fun fillText(text: String, x: Double, y: Double) {
@@ -188,7 +206,8 @@ class SkiaContext2d(
             return
         }
 
-        platformCanvas.drawTextBlob(textBlob, x.toFloat(), y.toFloat(), paint)
+        skCanvas.drawTextBlob(textBlob, x.toFloat(), y.toFloat(), paint)
+        textBlob.close()
     }
 
     override fun measureText(str: String): TextMetrics {
@@ -240,7 +259,7 @@ class SkiaContext2d(
         val inverseCtmTransform = contextState.getCTM().inverse() ?: return
 
         withPath(contextState.getCurrentPath(), inverseCtmTransform) { path ->
-            platformCanvas.drawPath(path, strokePaint)
+            skCanvas.drawPath(path, strokePaint)
         }
     }
 
@@ -248,7 +267,7 @@ class SkiaContext2d(
         // Make ctm identity. null for degenerate case, e.g., scale(0, 0) - skip drawing.
         val inverseCtmTransform = contextState.getCTM().inverse() ?: return
         withPath(contextState.getCurrentPath(), inverseCtmTransform) { path ->
-            platformCanvas.drawPath(path, fillPaint)
+            skCanvas.drawPath(path, fillPaint)
         }
     }
 
@@ -258,7 +277,7 @@ class SkiaContext2d(
 
         withPath(contextState.getCurrentPath(), inverseCtmTransform) { path ->
             path.fillMode = PathFillMode.EVEN_ODD
-            platformCanvas.drawPath(path, fillPaint)
+            skCanvas.drawPath(path, fillPaint)
         }
     }
 
@@ -303,7 +322,7 @@ class SkiaContext2d(
         val inverseCtmTransform = contextState.getCTM().inverse() ?: return
 
         withPath(contextState.getCurrentPath(), inverseCtmTransform) { path ->
-            platformCanvas.clipPath(path)
+            skCanvas.clipPath(path)
         }
     }
 
@@ -344,19 +363,17 @@ class SkiaContext2d(
     override fun dispose() {
         strokePaint.close()
         fillPaint.close()
+        clearPaint.close()
+
+        paintStack.forEach { (stroke, fill) ->
+            stroke.close()
+            fill.close()
+        }
+
         backgroundPaint.close()
     }
 
     companion object {
-        private fun skiaRectFromDoubleRectangle(rect: DoubleRectangle): Rect {
-            return Rect(
-                rect.left.toFloat(),
-                rect.top.toFloat(),
-                rect.right.toFloat(),
-                rect.bottom.toFloat()
-            )
-        }
-
         private fun skiaRectFromXYWH(x: Double, y: Double, w: Double, h: Double): Rect {
             return Rect(
                 x.toFloat(),

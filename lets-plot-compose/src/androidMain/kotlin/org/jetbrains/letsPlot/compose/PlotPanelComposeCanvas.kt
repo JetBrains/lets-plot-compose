@@ -24,6 +24,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import org.jetbrains.letsPlot.android.canvas.AndroidCanvasPeer
 import org.jetbrains.letsPlot.android.canvas.AndroidContext2d
+import org.jetbrains.letsPlot.android.canvas.AndroidFontManager
 import org.jetbrains.letsPlot.commons.event.*
 import org.jetbrains.letsPlot.commons.event.MouseEventSpec.*
 import org.jetbrains.letsPlot.commons.geometry.DoubleVector
@@ -32,13 +33,12 @@ import org.jetbrains.letsPlot.commons.intern.observable.event.EventHandler
 import org.jetbrains.letsPlot.commons.logging.PortableLogging
 import org.jetbrains.letsPlot.commons.registration.CompositeRegistration
 import org.jetbrains.letsPlot.commons.registration.Registration
-import org.jetbrains.letsPlot.core.plot.builder.interact.tools.FigureModel
 import org.jetbrains.letsPlot.core.spec.config.PlotConfig
 import org.jetbrains.letsPlot.core.spec.front.SpecOverrideUtil.applySpecOverride
 import org.jetbrains.letsPlot.core.util.MonolithicCommon.processRawSpecs
 import org.jetbrains.letsPlot.core.util.PlotThemeHelper
 import org.jetbrains.letsPlot.core.util.sizing.SizingPolicy.Companion.fitContainerSize
-import org.jetbrains.letsPlot.raster.view.PlotCanvasFigure2
+import org.jetbrains.letsPlot.raster.view.PlotCanvasDrawable
 import kotlin.math.roundToInt
 
 //import org.jetbrains.letsPlot.compose.util.NaiveLogger
@@ -54,7 +54,7 @@ private const val logRecompositions = false
 @Composable
 fun PlotPanelComposeCanvas(
     rawSpec: MutableMap<String, Any>,
-    figureModel: FigureModel,
+    figureModel: PlotFigureModel,
     preserveAspectRatio: Boolean,
     modifier: Modifier,
     errorTextStyle: TextStyle,
@@ -80,28 +80,28 @@ fun PlotPanelComposeCanvas(
     var plotPosition by remember { mutableStateOf(DoubleVector.ZERO) }
     var dispatchComputationMessages by remember { mutableStateOf(true) }
 
-    // Observe spec override list from figureModel
-    val specOverrideList by (figureModel as PlotFigureModel).specOverrideListState
+    // Observe spec override state from figureModel
+    val specOverrideState by figureModel.specOverrideState
 
     var errorMessage: String? by remember(processedPlotSpec, panelSize) { mutableStateOf(null) }
 
-    var redrawTrigger by remember { mutableStateOf(0) }
+    var redrawTrigger by remember { mutableIntStateOf(0) }
 
     val androidCanvasPeer = remember { AndroidCanvasPeer() }
 
     // Reset the old plot on error to prevent blinking
     // We can't reset PlotContainer using updateViewmodel(), so we create a new one.
-    val plotCanvasFigure2 = remember(errorMessage) {
-        PlotCanvasFigure2().apply {
-            eventPeer.addEventSource(composeMouseEventMapper)
+    val plotDrawable = remember(errorMessage) {
+        PlotCanvasDrawable().apply {
+            mouseEventPeer.addEventSource(composeMouseEventMapper)
         }
     }
 
-    val reg = remember(plotCanvasFigure2) {
+    val plotComponentRegistrations = remember(plotDrawable) {
         CompositeRegistration(
             // trigger recomposition on repaint request
-            plotCanvasFigure2.onRepaintRequested { redrawTrigger++ },
-            plotCanvasFigure2.mapToCanvas(androidCanvasPeer)
+            plotDrawable.onRepaintRequested { redrawTrigger++ },
+            plotDrawable.mapToCanvas(androidCanvasPeer)
         )
     }
 
@@ -121,15 +121,15 @@ fun PlotPanelComposeCanvas(
     }
 
 
-    DisposableEffect(reg) {
+    DisposableEffect(plotComponentRegistrations) {
         onDispose {
             // Try/catch to ensure that any exception in dispose() does not break the Composable lifecycle
             // Otherwise, the app window gets unclosable.
             try {
-                reg.dispose()
+                plotComponentRegistrations.dispose()
                 //plotCanvasFigure2.dispose()
             } catch (e: Exception) {
-                LOG.error(e) { "reg.dispose() failed: ${e.message}" }
+                LOG.error(e) { "plotComponentRegistrations.dispose() failed: ${e.message}" }
             }
         }
     }
@@ -160,7 +160,7 @@ fun PlotPanelComposeCanvas(
                 )
             } else {
                 // Render the plot
-                LaunchedEffect(panelSize, processedPlotSpec, specOverrideList, preserveAspectRatio) {
+                LaunchedEffect(panelSize, processedPlotSpec, specOverrideState, preserveAspectRatio) {
 
                     if (PlotConfig.isFailure(processedPlotSpec)) {
                         errorMessage = PlotConfig.getErrorMessage(processedPlotSpec)
@@ -169,9 +169,9 @@ fun PlotPanelComposeCanvas(
 
                     runCatching {
                         if (panelSize != DoubleVector.ZERO) {
-                            val plotSpec = applySpecOverride(processedPlotSpec, specOverrideList).toMutableMap()
+                            val plotSpec = applySpecOverride(processedPlotSpec, specOverrideState).toMutableMap()
 
-                            plotCanvasFigure2.update(plotSpec, fitContainerSize(preserveAspectRatio)) { messages ->
+                            plotDrawable.update(plotSpec, fitContainerSize(preserveAspectRatio)) { messages ->
                                 if (dispatchComputationMessages) {
                                     // do once
                                     dispatchComputationMessages = false
@@ -180,11 +180,13 @@ fun PlotPanelComposeCanvas(
                             }
 
                             // Connect the figure model to the plot component
-                            figureModel.toolEventDispatcher = plotCanvasFigure2.toolEventDispatcher
+                            figureModel.toolEventDispatcher = plotDrawable.toolEventDispatcher
+                            plotComponentRegistrations.add(Registration.onRemove {
+                                figureModel.toolEventDispatcher = null
+                            })
 
-
-                            val plotWidth = plotCanvasFigure2.size.x
-                            val plotHeight = plotCanvasFigure2.size.y
+                            val plotWidth = plotDrawable.size.x
+                            val plotHeight = plotDrawable.size.y
 
                             // Calculate centering position in physical pixels
                             // Both panelSize and plot dimensions are in physical pixels
@@ -209,7 +211,7 @@ fun PlotPanelComposeCanvas(
                         .pointerHoverIcon(PointerIcon(TYPE_CROSSHAIR))
                         .onSizeChanged { size ->
                             // Convert canvas logical pixels (from Compose layout) to physical pixels (plot SVG pixels)
-                            plotCanvasFigure2.resize(size.width / density, size.height / density)
+                            plotDrawable.resize(size.width / density, size.height / density)
                         }
                         .pointerInput(composeMouseEventMapper, composeMouseEventMapper)
                 ) {
@@ -217,11 +219,11 @@ fun PlotPanelComposeCanvas(
                     // this Canvas block whenever it changes.
                     redrawTrigger
 
-                    val ctx = AndroidContext2d(drawContext.canvas.nativeCanvas, pixelDensity = 1.0)
+                    val ctx = AndroidContext2d(drawContext.canvas.nativeCanvas, AndroidFontManager.DEFAULT)
                     ctx.scale(density.toDouble(), density.toDouble()) // logical → physical pixels
 
                     ctx.translate(plotPosition.x, plotPosition.y)
-                    plotCanvasFigure2.paint(ctx)
+                    plotDrawable.paint(ctx)
                 }
             }
         }

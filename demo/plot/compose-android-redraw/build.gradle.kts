@@ -61,9 +61,6 @@ dependencies {
     implementation("org.jetbrains.lets-plot:lets-plot-kotlin-kernel:$letsPlotKotlinVersion")
     implementation("org.jetbrains.lets-plot:lets-plot-common:$letsPlotVersion")
 
-    implementation("org.jetbrains.lets-plot:canvas:$letsPlotVersion")
-    implementation("org.jetbrains.lets-plot:plot-raster:$letsPlotVersion")
-
     implementation(project(":lets-plot-compose"))
     implementation(project(":demo-plot-shared"))
 }

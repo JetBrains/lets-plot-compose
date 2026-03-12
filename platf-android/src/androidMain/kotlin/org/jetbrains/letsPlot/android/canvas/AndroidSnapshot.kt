@@ -22,6 +22,10 @@ class AndroidSnapshot(
         return AndroidSnapshot(newBitmap)
     }
 
+    override fun dispose() {
+        platformBitmap.recycle()
+    }
+
     companion object {
         fun fromBitmap(bitmap: Bitmap): AndroidSnapshot {
             val platformBitmap = android.graphics.Bitmap.createBitmap(bitmap.width, bitmap.height, android.graphics.Bitmap.Config.ARGB_8888)
