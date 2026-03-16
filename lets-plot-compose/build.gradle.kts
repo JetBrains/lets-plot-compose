@@ -56,7 +56,7 @@ kotlin {
                 compileOnly("org.jetbrains.lets-plot:plot-builder:$letsPlotVersion")
                 compileOnly("org.jetbrains.lets-plot:plot-stem:$letsPlotVersion")
                 compileOnly("org.jetbrains.lets-plot:plot-raster:$letsPlotVersion")
-
+                compileOnly("org.jetbrains.lets-plot:lets-plot-kotlin:$letsPlotKotlinVersion")
             }
         }
 
