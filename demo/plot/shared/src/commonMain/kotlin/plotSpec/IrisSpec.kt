@@ -10,7 +10,6 @@ import org.jetbrains.letsPlot.Figure
 import org.jetbrains.letsPlot.geom.geomDensity
 import org.jetbrains.letsPlot.geom.geomPoint
 import org.jetbrains.letsPlot.gggrid
-import org.jetbrains.letsPlot.interact.ggtb
 import org.jetbrains.letsPlot.intern.Plot
 import org.jetbrains.letsPlot.intern.figure.SubPlotsFigure
 import org.jetbrains.letsPlot.letsPlot

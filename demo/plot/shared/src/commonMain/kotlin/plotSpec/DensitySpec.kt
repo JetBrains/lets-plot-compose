@@ -13,7 +13,7 @@ import org.jetbrains.letsPlot.geom.geomDensity
 import org.jetbrains.letsPlot.interact.ggtb
 import org.jetbrains.letsPlot.intern.Plot
 import org.jetbrains.letsPlot.letsPlot
-import java.util.*
+import kotlin.random.Random
 
 class DensitySpec : PlotDemoFigure {
     override fun createFigure(): Figure {
@@ -21,9 +21,9 @@ class DensitySpec : PlotDemoFigure {
     }
 
     fun simple(ggtb: Boolean): Plot {
-        val rand = Random()
+        val rand = Random.Default
         val n = 200
-        val xs = List(n) { rand.nextGaussian() }
+        val xs = List(n) { rand.nextDouble() }
         val data = mapOf<String, Any>(
             "x" to xs,
             "w" to xs.map { if (it < 0.0) 2.0 else 0.5 }

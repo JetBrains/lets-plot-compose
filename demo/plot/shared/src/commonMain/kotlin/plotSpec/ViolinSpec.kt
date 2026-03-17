@@ -14,7 +14,7 @@ import org.jetbrains.letsPlot.letsPlot
 import org.jetbrains.letsPlot.scale.scaleColorGradient
 import org.jetbrains.letsPlot.themes.elementText
 import org.jetbrains.letsPlot.themes.theme
-import java.lang.Double.NaN
+import kotlin.Double.Companion.NaN
 
 class ViolinSpec : PlotDemoFigure {
 
