@@ -15,6 +15,7 @@ val letsPlotVersion = extra["letsPlot.version"] as String
 val letsPlotKotlinVersion = extra["letsPlotKotlin.version"] as String
 
 kotlin {
+    jvm() // for Android
     wasmJs {
         browser()
     }
@@ -26,8 +27,6 @@ kotlin {
 
                 compileOnly("org.jetbrains.lets-plot:commons:$letsPlotVersion")
                 compileOnly("org.jetbrains.lets-plot:datamodel:$letsPlotVersion")
-
-                //testImplementation(kotlin("test"))
             }
         }
     }

@@ -39,7 +39,7 @@ kotlin {
                 implementation("org.jetbrains.lets-plot:lets-plot-kotlin:${letsPlotKotlinVersion}")
 
                 implementation(project(":lets-plot-compose"))
-                //implementation(project(":demo-plot-shared"))
+                implementation(project(":demo-plot-shared"))
 
                 //implementation("org.slf4j:slf4j-simple:2.0.9")  // Enable logging to console
             }

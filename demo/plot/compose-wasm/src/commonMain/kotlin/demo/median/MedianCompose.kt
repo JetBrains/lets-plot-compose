@@ -24,17 +24,17 @@ import org.jetbrains.letsPlot.compose.PlotPanelRaw
 import org.jetbrains.letsPlot.compose.sandbox.SandboxToolbarCmp
 import org.jetbrains.letsPlot.intern.toSpec
 
-//import plotSpec.*
+import plotSpec.*
 
 @Composable
 fun App() {
     val figures: List<Pair<String, Any>> = listOf(
-        //"Density Plot" to DensitySpec().simple(ggtb = true),
-        //"Plot Grid" to PlotGridSpec().createFigure(),
-        //"25k Points" to PerfSpec().createFigure(),
-        //"Raster bin2d" to RasterBin2DSpec().createFigure(),
-        //"BackendError" to IllegalArgumentSpec().createFigure(),
-        //"FrontendError" to FrontendExceptionSpec().createRawSpec(),
+        "Density Plot" to DensitySpec().simple(ggtb = true),
+        "Plot Grid" to PlotGridSpec().createFigure(),
+        "25k Points" to PerfSpec().createFigure(),
+        "Raster bin2d" to RasterBin2DSpec().createFigure(),
+        "BackendError" to IllegalArgumentSpec().createFigure(),
+        "FrontendError" to FrontendExceptionSpec().createRawSpec(),
     )
 
     val preserveAspectRatio = remember { mutableStateOf(false) }
