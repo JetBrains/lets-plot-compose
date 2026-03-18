@@ -19,7 +19,7 @@
 In the `local.properties` file add the following properties:
 ```properties
 sonatype.username=<your Sonatype username>
-sonatype.password=<your Sonatype password>
+sonatype.password=<your Sonatype access token>
 sonatype.profileID=<your Sonatype profile ID>
 ```
 
