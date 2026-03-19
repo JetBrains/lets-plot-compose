@@ -43,6 +43,9 @@ project(":demo-plot-compose-desktop").projectDir = File("./demo/plot/compose-des
 include("demo-plot-compose-wasm-module")
 project(":demo-plot-compose-wasm-module").projectDir = File("./demo/plot/compose-wasm-module")
 
+include("demo-plot-compose-wasm-webpack")
+project(":demo-plot-compose-wasm-webpack").projectDir = File("./demo/plot/compose-wasm-webpack")
+
 include("demo-plot-swing")
 project(":demo-plot-swing").projectDir = File("./demo/plot/swing")
 
