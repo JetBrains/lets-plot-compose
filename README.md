@@ -76,7 +76,7 @@ GitHub repository: [JetBrains/lets-plot-compose-demos](https://github.com/JetBra
 
 ## Change Log
 
-See [CHANGELOG.md](https://github.com/JetBrains/lets-plot-compose/blob/master/CHANGELOG.md).
+See [CHANGELOG.md](https://github.com/JetBrains/lets-plot-compose/blob/main/CHANGELOG.md).
 
 ## Code of Conduct
 
