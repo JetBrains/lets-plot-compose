@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). All scales should have the 'format' parameter.
 
+## [3.1.0] - 2026-03-20
+
+### Compatibility
+
+All artifacts were built with the following versions of dependencies:
+- Compose Multiplatform: [1.10.2](https://github.com/JetBrains/compose-multiplatform/releases/tag/v1.10.2)
+- Lets-Plot Kotlin API: [4.13.0](https://github.com/JetBrains/lets-plot-kotlin/releases/tag/v4.13.0)
+- Lets-Plot Multiplatform: [4.9.0](https://github.com/JetBrains/lets-plot/releases/tag/v4.9.0)
+
+### Added
+
+* Interactivity (Desktop):
+
+  - Support for custom toolbar.
+    See a simple example implementation: [SandboxToolbarCmp](https://github.com/JetBrains/lets-plot-compose/blob/main/lets-plot-compose/src/commonMain/kotlin/org/jetbrains/letsPlot/compose/sandbox/SandboxToolbarCmp.kt).
+  - Support for plot _**default interactions**_.
+
+
+  For more details, see [Custom Toolbar and Default Interactions demo](https://github.com/JetBrains/lets-plot-compose-demos/blob/main/compose-desktop/src/main/kotlin/demo/letsPlot/composeDesktop/interact/CustomToolbarDefPanZoomAppMain.kt) in the "lets-plot-compose-demos" repository.
+
+### Changed
+
+* **Artifact changes in the core Lets-Plot library** (v4.9.0):
+
+    [**BREAKING**] Desktop only: removed `plot-image-export` module. \
+    The `org.jetbrains.lets-plot:lets-plot-image-export` artifact is no longer available. \
+    The `PlotImageExport` utility has been moved to the `platf-awt` module: `org.jetbrains.letsPlot.awt.plot.PlotImageExport`. \
+    Add the optional `org.jetbrains.lets-plot:platf-awt` dependency to enable image export functionality on the Desktop platform.
+
+
 ## [3.0.2] - 2025-12-22
 
 ### Compatibility

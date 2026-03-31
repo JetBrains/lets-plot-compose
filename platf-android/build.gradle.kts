@@ -138,7 +138,7 @@ tasks.register<Exec>("pullTestImages") {
             println("⚠️ No images found on device (Test passed or skipped).")
         }
 
-        // 4. Cleanup the temp folder
+        // 4. Clean up the temp folder
         tempDir.deleteRecursively()
     }
 }

@@ -22,9 +22,9 @@ For more details see [Compose multiplatform compatibility and versioning overvie
 
 ## Dependencies
 
-- Compose Multiplatform: [1.9.3](https://github.com/JetBrains/compose-multiplatform/releases/tag/v1.9.3)
-- Lets-Plot Kotlin API: [4.12.1](https://github.com/JetBrains/lets-plot-kotlin/releases/tag/v4.12.1)
-- Lets-Plot Multiplatform: [4.8.2](https://github.com/JetBrains/lets-plot/releases/tag/v4.8.2)
+- Compose Multiplatform: [1.10.2](https://github.com/JetBrains/compose-multiplatform/releases/tag/v1.10.2)
+- Lets-Plot Kotlin API: [4.13.0](https://github.com/JetBrains/lets-plot-kotlin/releases/tag/v4.13.0)
+- Lets-Plot Multiplatform: [4.9.0](https://github.com/JetBrains/lets-plot/releases/tag/v4.9.0)
 
 ### Compose Multiplatform for Desktop
 
@@ -34,40 +34,41 @@ dependencies {
     implementation(compose.components.resources)
 
     // Lets-Plot Kotlin API
-    implementation("org.jetbrains.lets-plot:lets-plot-kotlin-kernel:4.12.1")
+    implementation("org.jetbrains.lets-plot:lets-plot-kotlin-kernel:4.13.0")
 
     // Lets-Plot Multiplatform
-    implementation("org.jetbrains.lets-plot:lets-plot-common:4.8.2")
-    implementation("org.jetbrains.lets-plot:canvas:4.8.2")
-    implementation("org.jetbrains.lets-plot:plot-raster:4.8.2")
-    
-    // Lets-Plot 'image export' (optional - enables exporting to raster formats)
-    implementation("org.jetbrains.lets-plot:lets-plot-image-export:4.8.2")
+    implementation("org.jetbrains.lets-plot:lets-plot-common:4.9.0")
+
+    // Optional: contains the PlotImageExport utility which enables exporting to raster formats.
+    implementation("org.jetbrains.lets-plot:platf-awt:4.9.0")
 
     // Lets-Plot Compose UI
-    implementation("org.jetbrains.lets-plot:lets-plot-compose:3.0.2")
+    implementation("org.jetbrains.lets-plot:lets-plot-compose:3.1.0")
 }
 ```
-See example: [Compose desktop](https://github.com/JetBrains/lets-plot-compose-demos/blob/main/compose-desktop/build.gradle.kts) demo.
+
+See examples: 
+- [Compose desktop](https://github.com/JetBrains/lets-plot-compose-demos/blob/main/compose-desktop/build.gradle.kts)
+- [Compose multiplatform](https://github.com/JetBrains/lets-plot-compose-demos/blob/main/compose-multiplatform/build.gradle.kts)
 
 ### Compose Multiplatform for Android
 
 ```kotlin
 dependencies {
     // Lets-Plot Kotlin API
-    implementation("org.jetbrains.lets-plot:lets-plot-kotlin-kernel:4.12.1")
+    implementation("org.jetbrains.lets-plot:lets-plot-kotlin-kernel:4.13.0")
 
     // Lets-Plot Multiplatform
-    implementation("org.jetbrains.lets-plot:lets-plot-common:4.8.2")
-    implementation("org.jetbrains.lets-plot:canvas:4.8.2")
-    implementation("org.jetbrains.lets-plot:plot-raster:4.8.2")
+    implementation("org.jetbrains.lets-plot:lets-plot-common:4.9.0")
 
     // Lets-Plot Compose UI
-    implementation("org.jetbrains.lets-plot:lets-plot-compose:3.0.2")
+    implementation("org.jetbrains.lets-plot:lets-plot-compose:3.1.0")
 }
 ```
 
-See example: [Android minimal](https://github.com/JetBrains/lets-plot-compose-demos/blob/main/compose-android-min/build.gradle.kts) demo.
+See examples:
+- [Android minimal](https://github.com/JetBrains/lets-plot-compose-demos/blob/main/compose-android-min/build.gradle.kts)
+- [Compose multiplatform](https://github.com/JetBrains/lets-plot-compose-demos/blob/main/compose-multiplatform/build.gradle.kts)
 
 ### Compose Multiplatform for WasmJS
 
@@ -106,7 +107,7 @@ GitHub repository: [JetBrains/lets-plot-compose-demos](https://github.com/JetBra
 
 ## Change Log
 
-See [CHANGELOG.md](https://github.com/JetBrains/lets-plot-compose/blob/master/CHANGELOG.md).
+See [CHANGELOG.md](https://github.com/JetBrains/lets-plot-compose/blob/main/CHANGELOG.md).
 
 ## Code of Conduct
 
