@@ -19,3 +19,5 @@ demo-android-app/src/main/jniLibs/x86_64/META-INF/*
 local.properties
 
 .maven-publish-dev-repo/*
+/kotlin-js-store/
+/.kotlin/

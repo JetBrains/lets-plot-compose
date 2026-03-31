@@ -1,7 +1,11 @@
+/*
+ * Copyright (c) 2026. JetBrains s.r.o.
+ * Use of this source code is governed by the MIT license that can be found in the LICENSE file.
+ */
+
 @file:OptIn(ExperimentalWasmDsl::class)
 
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
-
 
 plugins {
     kotlin("multiplatform")
@@ -14,8 +18,12 @@ val letsPlotKotlinVersion = extra["letsPlotKotlin.version"] as String
 
 kotlin {
     wasmJs {
-        outputModuleName = "composeApp"
-        browser()
+        outputModuleName = "composeWasmJsApp"
+        browser {
+            commonWebpackConfig {
+                outputFileName = "composeWasmJsApp.js"
+            }
+        }
         binaries.executable()
     }
 
@@ -51,3 +59,6 @@ kotlin {
         }
     }
 }
+
+
+
