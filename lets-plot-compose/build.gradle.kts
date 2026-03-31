@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026. JetBrains s.r.o.
+ * Use of this source code is governed by the MIT license that can be found in the LICENSE file.
+ */
+
 @file:OptIn(ExperimentalWasmDsl::class)
 
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
@@ -62,19 +67,15 @@ kotlin {
 
         named("desktopMain") {
             dependencies {
-                compileOnly(compose.runtime)
-                compileOnly(compose.ui)
                 compileOnly(compose.desktop.currentOs)
                 compileOnly(compose.components.resources)
                 compileOnly("io.github.microutils:kotlin-logging-jvm:$kotlinLoggingVersion")
-                compileOnly("org.jetbrains.lets-plot:lets-plot-kotlin-kernel:${letsPlotKotlinVersion}")
+                compileOnly("org.jetbrains.lets-plot:lets-plot-kotlin:${letsPlotKotlinVersion}")
             }
         }
 
         named("desktopTest") {
             dependencies {
-                implementation(compose.runtime)
-                implementation(compose.ui)
                 implementation(compose.desktop.currentOs)
                 implementation(compose.components.resources)
                 implementation("org.jetbrains.lets-plot:lets-plot-kotlin-kernel:${letsPlotKotlinVersion}")
@@ -88,7 +89,6 @@ kotlin {
         named("androidMain") {
             dependencies {
                 implementation(project.dependencies.platform("androidx.compose:compose-bom:$androidComposeBom"))
-                implementation("org.jetbrains.lets-plot:lets-plot-kotlin-kernel:${letsPlotKotlinVersion}")
                 implementation("androidx.compose.ui:ui")
                 implementation("androidx.compose.ui:ui-graphics")
                 api(project(":platf-android"))

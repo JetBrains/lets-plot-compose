@@ -45,6 +45,9 @@ project(":demo-plot-shared").projectDir = File("./demo/plot/shared")
 include("demo-plot-compose-desktop")
 project(":demo-plot-compose-desktop").projectDir = File("./demo/plot/compose-desktop")
 
+include("demo-plot-compose-multiplatform-minimal")
+project(":demo-plot-compose-multiplatform-minimal").projectDir = File("./demo/plot/compose-multiplatform-minimal")
+
 include("demo-plot-compose-wasm-js")
 project(":demo-plot-compose-wasm-js").projectDir = File("./demo/plot/compose-wasm-js")
 
