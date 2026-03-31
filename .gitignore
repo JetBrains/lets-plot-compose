@@ -1,23 +1,23 @@
-.idea/*
-.kotlin/*
+# IntelliJ: keep only shared copyright profiles.
+/.idea/*
+!/.idea/copyright/
+!/.idea/copyright/**
+/lets-plot-compose/.idea/
 
-# share copyright profiles
-!.idea/copyright
-
+# Local IDE and OS files.
 *.iml
-*.so
-.gradle
 .DS_Store
-**/build
-**/out
-demo-android-app/src/main/jniLibs/arm64-v8a/org/*
-demo-android-app/src/main/jniLibs/arm64-v8a/META-INF/*
-demo-android-app/src/main/jniLibs/x86_64/org/*
-demo-android-app/src/main/jniLibs/x86_64/META-INF/*
-/kotlin-js-store/yarn.lock
 
-local.properties
-
-.maven-publish-dev-repo/*
-/kotlin-js-store/
+# Build and tool caches.
+/.gradle/
 /.kotlin/
+/kotlin-js-store/
+/.maven-publish-dev-repo/
+**/build/
+**/out/
+
+# Local machine configuration.
+/local.properties
+
+# Native libraries are generated here, not source.
+*.so
