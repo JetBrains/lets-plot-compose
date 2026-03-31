@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026. JetBrains s.r.o.
+ * Use of this source code is governed by the MIT license that can be found in the LICENSE file.
+ */
+
 plugins {
 //    kotlin("multiplatform") // kotlin("jvm") doesn't work well in IDEA/AndroidStudio (https://github.com/JetBrains/compose-jb/issues/22)
     kotlin("jvm")
@@ -14,8 +19,6 @@ dependencies {
 
     implementation("org.jetbrains.lets-plot:lets-plot-kotlin-kernel:$letsPlotKotlinVersion")
     implementation("org.jetbrains.lets-plot:lets-plot-common:$letsPlotVersion")
-    implementation("org.jetbrains.lets-plot:canvas:$letsPlotVersion")
-    implementation("org.jetbrains.lets-plot:plot-raster:$letsPlotVersion")
 
     implementation(project(":lets-plot-compose"))
     implementation(project(":demo-plot-shared"))

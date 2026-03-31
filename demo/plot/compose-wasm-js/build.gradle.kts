@@ -44,7 +44,6 @@ kotlin {
                 implementation("org.jetbrains.lets-plot:plot-builder:${letsPlotVersion}")
                 implementation("org.jetbrains.lets-plot:plot-stem:${letsPlotVersion}")
                 implementation("org.jetbrains.lets-plot:plot-raster:${letsPlotVersion}")
-                implementation("org.jetbrains.lets-plot:lets-plot-kotlin:${letsPlotKotlinVersion}")
 
                 implementation(project(":lets-plot-compose"))
                 implementation(project(":demo-plot-shared"))

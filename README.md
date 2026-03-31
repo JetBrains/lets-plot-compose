@@ -6,12 +6,14 @@
 [![Latest Release](https://img.shields.io/github/v/release/JetBrains/lets-plot-compose)](https://github.com/JetBrains/lets-plot-compose/releases/latest)
 
 **Lets-Plot Compose Frontend** is a Kotlin Multiplatform library that allows you to embed \
-[Lets-Plot](https://github.com/JetBrains/lets-plot) charts in a [Compose Multiplatform](https://github.com/JetBrains/compose-multiplatform) (Desktop, Android) application.
+[Lets-Plot](https://github.com/JetBrains/lets-plot) charts in a [Compose Multiplatform](https://github.com/JetBrains/compose-multiplatform) \
+application targeting Desktop, Android, and WasmJS.
 
 ### Supported Targets
 
 - **Desktop** (macOS, Windows, Linux)
-- **Android** 
+- **Android**
+- **WasmJS**
 
 For more details see [Compose multiplatform compatibility and versioning overview](https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-compatibility-and-versioning.html).
 
@@ -66,6 +68,35 @@ dependencies {
 ```
 
 See example: [Android minimal](https://github.com/JetBrains/lets-plot-compose-demos/blob/main/compose-android-min/build.gradle.kts) demo.
+
+### Compose Multiplatform for WasmJS
+
+```kotlin
+dependencies {
+    implementation(compose.runtime)
+    implementation(compose.foundation)
+    implementation(compose.material)
+    implementation(compose.ui)
+    implementation(compose.components.resources)
+
+    // Lets-Plot Kotlin API
+    implementation("org.jetbrains.lets-plot:lets-plot-kotlin:4.12.1")
+
+    // Lets-Plot Multiplatform
+    implementation("org.jetbrains.lets-plot:commons:4.8.2")
+    implementation("org.jetbrains.lets-plot:canvas:4.8.2")
+    implementation("org.jetbrains.lets-plot:datamodel:4.8.2")
+    implementation("org.jetbrains.lets-plot:plot-base:4.8.2")
+    implementation("org.jetbrains.lets-plot:plot-builder:4.8.2")
+    implementation("org.jetbrains.lets-plot:plot-stem:4.8.2")
+    implementation("org.jetbrains.lets-plot:plot-raster:4.8.2")
+
+    // Lets-Plot Compose UI
+    implementation("org.jetbrains.lets-plot:lets-plot-compose:3.0.2")
+}
+```
+
+See example: [Compose WasmJS](https://github.com/JetBrains/lets-plot-compose/tree/master/demo/plot/compose-wasm-js) demo.
 
 
 ## More Examples

@@ -9,6 +9,8 @@ All artifacts were built with the following versions of dependencies:
 
 ### Added
 
+- WasmJS support.
+
 ### Changed
 
 ### Fixed
