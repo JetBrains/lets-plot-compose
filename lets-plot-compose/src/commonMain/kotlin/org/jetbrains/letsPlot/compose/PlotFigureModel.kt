@@ -59,6 +59,12 @@ class PlotFigureModel() : FigureModelBase() {
     val specOverrideState: State<SpecOverrideState> = _specOverrideState
 
     override fun updateSpecOverride(specOverride: Map<String, Any>?) {
+        // Sync with any expansion that happened during the previous rebuild.
+        val currentState = _specOverrideState.value
+        if (currentState.expandedOverrides.isNotEmpty()) {
+            currSpecOverrideList = currentState.expandedOverrides
+        }
+
         currSpecOverrideList = FigureModelHelper.updateSpecOverrideList(
             specOverrideList = currSpecOverrideList,
             newSpecOverride = specOverride
@@ -68,12 +74,6 @@ class PlotFigureModel() : FigureModelBase() {
     }
 
     override fun updateView() {
-        // Sync with any expansion that happened during the previous rebuild.
-        val currentState = _specOverrideState.value
-        if (currentState.expandedOverrides.isNotEmpty()) {
-            currSpecOverrideList = currentState.expandedOverrides
-        }
-
         // Publish to trigger recomposition.
         _specOverrideState.value = currSpecOverrideState
     }
