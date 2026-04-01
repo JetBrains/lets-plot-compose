@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026. JetBrains s.r.o.
+ * Use of this source code is governed by the MIT license that can be found in the LICENSE file.
+ */
+
 package org.jetbrains.letsPlot.compose
 
 import androidx.compose.ui.input.pointer.*
@@ -8,6 +13,7 @@ import org.jetbrains.letsPlot.commons.intern.observable.event.EventHandler
 import org.jetbrains.letsPlot.commons.registration.Registration
 import kotlin.math.abs
 import kotlin.math.roundToInt
+import kotlin.time.Clock
 
 class ComposeMouseEventMapper : MouseEventSource, PointerInputEventHandler {
     private val mouseEventPeer = MouseEventPeer()
@@ -49,7 +55,8 @@ class ComposeMouseEventMapper : MouseEventSource, PointerInputEventHandler {
 
                 when (event.type) {
                     PointerEventType.Press -> {
-                        val currentTime = 0L//System.currentTimeMillis()
+                        val currentTime = Clock.System.now().toEpochMilliseconds()
+
                         clickCount = if (currentTime - lastClickTime < 300) {
                             clickCount + 1
                         } else {
