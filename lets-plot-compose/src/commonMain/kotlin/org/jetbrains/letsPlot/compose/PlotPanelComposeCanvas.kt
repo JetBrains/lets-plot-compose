@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 JetBrains s.r.o.
+ * Copyright (c) 2026. JetBrains s.r.o.
  * Use of this source code is governed by the MIT license that can be found in the LICENSE file.
  */
 
@@ -15,18 +15,14 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import org.jetbrains.letsPlot.commons.geometry.DoubleVector
 import org.jetbrains.letsPlot.commons.logging.PortableLogging
-import org.jetbrains.letsPlot.commons.registration.CompositeRegistration
 import org.jetbrains.letsPlot.commons.registration.Registration
-import org.jetbrains.letsPlot.compose.canvas.SkiaCanvasPeer
-import org.jetbrains.letsPlot.compose.canvas.SkiaContext2d
-import org.jetbrains.letsPlot.compose.canvas.SkiaFontManager
 import org.jetbrains.letsPlot.core.spec.config.PlotConfig
 import org.jetbrains.letsPlot.core.spec.front.SpecOverrideUtil.applySpecOverride
 import org.jetbrains.letsPlot.core.util.MonolithicCommon.processRawSpecs
@@ -34,16 +30,12 @@ import org.jetbrains.letsPlot.core.util.PlotThemeHelper
 import org.jetbrains.letsPlot.core.util.sizing.SizingPolicy.Companion.fitContainerSize
 import org.jetbrains.letsPlot.raster.view.PlotCanvasDrawable
 
-//import org.jetbrains.letsPlot.compose.util.NaiveLogger
-
-//private val LOG = NaiveLogger("PlotPanel")
-private val LOG = PortableLogging.logger(name = "[PlotPanelRaw2]")
-
+private val LOG = PortableLogging.logger(name = "[PlotPanelRaw]")
 private const val logRecompositions = false
 
 @Suppress("FunctionName")
 @Composable
-fun PlotPanelComposeCanvas(
+internal fun PlotPanelComposeCanvas(
     rawSpec: MutableMap<String, Any>,
     figureModel: PlotFigureModel,
     preserveAspectRatio: Boolean,
@@ -58,11 +50,7 @@ fun PlotPanelComposeCanvas(
 
     val density = LocalDensity.current.density
     val composeMouseEventMapper = remember { ComposeMouseEventMapper() }
-    // Update density on each recomposition to handle monitor DPI changes (e.g., drag between HIDPI/regular monitor)
 
-    // Cache processed plot spec to avoid reprocessing the same raw spec on every recomposition.
-    // Note: Use remember(rawSpec.hashCode()), to bypass the equality check and use the content hash directly.
-    // The issue was that remember(rawSpec) uses some kind of comparison (equals()?) which somehow not working for `MutableMap`.
     val processedPlotSpec = remember(rawSpec.hashCode()) {
         processRawSpecs(rawSpec, frontendOnly = false)
     }
@@ -70,18 +58,10 @@ fun PlotPanelComposeCanvas(
     var panelSize by remember { mutableStateOf(DoubleVector.ZERO) }
     var plotPosition by remember { mutableStateOf(DoubleVector.ZERO) }
     var dispatchComputationMessages by remember { mutableStateOf(true) }
-
-    // Observe spec override state from figureModel
     val specOverrideState by figureModel.specOverrideState
-
     var errorMessage: String? by remember(processedPlotSpec, panelSize) { mutableStateOf(null) }
+    var redrawTrigger by remember { mutableIntStateOf(0) }
 
-    var redrawTrigger by remember { mutableStateOf(0) }
-
-    val skiaCanvasPeer = remember { SkiaCanvasPeer(SkiaFontManager.DEFAULT) }
-
-    // Reset the old plot on error to prevent blinking
-    // We can't reset PlotContainer using updateViewmodel(), so we create a new one.
     val plotDrawable = remember(errorMessage) {
         PlotCanvasDrawable().apply {
             mouseEventPeer.addEventSource(composeMouseEventMapper)
@@ -89,63 +69,50 @@ fun PlotPanelComposeCanvas(
     }
 
     val plotComponentRegistrations = remember(plotDrawable) {
-        plotDrawable.onHrefClick(::browseLink)
-        CompositeRegistration(
-            // trigger recomposition on repaint request
-            plotDrawable.onRepaintRequested { redrawTrigger++ },
-            plotDrawable.mapToCanvas(skiaCanvasPeer),
-            Registration.onRemove {
-                plotDrawable.onHrefClick(handler = {})
-            }
-        )
+        createPlatformPlotComponentRegistration(plotDrawable) { redrawTrigger++ }
     }
 
-    // Background
     val finalModifier = if (errorMessage != null) {
         modifier.background(Color.LightGray)
+    } else if (containsBackground(modifier)) {
+        modifier
     } else {
-        if (containsBackground(modifier)) {
-            // Do not change the user-defined background
-            modifier
-        } else {
-            // Use background color from the plot theme
-            val lpColor = PlotThemeHelper.plotBackground(processedPlotSpec)
-            val lpBackground = Color(lpColor.red, lpColor.green, lpColor.blue, lpColor.alpha)
-            modifier.background(lpBackground)
-        }
+        val lpColor = PlotThemeHelper.plotBackground(processedPlotSpec)
+        val lpBackground = Color(lpColor.red, lpColor.green, lpColor.blue, lpColor.alpha)
+        modifier.background(lpBackground)
     }
-
 
     DisposableEffect(plotComponentRegistrations) {
         onDispose {
-            // Try/catch to ensure that any exception in dispose() does not break the Composable lifecycle
-            // Otherwise, the app window gets unclosable.
             try {
                 plotComponentRegistrations.dispose()
-                //plotCanvasFigure2.dispose()
             } catch (e: Exception) {
                 LOG.error(e) { "plotComponentRegistrations.dispose() failed: ${e.message}" }
             }
         }
     }
 
+    DisposableEffect(plotDrawable, figureModel) {
+        onDispose {
+            if (figureModel.toolEventDispatcher == plotDrawable.toolEventDispatcher) {
+                figureModel.toolEventDispatcher = null
+            }
+        }
+    }
+
     Column(modifier = finalModifier) {
-        //if (GG_TOOLBAR in processedPlotSpec) {
-        //    PlotToolbar(figureModel)
-        //}
+        PlatformPlotToolbar(processedPlotSpec, figureModel)
 
         Box(
             modifier = finalModifier
-                .weight(1f) // Take the remaining vertical space
-                .fillMaxWidth() // Fill available width
+                .weight(1f)
+                .fillMaxWidth()
                 .onSizeChanged { newSize ->
-                    // Convert logical pixels (from Compose layout) to physical pixels (plot SVG pixels)
                     panelSize = DoubleVector(newSize.width / density, newSize.height / density)
                 }
         ) {
             val errMsg = errorMessage
             if (errMsg != null) {
-                // Show error message
                 BasicTextField(
                     value = errMsg,
                     onValueChange = { },
@@ -154,9 +121,7 @@ fun PlotPanelComposeCanvas(
                     modifier = errorModifier
                 )
             } else {
-                // Render the plot
                 LaunchedEffect(panelSize, processedPlotSpec, specOverrideState, preserveAspectRatio) {
-
                     if (PlotConfig.isFailure(processedPlotSpec)) {
                         errorMessage = PlotConfig.getErrorMessage(processedPlotSpec)
                         return@LaunchedEffect
@@ -168,31 +133,20 @@ fun PlotPanelComposeCanvas(
 
                             plotDrawable.update(plotSpec, fitContainerSize(preserveAspectRatio)) { messages ->
                                 if (dispatchComputationMessages) {
-                                    // do once
                                     dispatchComputationMessages = false
                                     computationMessagesHandler(messages)
                                 }
                             }
 
-                            // Connect the figure model to the plot component
                             figureModel.toolEventDispatcher = plotDrawable.toolEventDispatcher
-                            plotComponentRegistrations.add(Registration.onRemove {
-                                figureModel.toolEventDispatcher = null
-                            })
 
-                            val plotWidth = plotDrawable.size.x
-                            val plotHeight = plotDrawable.size.y
-
-                            // Calculate centering position in physical pixels
-                            // Both panelSize and plot dimensions are in physical pixels
                             plotPosition = DoubleVector(
-                                maxOf(0.0, (panelSize.x - plotWidth) / 2.0),
-                                maxOf(0.0, (panelSize.y - plotHeight) / 2.0)
+                                maxOf(0.0, (panelSize.x - plotDrawable.size.x) / 2.0),
+                                maxOf(0.0, (panelSize.y - plotDrawable.size.y) / 2.0)
                             )
 
                             composeMouseEventMapper.setOffset(plotPosition.x.toFloat(), plotPosition.y.toFloat())
-
-                            redrawTrigger++ // trigger repaint
+                            redrawTrigger++
                         }
                     }.getOrElse { e ->
                         errorMessage = "${e.message}"
@@ -203,35 +157,35 @@ fun PlotPanelComposeCanvas(
                 Canvas(
                     modifier = modifier
                         .fillMaxSize()
-                        //.pointerHoverIcon(PointerIcon(Cursor(Cursor.CROSSHAIR_CURSOR)))
+                        .plotPointerHoverIcon()
                         .onSizeChanged { size ->
-                            // Convert canvas logical pixels (from Compose layout) to physical pixels (plot SVG pixels)
                             plotDrawable.resize(size.width / density, size.height / density)
                         }
                         .pointerInput(composeMouseEventMapper, composeMouseEventMapper)
                 ) {
-                    // By reading redrawTrigger here, Compose knows to recompose
-                    // this Canvas block whenever it changes.
                     redrawTrigger
-
-                    val ctx = SkiaContext2d(drawContext.canvas.nativeCanvas, SkiaFontManager.DEFAULT)
-                    ctx.scale(density.toDouble(), density.toDouble()) // logical → physical pixels
-
-                    ctx.translate(plotPosition.x, plotPosition.y)
-                    plotDrawable.paint(ctx)
-
-                    ctx.dispose()
+                    paintPlatformPlot(plotDrawable, density, plotPosition)
                 }
             }
         }
     }
 }
 
-private fun browseLink(string: String) {
-    //try {
-    //    val uri = URI(string)
-    //    Desktop.getDesktop().browse(uri)
-    //} catch (e: Exception) {
-    //    LOG.error(e) { "Failed to open link: $string (${e.message})" }
-    //}
-}
+@Composable
+internal expect fun PlatformPlotToolbar(
+    processedPlotSpec: MutableMap<String, Any>,
+    figureModel: PlotFigureModel
+)
+
+internal expect fun Modifier.plotPointerHoverIcon(): Modifier
+
+internal expect fun createPlatformPlotComponentRegistration(
+    plotDrawable: PlotCanvasDrawable,
+    onRepaintRequested: () -> Unit
+): Registration
+
+internal expect fun DrawScope.paintPlatformPlot(
+    plotDrawable: PlotCanvasDrawable,
+    density: Float,
+    plotPosition: DoubleVector
+)

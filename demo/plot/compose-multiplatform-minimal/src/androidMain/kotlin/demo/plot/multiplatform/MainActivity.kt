@@ -13,7 +13,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            App(showToolbar = false) // dragging support on Android is not yet implemented
+            App(showToolbar = true) // dragging support on Android is not yet implemented
         }
     }
 }
