@@ -24,9 +24,7 @@ kotlin {
         commonMain {
             dependencies {
                 compileOnly("org.jetbrains.lets-plot:lets-plot-kotlin:$letsPlotKotlinVersion")
-
-                compileOnly("org.jetbrains.lets-plot:commons:$letsPlotVersion")
-                compileOnly("org.jetbrains.lets-plot:datamodel:$letsPlotVersion")
+                compileOnly("org.jetbrains.lets-plot:lets-plot-common:$letsPlotVersion")
             }
         }
     }

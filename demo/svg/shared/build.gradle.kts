@@ -13,8 +13,7 @@ val letsPlotVersion = extra["letsPlot.version"] as String
 dependencies {
     implementation("io.github.microutils:kotlin-logging-jvm:$kotlinLoggingVersion")
 
-    compileOnly("org.jetbrains.lets-plot:commons:$letsPlotVersion")
-    compileOnly("org.jetbrains.lets-plot:datamodel:$letsPlotVersion")
+    compileOnly("org.jetbrains.lets-plot:lets-plot-common:$letsPlotVersion")
 
     testImplementation(kotlin("test"))
 }

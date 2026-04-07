@@ -37,13 +37,7 @@ kotlin {
                 implementation(compose.components.resources)
 
                 implementation("org.jetbrains.lets-plot:lets-plot-kotlin:$letsPlotKotlinVersion")
-                implementation("org.jetbrains.lets-plot:commons:${letsPlotVersion}")
-                implementation("org.jetbrains.lets-plot:canvas:${letsPlotVersion}")
-                implementation("org.jetbrains.lets-plot:datamodel:${letsPlotVersion}")
-                implementation("org.jetbrains.lets-plot:plot-base:${letsPlotVersion}")
-                implementation("org.jetbrains.lets-plot:plot-builder:${letsPlotVersion}")
-                implementation("org.jetbrains.lets-plot:plot-stem:${letsPlotVersion}")
-                implementation("org.jetbrains.lets-plot:plot-raster:${letsPlotVersion}")
+                implementation("org.jetbrains.lets-plot:lets-plot-common:${letsPlotVersion}")
 
                 implementation(project(":lets-plot-compose"))
                 implementation(project(":demo-plot-shared"))
@@ -58,6 +52,5 @@ kotlin {
         }
     }
 }
-
 
 
