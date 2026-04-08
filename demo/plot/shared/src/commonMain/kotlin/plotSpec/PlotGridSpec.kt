@@ -80,7 +80,8 @@ class PlotGridSpec : PlotDemoFigure {
         val innerSubplots = gggrid(
             listOf(scatterSpec, densitySpec),
             ncol = 2,
-            align = false
+            align = false,
+            sharex = true
         )
 
         return gggrid(
