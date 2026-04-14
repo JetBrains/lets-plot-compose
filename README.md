@@ -81,19 +81,13 @@ dependencies {
     implementation(compose.components.resources)
 
     // Lets-Plot Kotlin API
-    implementation("org.jetbrains.lets-plot:lets-plot-kotlin:4.12.1")
+    implementation("org.jetbrains.lets-plot:lets-plot-kotlin:4.13.0")
 
     // Lets-Plot Multiplatform
-    implementation("org.jetbrains.lets-plot:commons:4.8.2")
-    implementation("org.jetbrains.lets-plot:canvas:4.8.2")
-    implementation("org.jetbrains.lets-plot:datamodel:4.8.2")
-    implementation("org.jetbrains.lets-plot:plot-base:4.8.2")
-    implementation("org.jetbrains.lets-plot:plot-builder:4.8.2")
-    implementation("org.jetbrains.lets-plot:plot-stem:4.8.2")
-    implementation("org.jetbrains.lets-plot:plot-raster:4.8.2")
+    implementation("org.jetbrains.lets-plot:lets-plot-common:4.9.0")
 
     // Lets-Plot Compose UI
-    implementation("org.jetbrains.lets-plot:lets-plot-compose:3.0.2")
+    implementation("org.jetbrains.lets-plot:lets-plot-compose:3.1.0")
 }
 ```
 
