@@ -12,6 +12,7 @@ plugins {
 
 val letsPlotVersion = extra["letsPlot.version"] as String
 val letsPlotKotlinVersion = extra["letsPlotKotlin.version"] as String
+val kotlinxDatetimeVersion = extra["kotlinx.datetime.version"] as String
 
 dependencies {
     implementation(compose.desktop.currentOs)
@@ -22,7 +23,7 @@ dependencies {
 
     implementation(project(":lets-plot-compose"))
     implementation(project(":demo-plot-shared"))
-    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.7.1-0.6.x-compat")
 
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:$kotlinxDatetimeVersion")
     implementation("org.slf4j:slf4j-simple:2.0.9")  // Enable logging to console
 }
