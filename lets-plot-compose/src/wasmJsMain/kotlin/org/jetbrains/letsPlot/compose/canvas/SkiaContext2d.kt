@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026. JetBrains s.r.o.
+ * Use of this source code is governed by the MIT license that can be found in the LICENSE file.
+ */
+
 package org.jetbrains.letsPlot.compose.canvas
 
 import org.jetbrains.letsPlot.commons.geometry.AffineTransform
@@ -331,7 +336,7 @@ class SkiaContext2d(
             return
         }
 
-        val path = Path()
+        val path = PathBuilder()
 
         commands
             .asSequence()
@@ -356,7 +361,7 @@ class SkiaContext2d(
                 }
             }
 
-        block(path)
+        block(path.detach())
         path.close()
     }
 
