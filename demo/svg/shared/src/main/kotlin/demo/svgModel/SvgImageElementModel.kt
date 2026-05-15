@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 JetBrains s.r.o.
+ * Copyright (c) 2026. JetBrains s.r.o.
  * Use of this source code is governed by the MIT license that can be found in the LICENSE file.
  */
 
@@ -78,9 +78,9 @@ object SvgImageElementModel {
             // .5  |  1  |  .5   <-- gray, alpha
 
             return intArrayOf(
-                SvgUtils.toARGB(Color.RED, 0.5), SvgUtils.toARGB(Color.GREEN, 0.5), SvgUtils.toARGB(Color.BLUE, 0.5),
+                SvgUtils.toARGB(Color.RED.withOpacity(0.5)), SvgUtils.toARGB(Color.GREEN.withOpacity(0.5)), SvgUtils.toARGB(Color.BLUE.withOpacity(0.5)),
                 SvgUtils.toARGB(Color.RED), SvgUtils.toARGB(Color.GREEN), SvgUtils.toARGB(Color.BLUE),
-                SvgUtils.toARGB(Color.BLACK, 0.5), SvgUtils.toARGB(Color.BLACK, 1.0), SvgUtils.toARGB(Color.BLACK, 0.5)
+                SvgUtils.toARGB(Color.BLACK.withOpacity(0.5)), SvgUtils.toARGB(Color.BLACK), SvgUtils.toARGB(Color.BLACK.withOpacity(0.5))
             )
         }
     }
