@@ -14,18 +14,15 @@ import java.io.File
 
 class AndroidBitmapIO(
     expectedImagesDir: String = DEFAULT_EXPECTED_IMAGES_DIR,
-    outputDir: String = DEFAULT_OUTPUT_DIR,
     subdir: String = "",
     desktopReportDir: String,
     deviceOutputDir: String
 ) : ImageComparer.BitmapIO {
     companion object {
         const val DEFAULT_EXPECTED_IMAGES_DIR = "expected-images"
-        const val DEFAULT_OUTPUT_DIR = "/build/reports/actual-images"
     }
 
     val expectedImagesDir = if (subdir.isNotEmpty()) "$expectedImagesDir$subdir" else expectedImagesDir
-    val outputDir = if (subdir.isNotEmpty()) "$outputDir/$subdir" else outputDir
     private val desktopReportDir = desktopReportDir.trimEnd('/')
     private val deviceOutputDir = deviceOutputDir.trimEnd('/')
 
