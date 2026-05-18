@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2026. JetBrains s.r.o.
+ * Copyright (c) 2026 JetBrains s.r.o.
  * Use of this source code is governed by the MIT license that can be found in the LICENSE file.
  */
 
@@ -58,7 +58,7 @@ dependencies {
 
     implementation("org.slf4j:slf4j-api:$slf4jVersion")
 
-    implementation("org.jetbrains.lets-plot:lets-plot-kotlin-kernel:$letsPlotKotlinVersion")
+    implementation("org.jetbrains.lets-plot:lets-plot-kotlin:$letsPlotKotlinVersion") // trans dep on kotlinx.datetime
     implementation("org.jetbrains.lets-plot:lets-plot-common:$letsPlotVersion")
 
     implementation(project(":lets-plot-compose"))

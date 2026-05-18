@@ -15,33 +15,32 @@ import java.io.File
 class AndroidBitmapIO(
     expectedImagesDir: String = DEFAULT_EXPECTED_IMAGES_DIR,
     outputDir: String = DEFAULT_OUTPUT_DIR,
-    subdir: String = ""
-
+    subdir: String = "",
+    desktopReportDir: String,
+    deviceOutputDir: String
 ) : ImageComparer.BitmapIO {
     companion object {
         const val DEFAULT_EXPECTED_IMAGES_DIR = "expected-images"
         const val DEFAULT_OUTPUT_DIR = "/build/reports/actual-images"
-
-        // Hardcoded path relative to the project root.
-        // IntelliJ Console will recognize this and make it clickable.
-        private const val REPORT_PATH = "/Users/ikupriyanov/Projects/lets-plot-compose/platf-android/build/reports"
     }
 
     val expectedImagesDir = if (subdir.isNotEmpty()) "$expectedImagesDir$subdir" else expectedImagesDir
     val outputDir = if (subdir.isNotEmpty()) "$outputDir/$subdir" else outputDir
+    private val desktopReportDir = desktopReportDir.trimEnd('/')
+    private val deviceOutputDir = deviceOutputDir.trimEnd('/')
 
     override fun getActualFileReportPath(fileName: String): String {
-        return "$REPORT_PATH/$fileName"
+        return "$desktopReportDir/$fileName"
     }
 
     override fun getExpectedFileReportPath(fileName: String): String {
         // Points to the expected image in the reports folder
         // (assuming your test logic copies the "golden" image there on failure)
-        return "$REPORT_PATH/$fileName"
+        return "$desktopReportDir/$fileName"
     }
 
     override fun getDiffFileReportPath(fileName: String): String {
-        return "$REPORT_PATH/$fileName"
+        return "$desktopReportDir/$fileName"
     }
 
     override fun write(bitmap: Bitmap, fileName: String) {
@@ -61,7 +60,8 @@ class AndroidBitmapIO(
 
         // 2. MAGIC STEP: Copy to Global Storage (/sdcard/Download/)
         // This folder persists even if the app is uninstalled/cleared.
-        copyToGlobalStorage(fileName, privatePath)    }
+        copyToGlobalStorage(fileName, privatePath)
+    }
 
     override fun read(fileName: String): Bitmap {
         val filePath = getReadFilePath(fileName)
@@ -105,9 +105,7 @@ class AndroidBitmapIO(
     }
 
     private fun copyToGlobalStorage(fileName: String, privatePath: String) {
-        // We define a safe global path
-        val globalDir = "/sdcard/Download/VisualTestResults"
-        val globalPath = "$globalDir/$fileName"
+        val globalPath = "$deviceOutputDir/$fileName"
 
         try {
             // Use UiAutomation to execute a shell command.
@@ -115,7 +113,7 @@ class AndroidBitmapIO(
             val instrumentation = InstrumentationRegistry.getInstrumentation()
 
             // 1. Create the directory
-            instrumentation.uiAutomation.executeShellCommand("mkdir -p $globalDir")
+            instrumentation.uiAutomation.executeShellCommand("mkdir -p $deviceOutputDir")
 
             // 2. Copy the file
             // We use 'cp' command from the shell
