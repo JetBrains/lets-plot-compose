@@ -3,17 +3,15 @@
  * Use of this source code is governed by the MIT license that can be found in the LICENSE file.
  */
 
-package org.jetbrains.letsPlot.visualtesting.canvas
+package org.jetbrains.letsPlot.visualtesting
 
 import org.jetbrains.letsPlot.android.NotoFontManager
 import org.jetbrains.letsPlot.android.canvas.AndroidCanvasPeer
-import org.jetbrains.letsPlot.visualtesting.AndroidBitmapIO
-import org.jetbrains.letsPlot.visualtesting.AndroidVisualTestConfig
-import org.jetbrains.letsPlot.visualtesting.ImageComparer
+import org.jetbrains.letsPlot.visualtesting.canvas.AllCanvasTests
 import org.junit.Test
 
 
-class AndroidCanvasTck {
+class AndroidAllCanvasTests {
     @Test
     fun runAllTests() {
         val notoFontManager = NotoFontManager.INSTANCE

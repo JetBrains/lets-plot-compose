@@ -54,6 +54,13 @@ kotlin {
     }
 }
 
+configurations.configureEach {
+    if (name.contains("AndroidTest", ignoreCase = true)) {
+        exclude(group = "ch.qos.logback", module = "logback-classic")
+        exclude(group = "ch.qos.logback", module = "logback-core")
+    }
+}
+
 android {
     namespace = "org.jetbrains.letsPlot.android.canvas"
 
