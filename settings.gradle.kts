@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026. JetBrains s.r.o.
+ * Use of this source code is governed by the MIT license that can be found in the LICENSE file.
+ */
+
 pluginManagement {
     repositories {
         gradlePluginPortal()
@@ -39,6 +44,12 @@ project(":demo-plot-shared").projectDir = File("./demo/plot/shared")
 
 include("demo-plot-compose-desktop")
 project(":demo-plot-compose-desktop").projectDir = File("./demo/plot/compose-desktop")
+
+include("demo-plot-compose-multiplatform")
+project(":demo-plot-compose-multiplatform").projectDir = File("./demo/plot/compose-multiplatform")
+
+include("demo-plot-compose-wasm-js")
+project(":demo-plot-compose-wasm-js").projectDir = File("./demo/plot/compose-wasm-js")
 
 include("demo-plot-swing")
 project(":demo-plot-swing").projectDir = File("./demo/plot/swing")

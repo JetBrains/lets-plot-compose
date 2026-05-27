@@ -1,8 +1,5 @@
-import org.gradle.kotlin.dsl.configure
-import kotlin.text.set
-
 /*
- * Copyright (c) 2023. JetBrains s.r.o.
+ * Copyright (c) 2026 JetBrains s.r.o.
  * Use of this source code is governed by the MIT license that can be found in the LICENSE file.
  */
 
@@ -17,6 +14,9 @@ val letsPlotVersion = extra["letsPlot.version"] as String
 val assertjVersion = extra["assertj.version"] as String
 val junitVersion = extra["junit.version"] as String
 val espressoCoreVersion = extra["espresso.core.version"] as String
+val visualTestDeviceOutputDir = providers.gradleProperty("visualTest.deviceOutputDir")
+    .orElse("/sdcard/Download/VisualTestResults")
+val visualTestDesktopReportDir = layout.buildDirectory.dir("reports")
 
 kotlin {
     jvm {
@@ -54,6 +54,13 @@ kotlin {
     }
 }
 
+configurations.configureEach {
+    if (name.contains("AndroidTest", ignoreCase = true)) {
+        exclude(group = "ch.qos.logback", module = "logback-classic")
+        exclude(group = "ch.qos.logback", module = "logback-core")
+    }
+}
+
 android {
     namespace = "org.jetbrains.letsPlot.android.canvas"
 
@@ -64,6 +71,8 @@ android {
     defaultConfig {
         minSdk = (findProperty("android.minSdk") as String).toInt()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunnerArguments["visualTest.desktopReportDir"] = visualTestDesktopReportDir.get().asFile.absolutePath
+        testInstrumentationRunnerArguments["visualTest.deviceOutputDir"] = visualTestDeviceOutputDir.get()
     }
 
     buildTypes {
@@ -94,8 +103,7 @@ tasks.register<Exec>("clearDeviceImages") {
     group = "verification"
     isIgnoreExitValue = true
     val adb = android.adbExecutable.path
-    // Clean the GLOBAL folder
-    val remoteDir = "/sdcard/Download/VisualTestResults/"
+    val remoteDir = visualTestDeviceOutputDir.get()
     commandLine(adb, "shell", "rm", "-rf", remoteDir)
 }
 
@@ -104,8 +112,8 @@ tasks.register<Exec>("pullTestImages") {
     isIgnoreExitValue = true
     val adb = android.adbExecutable.path
 
-    val remoteDir = "/sdcard/Download/VisualTestResults"
-    val finalDir = layout.buildDirectory.dir("reports").get().asFile
+    val remoteDir = visualTestDeviceOutputDir.get()
+    val finalDir = visualTestDesktopReportDir.get().asFile
     // We use a temporary folder for the raw pull
     val tempDir = layout.buildDirectory.dir("tmp/visual_pull_buffer").get().asFile
 
@@ -122,7 +130,7 @@ tasks.register<Exec>("pullTestImages") {
 
     doLast {
         // 2. Locate the specific folder ADB created
-        val pulledSubDir = file("${tempDir.absolutePath}/VisualTestResults")
+        val pulledSubDir = tempDir.resolve(File(remoteDir).name)
 
         if (pulledSubDir.exists()) {
             println("📂 Moving files to final destination...")
@@ -143,25 +151,9 @@ tasks.register<Exec>("pullTestImages") {
     }
 }
 
-// Keep the hook configuration the same
 tasks.configureEach {
     if (name.contains("connected") && name.contains("AndroidTest")) {
         dependsOn("clearDeviceImages")
-        finalizedBy("pullTestImages")
-    }
-}
-
-// 4. AUTOMATION HOOK (Corrected)
-// We use 'configureEach' on the generic Task type to avoid importing internal classes.
-tasks.configureEach {
-    // Check if the task name matches the standard pattern for Android Instrumentation tests
-    // e.g., "connectedDebugAndroidTest", "connectedDemoDebugAndroidTest"
-    if (name.contains("connected") && name.contains("AndroidTest")) {
-
-        // Step A: Run 'clearDeviceImages' BEFORE the test starts
-        //dependsOn("clearDeviceImages")
-
-        // Step B: Run 'pullTestImages' AFTER the test finishes (fail or success)
         finalizedBy("pullTestImages")
     }
 }

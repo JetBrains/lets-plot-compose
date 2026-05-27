@@ -48,6 +48,8 @@ import org.jetbrains.letsPlot.core.plot.builder.interact.tools.SpecOverrideState
 class PlotFigureModel() : FigureModelBase() {
 
     private var currSpecOverrideList: List<Map<String, Any>> = emptyList()
+    private var currSpecOverrideState: SpecOverrideState = SpecOverrideState.empty()
+    private var specOverrideBatchInProgress = false
 
     private val _specOverrideState = mutableStateOf(SpecOverrideState.empty())
 
@@ -57,21 +59,27 @@ class PlotFigureModel() : FigureModelBase() {
      */
     val specOverrideState: State<SpecOverrideState> = _specOverrideState
 
-    override fun updateView(specOverride: Map<String, Any>?) {
-        // Sync with any expansion that happened during the previous rebuild.
-        val currentState = _specOverrideState.value
-        if (currentState.expandedOverrides.isNotEmpty()) {
-            currSpecOverrideList = currentState.expandedOverrides
+    override fun updateSpecOverride(specOverride: Map<String, Any>?) {
+        if (!specOverrideBatchInProgress) {
+            // Sync with any expansion that happened during the previous rebuild (i.e. 'update view').
+            val currentState = _specOverrideState.value
+            if (currentState.expandedOverrides.isNotEmpty()) {
+                currSpecOverrideList = currentState.expandedOverrides
+            }
         }
 
         currSpecOverrideList = FigureModelHelper.updateSpecOverrideList(
             specOverrideList = currSpecOverrideList,
             newSpecOverride = specOverride
         )
-
         val activeTargetId = specOverride?.get(TARGET_ID) as? String
+        currSpecOverrideState = SpecOverrideState(currSpecOverrideList, activeTargetId)
+        specOverrideBatchInProgress = true
+    }
 
-        // Create a new state instance to trigger recomposition.
-        _specOverrideState.value = SpecOverrideState(currSpecOverrideList, activeTargetId)
+    override fun updateView() {
+        // Publish to trigger recomposition.
+        _specOverrideState.value = currSpecOverrideState
+        specOverrideBatchInProgress = false
     }
 }

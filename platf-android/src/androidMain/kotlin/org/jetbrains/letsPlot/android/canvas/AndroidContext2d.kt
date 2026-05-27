@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026. JetBrains s.r.o.
+ * Use of this source code is governed by the MIT license that can be found in the LICENSE file.
+ */
+
 package org.jetbrains.letsPlot.android.canvas
 
 import android.graphics.*
@@ -13,7 +18,7 @@ import java.util.*
 class AndroidContext2d(
     canvas: Canvas,
     val fontManager: AndroidFontManager,
-    private val stateDelegate: ContextStateDelegate = ContextStateDelegate(failIfNotImplemented = false),
+    private val stateDelegate: ContextStateDelegate = ContextStateDelegate(failIfNotImplemented = true),
 ) : Context2d by stateDelegate {
     private val paintStack = Stack<Pair<Paint, Paint>>()
     private val platformCanvas = canvas
@@ -38,6 +43,10 @@ class AndroidContext2d(
         color = android.graphics.Color.RED
         style = Paint.Style.FILL
         xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
+    }
+
+    override fun dispose() {
+        // Not needed in Android
     }
 
     override fun drawImage(snapshot: Snapshot) {

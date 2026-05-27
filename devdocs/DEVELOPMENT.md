@@ -39,8 +39,22 @@ In IDEA `Run Configurations`
 - Click `Run`
 
 
+### Running WasmJS Demo
+
+From the project root:
+
+```bash
+./gradlew demo-plot-compose-wasm-js:wasmJsBrowserDevelopmentRun
+```
+
+To build the distributable bundle:
+
+```bash
+./gradlew demo-plot-compose-wasm-js:wasmJsBrowserDistribution
+```
+
+
 ### See also
 
 [Compose-multiplatform iOS/Android Template](https://github.com/JetBrains/compose-multiplatform-ios-android-template)  
 [Compose-multiplatform Versioning](https://github.com/JetBrains/compose-multiplatform/blob/master/VERSIONING.md)
-

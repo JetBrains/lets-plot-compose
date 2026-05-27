@@ -1,4 +1,13 @@
 /*
+ * Copyright (c) 2026. JetBrains s.r.o.
+ * Use of this source code is governed by the MIT license that can be found in the LICENSE file.
+ */
+
+@file:OptIn(ExperimentalWasmDsl::class)
+
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+
+/*
  * Copyright (c) 2023. JetBrains s.r.o.
  * Use of this source code is governed by the MIT license that can be found in the LICENSE file.
  */
@@ -32,6 +41,11 @@ kotlin {
         publishLibraryVariants("release")
     }
 
+    wasmJs {
+        //outputModuleName = "lets-plot-compose"
+        browser()
+    }
+
     sourceSets {
         named("commonMain") {
             dependencies {
@@ -39,27 +53,25 @@ kotlin {
                 compileOnly(compose.ui)
                 compileOnly(compose.foundation)
 
-                compileOnly("org.jetbrains.lets-plot:lets-plot-kotlin-kernel:$letsPlotKotlinVersion")
                 compileOnly("org.jetbrains.lets-plot:lets-plot-common:$letsPlotVersion")
+                compileOnly("org.jetbrains.lets-plot:lets-plot-kotlin:$letsPlotKotlinVersion")
             }
         }
 
         named("desktopMain") {
             dependencies {
-                compileOnly(compose.runtime)
-                compileOnly(compose.ui)
                 compileOnly(compose.desktop.currentOs)
                 compileOnly(compose.components.resources)
                 compileOnly("io.github.microutils:kotlin-logging-jvm:$kotlinLoggingVersion")
+                compileOnly("org.jetbrains.lets-plot:lets-plot-kotlin:${letsPlotKotlinVersion}")
             }
         }
 
         named("desktopTest") {
             dependencies {
-                implementation(compose.runtime)
-                implementation(compose.ui)
                 implementation(compose.desktop.currentOs)
                 implementation(compose.components.resources)
+                implementation("org.jetbrains.lets-plot:lets-plot-kotlin-kernel:${letsPlotKotlinVersion}")
                 implementation("org.jetbrains.lets-plot:lets-plot-common:$letsPlotVersion")
                 implementation("org.jetbrains.lets-plot:visual-testing:$letsPlotVersion")
                 implementation("io.github.microutils:kotlin-logging-jvm:$kotlinLoggingVersion")
@@ -75,6 +87,14 @@ kotlin {
                 api(project(":platf-android"))
             }
         }
+
+        wasmJsMain {
+            dependencies {
+                implementation("org.jetbrains.lets-plot:lets-plot-kotlin:$letsPlotKotlinVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-browser:0.5.0")
+            }
+        }
+
     }
 }
 
