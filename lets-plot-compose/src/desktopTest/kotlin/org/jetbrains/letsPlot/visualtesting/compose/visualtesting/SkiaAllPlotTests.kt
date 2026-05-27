@@ -11,8 +11,10 @@ import org.jetbrains.letsPlot.visualtesting.ImageComparer
 import org.jetbrains.letsPlot.visualtesting.compose.NotoFontManager
 import org.jetbrains.letsPlot.visualtesting.plot.AllPlotTests
 import org.jetbrains.letsPlot.visualtesting.plot.PlotInteractivityTest
+import kotlin.test.Ignore
 import kotlin.test.Test
 
+@Ignore("Linux and macOS produces different images")
 class SkiaAllPlotTests {
     val awtBitmapIO = AwtBitmapIO(
         expectedImagesDir = "/src/desktopTest/resources/expected-images",
