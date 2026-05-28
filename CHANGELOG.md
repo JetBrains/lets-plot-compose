@@ -14,6 +14,9 @@ All artifacts were built with the following versions of dependencies:
 - Lets-Plot Kotlin API: [4.14.0](https://github.com/JetBrains/lets-plot-kotlin/releases/tag/v4.14.0)
 - Lets-Plot Multiplatform: [4.10.1](https://github.com/JetBrains/lets-plot/releases/tag/v4.10.0)
 
+- kotlinx-datetime: [0.6.2](https://github.com/Kotlin/kotlinx-datetime/releases/tag/v0.6.2)
+- kotlinx-coroutines: [1.8.0](https://github.com/Kotlin/kotlinx.coroutines/releases/tag/1.8.0)
+
 Kotlin 2.3.20, as required for Compose web platforms.
 
 ### Added
