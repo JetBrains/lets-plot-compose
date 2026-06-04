@@ -8,30 +8,39 @@ package org.jetbrains.letsPlot.visualtesting.compose.visualtesting
 import org.jetbrains.letsPlot.compose.canvas.SkiaCanvasPeer
 import org.jetbrains.letsPlot.visualtesting.AwtBitmapIO
 import org.jetbrains.letsPlot.visualtesting.ImageComparer
+import org.jetbrains.letsPlot.visualtesting.ImageComparer.ComparisonProfile
 import org.jetbrains.letsPlot.visualtesting.compose.NotoFontManager
 import org.jetbrains.letsPlot.visualtesting.plot.AllPlotTests
 import org.jetbrains.letsPlot.visualtesting.plot.PlotInteractivityTest
-import kotlin.test.Ignore
 import kotlin.test.Test
 
-@Ignore("Linux and macOS produces different images")
 class SkiaAllPlotTests {
     val awtBitmapIO = AwtBitmapIO(
         expectedImagesDir = "/src/desktopTest/resources/expected-images",
         subdir = "visual-testing/plot"
     )
 
-    val canvasPeer = SkiaCanvasPeer(NotoFontManager.INSTANCE)
-    val imageComparer = ImageComparer(canvasPeer, awtBitmapIO, silent = true)
+    val skiaCanvasPeer = SkiaCanvasPeer(NotoFontManager.INSTANCE)
+
+    val imageComparer = ImageComparer(
+        canvasPeer = skiaCanvasPeer,
+        bitmapIO = awtBitmapIO,
+        profileAdjuster = { SKIA_PLOT_COMPARISON_PROFILE }, // use relaxed profile - skia produces unstable images
+        silent = true
+    )
 
     @Test
     fun runAllPlotTests() {
-        AllPlotTests.runAllTests(canvasPeer, imageComparer)
+        AllPlotTests.runAllTests(skiaCanvasPeer, imageComparer)
     }
 
     @Test
     fun runSinglePlotTest() {
-        val testSuit = PlotInteractivityTest(canvasPeer, imageComparer)
+        val testSuit = PlotInteractivityTest(skiaCanvasPeer, imageComparer)
         testSuit.assertTest(testSuit::plot_interactivity_nestedComposite_tooltip)
+    }
+
+    companion object {
+        private val SKIA_PLOT_COMPARISON_PROFILE = ComparisonProfile(tol = 2, maxShift = 1, allowedDiffPixelRatio = 0.02)
     }
 }
