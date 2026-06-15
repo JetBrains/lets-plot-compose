@@ -69,7 +69,7 @@ See examples:
 ```kotlin
 dependencies {
     // Lets-Plot Kotlin API
-    implementation("org.jetbrains.lets-plot:lets-plot-kotlin-kernel:4.14.0")
+    implementation("org.jetbrains.lets-plot:lets-plot-kotlin:4.14.0")
 
     // Lets-Plot Compose UI
     implementation("org.jetbrains.lets-plot:lets-plot-compose:3.2.0")

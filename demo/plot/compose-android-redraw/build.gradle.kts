@@ -63,6 +63,7 @@ dependencies {
 
     implementation("org.jetbrains.lets-plot:lets-plot-kotlin-kernel:$letsPlotKotlinVersion")
     implementation("org.jetbrains.lets-plot:lets-plot-common:$letsPlotVersion")
+    // kotlinx-coroutines-core is provided transitively from elsewhere.
 
     implementation(project(":lets-plot-compose"))
     implementation(project(":demo-plot-shared"))

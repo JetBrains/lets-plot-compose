@@ -11,7 +11,7 @@ val kotlinLoggingVersion = extra["kotlinLogging.version"] as String
 val letsPlotVersion = extra["letsPlot.version"] as String
 
 dependencies {
-    implementation("io.github.microutils:kotlin-logging-jvm:$kotlinLoggingVersion")
+    implementation("io.github.oshai:kotlin-logging:$kotlinLoggingVersion")
 
     compileOnly("org.jetbrains.lets-plot:lets-plot-common:$letsPlotVersion")
 

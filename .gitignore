@@ -10,6 +10,7 @@
 
 # Build and tool caches.
 /.gradle/
+/.gradle-local/
 /.gradle-user/
 /.kotlin/
 /kotlin-js-store/

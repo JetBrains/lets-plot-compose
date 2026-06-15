@@ -6,12 +6,15 @@ plugins {
 
 val letsPlotVersion = extra["letsPlot.version"] as String
 val letsPlotKotlinVersion = extra["letsPlotKotlin.version"] as String
+val kotlinxDatetimeVersion = extra["kotlinx.datetime.version"] as String
 
 dependencies {
     implementation(compose.desktop.currentOs)
     compileOnly(compose.ui)
 
     implementation("org.jetbrains.lets-plot:lets-plot-kotlin-kernel:$letsPlotKotlinVersion")
+    // kotlinx-coroutines-core is provided transitively by the Compose runtime.
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:${kotlinxDatetimeVersion}")
     implementation("org.jetbrains.lets-plot:lets-plot-common:$letsPlotVersion")
     implementation("org.jetbrains.lets-plot:platf-awt:$letsPlotVersion")
 

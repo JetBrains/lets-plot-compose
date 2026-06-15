@@ -7,11 +7,6 @@
 
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
-/*
- * Copyright (c) 2023. JetBrains s.r.o.
- * Use of this source code is governed by the MIT license that can be found in the LICENSE file.
- */
-
 plugins {
     kotlin("multiplatform")
     kotlin("plugin.compose")
@@ -24,6 +19,9 @@ plugins {
 val androidComposeBom = extra["androidx.compose.bom"] as String
 val letsPlotVersion = extra["letsPlot.version"] as String
 val letsPlotKotlinVersion = extra["letsPlotKotlin.version"] as String
+val kotlinxCoroutinesVersion = extra["kotlinx.coroutines.version"] as String
+val kotlinxDatetimeVersion = extra["kotlinx.datetime.version"] as String
+val kotlinxBrowserVersion = extra["kotlinx.browser.version"] as String
 val kotlinLoggingVersion = extra["kotlinLogging.version"] as String
 
 kotlin {
@@ -53,8 +51,10 @@ kotlin {
                 compileOnly(compose.ui)
                 compileOnly(compose.foundation)
 
-                compileOnly("org.jetbrains.lets-plot:lets-plot-common:$letsPlotVersion")
                 compileOnly("org.jetbrains.lets-plot:lets-plot-kotlin:$letsPlotKotlinVersion")
+                compileOnly("org.jetbrains.lets-plot:lets-plot-common:$letsPlotVersion")
+
+                api("io.github.oshai:kotlin-logging:$kotlinLoggingVersion")
             }
         }
 
@@ -62,8 +62,6 @@ kotlin {
             dependencies {
                 compileOnly(compose.desktop.currentOs)
                 compileOnly(compose.components.resources)
-                compileOnly("io.github.microutils:kotlin-logging-jvm:$kotlinLoggingVersion")
-                compileOnly("org.jetbrains.lets-plot:lets-plot-kotlin:${letsPlotKotlinVersion}")
             }
         }
 
@@ -71,10 +69,11 @@ kotlin {
             dependencies {
                 implementation(compose.desktop.currentOs)
                 implementation(compose.components.resources)
-                implementation("org.jetbrains.lets-plot:lets-plot-kotlin-kernel:${letsPlotKotlinVersion}")
+                implementation("org.jetbrains.lets-plot:lets-plot-kotlin-kernel:$letsPlotKotlinVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-datetime:$kotlinxDatetimeVersion")
                 implementation("org.jetbrains.lets-plot:lets-plot-common:$letsPlotVersion")
                 implementation("org.jetbrains.lets-plot:visual-testing:$letsPlotVersion")
-                implementation("io.github.microutils:kotlin-logging-jvm:$kotlinLoggingVersion")
                 implementation(kotlin("test"))
             }
         }
@@ -91,7 +90,9 @@ kotlin {
         wasmJsMain {
             dependencies {
                 implementation("org.jetbrains.lets-plot:lets-plot-kotlin:$letsPlotKotlinVersion")
-                implementation("org.jetbrains.kotlinx:kotlinx-browser:0.5.0")
+                implementation("org.jetbrains.lets-plot:lets-plot-common:$letsPlotVersion")
+
+                implementation("org.jetbrains.kotlinx:kotlinx-browser:$kotlinxBrowserVersion")
             }
         }
 

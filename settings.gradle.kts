@@ -72,12 +72,6 @@ project(":demo-plot-compose-android-redraw").projectDir = File("./demo/plot/comp
 include("demo-svg-shared")
 project(":demo-svg-shared").projectDir = File("./demo/svg/shared")
 
-include("demo-svg-compose-desktop")
-project(":demo-svg-compose-desktop").projectDir = File("./demo/svg/compose-desktop")
-
-include("demo-svg-swing")
-project(":demo-svg-swing").projectDir = File("./demo/svg/swing")
-
 // =============================
 // SVG View Rendering
 // Internal - for testing.

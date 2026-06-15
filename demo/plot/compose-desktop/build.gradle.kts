@@ -19,11 +19,12 @@ dependencies {
     implementation(compose.components.resources)
 
     implementation("org.jetbrains.lets-plot:lets-plot-kotlin-kernel:$letsPlotKotlinVersion")
+    // kotlinx-coroutines-core is provided transitively by the Compose runtime.
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:$kotlinxDatetimeVersion")
     implementation("org.jetbrains.lets-plot:lets-plot-common:$letsPlotVersion")
 
     implementation(project(":lets-plot-compose"))
     implementation(project(":demo-plot-shared"))
 
-    implementation("org.jetbrains.kotlinx:kotlinx-datetime:$kotlinxDatetimeVersion")
     implementation("org.slf4j:slf4j-simple:2.0.9")  // Enable logging to console
 }
