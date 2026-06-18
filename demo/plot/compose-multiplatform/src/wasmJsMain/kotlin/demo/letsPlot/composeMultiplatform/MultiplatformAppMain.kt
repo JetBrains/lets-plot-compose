@@ -9,6 +9,10 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.ComposeViewport
 
 
+/**
+ * Run:
+ * ./gradlew :demo-plot-compose-multiplatform:wasmJsBrowserDevelopmentRun
+ */
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
     ComposeViewport(
