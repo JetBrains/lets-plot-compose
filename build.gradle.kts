@@ -42,8 +42,8 @@ if (project.file("local.properties").exists()) {
 
 allprojects {
     group = "org.jetbrains.lets-plot"
-//    version = "3.2.2-SNAPSHOT"
-    version = "0.0.0-SNAPSHOT" // for local publishing only
+    version = "3.2.2-SNAPSHOT"
+//    version = "0.0.0-SNAPSHOT" // for local publishing only
 
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().all {
         compilerOptions {
