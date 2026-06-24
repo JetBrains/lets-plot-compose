@@ -19,6 +19,9 @@ class SkiaContext2d(
     val skCanvas: org.jetbrains.skia.Canvas,
     private val skiaFontManager: SkiaFontManager,
     private val contextState: ContextStateDelegate = ContextStateDelegate(failIfNotImplemented = false),
+    // Invoked at the end of dispose(). Used by offscreen canvases to free their backing Bitmap,
+    // which nothing else closes (the main Compose-backed context passes null).
+    private val onDispose: (() -> Unit)? = null,
 ) : Context2d by contextState, Disposable {
     private val paintStack = Stack<Pair<Paint, Paint>>()
 
@@ -202,9 +205,14 @@ class SkiaContext2d(
     private fun drawText(text: String, x: Double, y: Double, paint: Paint) {
         val skiaFont = skiaFontManager.findFont(contextState.getFont())
 
-        val textBlob = TextBlobBuilder()
-            .appendRun(skiaFont, text, 0f, 0f)
-            .build()
+        // Native skiko objects must be closed explicitly - GC won't reclaim the wasm heap in time,
+        // and leaking them per frame exhausts skia and crashes the app during interaction.
+        val textBlobBuilder = TextBlobBuilder()
+        val textBlob = try {
+            textBlobBuilder.appendRun(skiaFont, text, 0f, 0f).build()
+        } finally {
+            textBlobBuilder.close()
+        }
 
         if (textBlob == null) {
             // No glyphs to draw (e.g., empty string)
@@ -216,22 +224,50 @@ class SkiaContext2d(
     }
 
     override fun measureText(str: String): TextMetrics {
-        val skiaFont = skiaFontManager.findFont(contextState.getFont())
-        val r = skiaFont.measureText(str, fillPaint)
+        val font = contextState.getFont()
 
-        // font.measureText ignores trailing spaces, so we need to use measureTextWidth
-        val w = skiaFont.measureTextWidth(str)
+        // Cache by (font, string). Text metrics are deterministic and independent of canvas scale
+        // and fill color, so they can be reused across frames. lets-plot re-measures the same axis
+        // labels and tooltip strings on every redraw; caching avoids re-running skiko's text APIs
+        // (which are slow and, on Kotlin/Wasm + skiko 0.144.6, unreliable - the string-interop path
+        // can fault) for strings already seen. The cache is static because SkiaContext2d is
+        // recreated each frame.
+        val fontKey = "${font.fontFamily}\u0000${font.fontSize}\u0000${font.fontWeight}\u0000${font.fontStyle}"
+        val cacheKey = "$fontKey\u0000$str"
+        textMetricsCache[cacheKey]?.let { return it }
+
+        val skiaFont = skiaFontManager.findFont(font)
+
+        // Do NOT call Font.measureText(str, paint) / Font.measureTextWidth(str): both return their
+        // result through skiko's per-string native struct interop (Companion.fromInteropPointer),
+        // which is unreliable on Kotlin/Wasm + skiko 0.144.6 and TRAPS under the high call rate of
+        // tooltip-on-hover (RuntimeError: unreachable, then a cascading "table index is out of
+        // bounds"). Reproduced on the "25k Points" demo. The per-glyph getWidths() path is stable.
+        val w = skiaFont.getWidths(skiaFont.getStringGlyphs(str)).sum()
+
+        // Vertical extent comes from font-level FontMetrics, matching the AWT/ImageMagick backends
+        // (ascent positive; bbox = XYWH(0, -ascent, width, ascent + descent)). FontMetrics also uses
+        // the interop path, but it is string-independent, so it is cached per font and thus invoked
+        // at most once per distinct font - never per hovered string.
+        val fm = fontMetricsCache.getOrPut(fontKey) { skiaFont.metrics }
+        val ascent = -fm.ascent.toDouble()   // skiko ascent is negative (baseline -> top); flip to positive
+        val descent = fm.descent.toDouble()
 
         val textMetrics = TextMetrics(
-            ascent = r.top.toDouble(),
-            descent = r.bottom.toDouble(),
+            ascent = ascent,
+            descent = descent,
             bbox = DoubleRectangle.XYWH(
-                x = r.left,
-                y = r.top,
+                x = 0.0,
+                y = -ascent,
                 width = w,
-                height = r.height
+                height = ascent + descent
             ),
         )
+
+        if (textMetricsCache.size >= TEXT_METRICS_CACHE_LIMIT) {
+            textMetricsCache.clear()
+        }
+        textMetricsCache[cacheKey] = textMetrics
 
         return textMetrics
     }
@@ -255,7 +291,10 @@ class SkiaContext2d(
 
         val phase = contextState.getLineDashOffset().toFloat()
 
-        strokePaint.pathEffect = PathEffect.makeDash(lineDash, phase)
+        // The paint takes its own ref on the effect (sk_sp), so the wrapper can be freed right away.
+        val dash = PathEffect.makeDash(lineDash, phase)
+        strokePaint.pathEffect = dash
+        dash.close()
     }
 
 
@@ -361,8 +400,14 @@ class SkiaContext2d(
                 }
             }
 
-        block(path.detach())
+        val detachedPath = path.detach()
         path.close()
+        try {
+            block(detachedPath)
+        } finally {
+            // drawPath/clipPath copy the path, so it is safe to free once block() returns.
+            detachedPath.close()
+        }
     }
 
     override fun dispose() {
@@ -377,9 +422,20 @@ class SkiaContext2d(
         }
 
         backgroundPaint.close()
+
+        onDispose?.invoke()
     }
 
     companion object {
+        // Shared across the per-frame SkiaContext2d instances. Cleared wholesale when it grows past
+        // the limit (cheap; the working set of distinct strings is small relative to the limit).
+        private const val TEXT_METRICS_CACHE_LIMIT = 10_000
+        private val textMetricsCache = HashMap<String, TextMetrics>()
+
+        // Font-level metrics, keyed by font (string-independent). Bounded by the number of distinct
+        // fonts, so it needs no size cap. Keeps skiko's interop-based Font.metrics off the hot path.
+        private val fontMetricsCache = HashMap<String, FontMetrics>()
+
         private fun skiaRectFromXYWH(x: Double, y: Double, w: Double, h: Double): Rect {
             return Rect(
                 x.toFloat(),
