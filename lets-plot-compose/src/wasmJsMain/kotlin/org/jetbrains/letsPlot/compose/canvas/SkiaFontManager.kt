@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 JetBrains s.r.o.
+ * Copyright (c) 2026. JetBrains s.r.o.
  * Use of this source code is governed by the MIT license that can be found in the LICENSE file.
  */
 
@@ -41,8 +41,15 @@ class SkiaFontManager(
         return typeface
     }
 
-    fun font(typeface: Typeface, fontSize: Float): Font {
-        return fontCache.getOrPut(typeface to fontSize) { Font(typeface, fontSize).apply { isSubpixel = true } }
+    fun font(typeface: Typeface, fontSize: Float, emboldened: Boolean = false, skewX: Float = 0f): Font {
+        return fontCache.getOrPut(FontKey(typeface, fontSize, emboldened, skewX)) {
+            Font(typeface, fontSize).apply {
+                isSubpixel = true
+                isLinearMetrics = true
+                isEmboldened = emboldened
+                this.skewX = skewX
+            }
+        }
     }
 
     fun dispose() {
@@ -70,23 +77,29 @@ class SkiaFontManager(
                 matchFamiliesStyle(listOf(f.fontFamily), fontStyle)
             }
 
-        val font = font(typeface, f.fontSize.toFloat())
-        if (f.fontWeight == org.jetbrains.letsPlot.core.canvas.FontWeight.BOLD && !typeface.isBold) {
-            font.isEmboldened = true // Synthesizes Bold
+        // Synthesize Bold/Italic only when the resolved typeface lacks the real variant (common on
+        // Wasm, where the font set is limited). Bake the synthetic flags into the cache key so each
+        // (typeface, size, weight, style) gets its own immutable Font - never mutate a shared
+        // instance, otherwise measured and drawn widths diverge and text overflows its layout box.
+        val emboldened = f.fontWeight == org.jetbrains.letsPlot.core.canvas.FontWeight.BOLD && !typeface.isBold
+        val skewX = if (f.fontStyle == org.jetbrains.letsPlot.core.canvas.FontStyle.ITALIC && !typeface.isItalic) {
+            -0.20f // Synthesizes Italic (standard skew value)
+        } else {
+            0f
         }
 
-        if (f.fontStyle == org.jetbrains.letsPlot.core.canvas.FontStyle.ITALIC && !typeface.isItalic) {
-            font.skewX = -0.20f // Synthesizes Italic (standard skew value)
-        }
-
-        font.isSubpixel = true
-        font.isLinearMetrics = true
-
-        return font
+        return font(typeface, f.fontSize.toFloat(), emboldened, skewX)
     }
 
     private val typefaceCache = mutableMapOf<Pair<List<String>, FontStyle>, Typeface>()
-    private val fontCache = mutableMapOf<Pair<Typeface, Float>, Font>()
+    private val fontCache = mutableMapOf<FontKey, Font>()
+
+    private data class FontKey(
+        val typeface: Typeface,
+        val fontSize: Float,
+        val emboldened: Boolean,
+        val skewX: Float
+    )
 
     companion object {
         val DEFAULT = SkiaFontManager()
