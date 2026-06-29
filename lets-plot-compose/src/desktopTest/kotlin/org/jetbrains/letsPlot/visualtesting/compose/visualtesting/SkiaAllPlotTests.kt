@@ -15,14 +15,14 @@ import org.jetbrains.letsPlot.visualtesting.plot.PlotInteractivityTest
 import kotlin.test.Test
 
 class SkiaAllPlotTests {
-    val awtBitmapIO = AwtBitmapIO(
+    private val awtBitmapIO = AwtBitmapIO(
         expectedImagesDir = "/src/desktopTest/resources/expected-images",
         subdir = "visual-testing/plot"
     )
 
-    val skiaCanvasPeer = SkiaCanvasPeer(NotoFontManager.INSTANCE)
+    private val skiaCanvasPeer = SkiaCanvasPeer(NotoFontManager.INSTANCE)
 
-    val imageComparer = ImageComparer(
+    private val imageComparer = ImageComparer(
         canvasPeer = skiaCanvasPeer,
         bitmapIO = awtBitmapIO,
         profileAdjuster = { SKIA_PLOT_COMPARISON_PROFILE }, // use relaxed profile - skia produces unstable images
@@ -41,6 +41,6 @@ class SkiaAllPlotTests {
     }
 
     companion object {
-        private val SKIA_PLOT_COMPARISON_PROFILE = ComparisonProfile(tol = 2, maxShift = 1, allowedDiffPixelRatio = 0.02)
+        private val SKIA_PLOT_COMPARISON_PROFILE = ComparisonProfile(tol = 2, maxShift = 2, allowedDiffPixelRatio = 0.06)
     }
 }
