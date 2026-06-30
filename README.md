@@ -22,11 +22,11 @@ For more details see [Compose multiplatform compatibility and versioning overvie
 
 ## Dependencies
 
-- Compose Multiplatform: [1.11.0](https://github.com/JetBrains/compose-multiplatform/releases/tag/v1.11.0)
-- Lets-Plot Kotlin API: [4.14.0](https://github.com/JetBrains/lets-plot-kotlin/releases/tag/v4.14.0)
-- Lets-Plot Multiplatform: [4.10.1](https://github.com/JetBrains/lets-plot/releases/tag/v4.10.0)
+- Compose Multiplatform: [1.11.1](https://github.com/JetBrains/compose-multiplatform/releases/tag/v1.11.1)
+- Lets-Plot Kotlin API: [4.15.0](https://github.com/JetBrains/lets-plot-kotlin/releases/tag/v4.15.0)
+- Lets-Plot Multiplatform: [4.11.0](https://github.com/JetBrains/lets-plot/releases/tag/v4.11.0)
                                
-- kotlinx-datetime: [0.6.2](https://github.com/Kotlin/kotlinx-datetime/releases/tag/v0.6.2)
+- kotlinx-datetime: [0.7.1](https://github.com/Kotlin/kotlinx-datetime/releases/tag/v0.7.1)
 - kotlinx-coroutines: [1.8.0](https://github.com/Kotlin/kotlinx.coroutines/releases/tag/1.8.0)
 
 
@@ -38,13 +38,13 @@ dependencies {
     implementation(compose.components.resources)
 
     // Lets-Plot Kotlin API
-    implementation("org.jetbrains.lets-plot:lets-plot-kotlin:4.14.0")
+    implementation("org.jetbrains.lets-plot:lets-plot-kotlin:4.15.0")
 
     // Optional: contains the PlotImageExport utility which enables exporting to raster formats.
-    implementation("org.jetbrains.lets-plot:platf-awt:4.10.1")
+    implementation("org.jetbrains.lets-plot:platf-awt:4.11.0")
 
     // Lets-Plot Compose UI
-    implementation("org.jetbrains.lets-plot:lets-plot-compose:3.2.0")
+    implementation("org.jetbrains.lets-plot:lets-plot-compose:3.2.2")
 }
 ```
 
@@ -54,13 +54,13 @@ See examples:
 
 > [!TIP]
 > The `org.jetbrains.lets-plot:lets-plot-kotlin` dependency transitively brings in 3rd-party runtime dependencies:
-> - `org.jetbrains.kotlinx:kotlinx-datetime:0.6.2`
+> - `org.jetbrains.kotlinx:kotlinx-datetime:0.7.1`
 > - `org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0`
 >
 > For a dependency-free configuration (JVM/Desktop target only), replace `lets-plot-kotlin` with the following:
 > ```kotlin
-> implementation("org.jetbrains.lets-plot:lets-plot-kotlin-kernel:4.14.0")
-> implementation("org.jetbrains.lets-plot:lets-plot-common:4.10.1")
+> implementation("org.jetbrains.lets-plot:lets-plot-kotlin-kernel:4.15.0")
+> implementation("org.jetbrains.lets-plot:lets-plot-common:4.11.0")
 > ```
 
 
@@ -69,10 +69,10 @@ See examples:
 ```kotlin
 dependencies {
     // Lets-Plot Kotlin API
-    implementation("org.jetbrains.lets-plot:lets-plot-kotlin:4.14.0")
+    implementation("org.jetbrains.lets-plot:lets-plot-kotlin:4.15.0")
 
     // Lets-Plot Compose UI
-    implementation("org.jetbrains.lets-plot:lets-plot-compose:3.2.0")
+    implementation("org.jetbrains.lets-plot:lets-plot-compose:3.2.2")
 }
 ```
 
@@ -86,10 +86,10 @@ See examples:
 ```kotlin
 dependencies {
     // Lets-Plot Kotlin API
-    implementation("org.jetbrains.lets-plot:lets-plot-kotlin:4.14.0")
+    implementation("org.jetbrains.lets-plot:lets-plot-kotlin:4.15.0")
 
     // Lets-Plot Compose UI
-    implementation("org.jetbrains.lets-plot:lets-plot-compose:3.2.0")
+    implementation("org.jetbrains.lets-plot:lets-plot-compose:3.2.2")
 }
 ```
 

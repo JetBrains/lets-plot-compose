@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). All scales should have the 'format' parameter.
 
+## [3.2.2] - 2026-06-30
+
+### Compatibility
+
+All artifacts were built with the following versions of dependencies:
+- Kotlin 2.3.20
+- Compose Multiplatform: [1.11.1](https://github.com/JetBrains/compose-multiplatform/releases/tag/v1.11.1)
+- Lets-Plot Kotlin API: [4.15.0](https://github.com/JetBrains/lets-plot-kotlin/releases/tag/v4.15.0)
+- Lets-Plot Multiplatform: [4.11.0](https://github.com/JetBrains/lets-plot/releases/tag/v4.11.0)
+
+- kotlinx-datetime: [0.7.1](https://github.com/Kotlin/kotlinx-datetime/releases/tag/v0.7.1)
+- kotlinx-coroutines: [1.8.0](https://github.com/Kotlin/kotlinx.coroutines/releases/tag/1.8.0)
+
+### Changed
+    
+Updated dependencies:
+- Lets-Plot 4.11.0
+- Lets-Plot Kotlin API 4.15.0
+- kotlinx datetime 0.7.1
+- kotlin logging 7.0.14
+    
+### Fixed
+
+- Crash in WasmJS app when showing tooltips.
+      
+
 ## [3.2.0] - 2026-05-27
 
 ### Compatibility
